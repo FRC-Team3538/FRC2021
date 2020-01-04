@@ -16,6 +16,9 @@ AutoLineCross::AutoLineCross(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
+AutoLineCross::~AutoLineCross() { }
+
+
 //State Machine
 void AutoLineCross::NextState(){
     m_state++;

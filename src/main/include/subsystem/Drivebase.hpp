@@ -111,8 +111,7 @@ public:
   void SetHighGear();
   void SetLowGear();
 
-  void ActivateSensorOverride();
-  void DeactivateSensorOverride();
+  void SensorOverride(bool active);
 
   void ResetEncoders();
   double GetEncoderPositionLeft();

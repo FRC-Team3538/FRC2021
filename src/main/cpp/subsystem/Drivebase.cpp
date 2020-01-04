@@ -36,7 +36,7 @@ Drivebase::Drivebase()
     // motorRev1.SetInverted(true);
     // motorRev2.SetInverted(true);
 
-    DeactivateSensorOverride();
+    SensorOverride(false);
 
     // master > slaves
     motorLeft2.Follow(motorLeft1);
@@ -44,9 +44,6 @@ Drivebase::Drivebase()
 
     motorRight2.Follow(motorRight1);
     motorRight3.Follow(motorRight1);
-
-    // motorRev2.Follow(motorRev1);
-    // motorRev2R.Follow(motorRev1R);
 
     // Encoder Feedback
     motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDind::primary);
@@ -151,8 +148,8 @@ void Drivebase::Mecanum(double fwd, double rot, double left)
     // good luck! :)
 
     // PWM
-    motorLeft1PWM.Set(-fwd - -rot - -left);
-    motorLeft2PWM.Set(-fwd - -rot + -left);
+    motorLeft1PWM.Set(-fwd + rot + left);
+    motorLeft2PWM.Set(-fwd + rot - left);
     motorRight1PWM.Set(fwd + rot + left);
     motorRight2PWM.Set(fwd + rot - left);
 }
@@ -160,6 +157,7 @@ void Drivebase::Mecanum(double fwd, double rot, double left)
 // Stop!
 void Drivebase::Stop()
 {
+    // CAN
     motorLeft1.StopMotor();
     motorRight1.StopMotor();
     
@@ -194,12 +192,12 @@ double Drivebase::GetEncoderPositionLeft()
 
 double Drivebase::GetEncoderPositionRight()
 {
-    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor; //motorRight1.GetSelectedSensorPosition(0) * kScaleFactor;
+    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor; 
 }
 
 double Drivebase::GetEncoderPosition()
 {
-    return (GetEncoderPositionLeft() + GetEncoderPositionRight()) / 2;
+    return (GetEncoderPositionLeft() + GetEncoderPositionRight()) / 2.0;
 }
 
 // Gyro
@@ -219,7 +217,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
 {
     motorLeft1.ConfigNominalOutputForward(0);
     motorLeft1.ConfigNominalOutputReverse(0);
-    motorLeft1.ConfigPeakOutputForward(currentLimit);
+    motorLeft1.ConfigPeakOutputForward(currentLimit);  // TODO: Looks wrong, verify....
     motorLeft1.ConfigPeakOutputReverse(-currentLimit);
 
     motorRight1.ConfigNominalOutputForward(0);
@@ -243,7 +241,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
 
     double driveCommandForward = error * KP_FORWARD + sumError_forward * KI_FORWARD + KD_FORWARD * deltaError;
 
-    double gyroAngle = GetGyroHeading(); // -180 ~ 180  // Heading  -180 ~ 180
+    double gyroAngle = GetGyroHeading(); // -180 ~ 180 
 
     double errorRot = forwardHeading - gyroAngle;
 
@@ -305,26 +303,30 @@ void Drivebase::GlobalReset()
     prevError_rot = 0;
 }
 
-void Drivebase::ActivateSensorOverride()
+void Drivebase::SensorOverride(bool active)
 {
-    sensorOverride = true;
-    motorLeft1.ConfigPeakCurrentLimit(200);
-    motorRight1.ConfigPeakCurrentLimit(200);
+    if(sensorOverride != active)
+    {
+        sensorOverride = active;
 
-    motorRight1.ConfigOpenloopRamp(0.0);
-    motorLeft1.ConfigOpenloopRamp(0.0);
+        if(sensorOverride)
+        {
+            motorLeft1.ConfigPeakCurrentLimit(200);
+            motorRight1.ConfigPeakCurrentLimit(200);
+
+            motorRight1.ConfigOpenloopRamp(0.0);
+            motorLeft1.ConfigOpenloopRamp(0.0);
+        } else {     
+            motorLeft1.ConfigPeakCurrentLimit(60);
+            motorRight1.ConfigPeakCurrentLimit(60);
+
+            motorRight1.ConfigOpenloopRamp(0.2);
+            motorLeft1.ConfigOpenloopRamp(0.2);
+        }
+    }
+
+    // TODO: Check if there are more settings that should be changed.
 }
-
-void Drivebase::DeactivateSensorOverride()
-{
-    sensorOverride = false;
-    motorLeft1.ConfigPeakCurrentLimit(60);
-    motorRight1.ConfigPeakCurrentLimit(60);
-
-    motorRight1.ConfigOpenloopRamp(0.2);
-    motorLeft1.ConfigOpenloopRamp(0.2);
-}
-
 
 // SmartDash updater
 void Drivebase::UpdateSmartdash()
@@ -337,7 +339,7 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("DriveEncL", GetEncoderPositionLeft());
     SmartDashboard::PutNumber("DriveEncR", GetEncoderPositionRight());
 
-    SmartDashboard::PutBoolean("Drive Limits", sensorOverride);
+    SmartDashboard::PutBoolean("DriveOverride", sensorOverride);
 
     SmartDashboard::PutNumber("Gyro Heading", GetGyroHeading());
 

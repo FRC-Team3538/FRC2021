@@ -19,7 +19,7 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic()
 {
   // Reset Encoders
-  bool btnPSDr = IO.ds.DriverPS.GetPSButton();
+  bool btnPSDr = IO.ds.Driver.GetPSButton();
   if (btnPSDr)
   {
     IO.drivebase.ResetEncoders();
@@ -53,187 +53,77 @@ void Robot::DisabledInit()
 void Robot::TeleopPeriodic()
 {
 
-  // PS4 & XBox controller remapping
-  double forward;
-  double rotate;
-  double strafe;
-  double forwardR;
-  double leftTrigDr;
-  double rightTrigDr;
-  bool leftBumpDr;
-  bool rightBumpDr;
-  bool btnACrossDr;
-  bool btnYTriangleDr;
-  bool btnBCircleDr;
-  bool btnXSquareDr;
-  bool btnUpDr;
-  bool btnRightDr;
-  bool btnLeftDr;
-  bool btnDownDr;
-  bool btnBackDr;
-  bool btnStartDr;
-  bool btnPSDr;
-
-  // PS4 Controller (Operator)
-  double leftTrigOp;
-  double rightTrigOp; 
-  double leftOpY;
-  double rightOpY;
-  bool leftBumpOp;
-  bool rightBumpOp;
-  bool btnACrossOp;
-  bool btnBCircleOp;
-  bool btnYTriangleOp;
-  bool btnXSquareOp;
-  bool btnUpOp;
-  bool btnRightOp;
-  bool btnLeftOp;
-  bool btnDownOp;
-  bool btnBackOp;
-  bool btnStartOp;
-  bool btnPSOp;
-
-  // PS4 Controller (Driver)
-  if (IO.ds.chooseController.GetSelected() == IO.ds.sPS4)
+  // Drive Mode
+  if (IO.ds.Driver.GetOptionsButtonPressed())
   {
-  forward = IO.ds.DriverPS.GetY(GenericHID::kLeftHand) * -1;
-  rotate = IO.ds.DriverPS.GetX(GenericHID::kRightHand) * -1;
-  strafe = IO.ds.DriverPS.GetX(GenericHID::kLeftHand);
-  forwardR = IO.ds.DriverPS.GetY(GenericHID::kRightHand) * -1;
-  leftTrigDr = IO.ds.DriverPS.GetTriggerAxis(GenericHID::kLeftHand);
-  rightTrigDr = IO.ds.DriverPS.GetTriggerAxis(GenericHID::kRightHand);
-  leftBumpDr = IO.ds.DriverPS.GetBumper(GenericHID::kLeftHand);
-  rightBumpDr = IO.ds.DriverPS.GetBumper(GenericHID::kRightHand);
-  btnACrossDr = IO.ds.DriverPS.GetCrossButton();
-  btnYTriangleDr = IO.ds.DriverPS.GetTriangleButtonPressed();
-  btnBCircleDr = IO.ds.DriverPS.GetCircleButton();
-  btnXSquareDr = IO.ds.DriverPS.GetSquareButton();
-  btnUpDr = IO.ds.DriverPS.GetUpButton();
-  btnRightDr = IO.ds.DriverPS.GetRightButton();
-  btnLeftDr = IO.ds.DriverPS.GetLeftButton();
-  btnDownDr = IO.ds.DriverPS.GetDownButton();
-  btnBackDr = IO.ds.DriverPS.GetScreenShotButton();
-  btnStartDr = IO.ds.DriverPS.GetOptionsButtonPressed();
-  btnPSDr = IO.ds.DriverPS.GetPSButtonPressed();
-
-  // PS4 Controller (Operator)
-  leftTrigOp = IO.ds.OperatorPS.GetTriggerAxis(GenericHID::kLeftHand);
-  rightTrigOp = IO.ds.OperatorPS.GetTriggerAxis(GenericHID::kRightHand); 
-  leftOpY = IO.ds.OperatorPS.GetY(GenericHID::kLeftHand);
-  rightOpY = IO.ds.OperatorPS.GetY(GenericHID::kRightHand);
-  leftBumpOp = IO.ds.OperatorPS.GetBumper(GenericHID::kLeftHand);
-  rightBumpOp = IO.ds.OperatorPS.GetBumper(GenericHID::kRightHand);
-  btnACrossOp = IO.ds.OperatorPS.GetCrossButton();
-  btnBCircleOp = IO.ds.OperatorPS.GetCircleButton();
-  btnYTriangleOp = IO.ds.OperatorPS.GetTriangleButtonPressed();
-  btnXSquareOp = IO.ds.OperatorPS.GetSquareButton();
-  btnUpOp = IO.ds.OperatorPS.GetUpButton();
-  btnRightOp = IO.ds.OperatorPS.GetRightButton();
-  btnLeftOp = IO.ds.OperatorPS.GetLeftButton();
-  btnDownOp = IO.ds.OperatorPS.GetDownButton();
-  btnBackOp = IO.ds.OperatorPS.GetScreenShotButton();
-  btnStartOp = IO.ds.OperatorPS.GetOptionsButton();
-  btnPSOp = IO.ds.OperatorPS.GetPSButtonPressed();
-
-  } else  {
-    // Xbox Controller (Driver)
-    forward = IO.ds.DriverXB.GetY(GenericHID::kLeftHand) * -1;
-    rotate = IO.ds.DriverXB.GetX(GenericHID::kRightHand) * -1;
-    strafe = IO.ds.DriverXB.GetX(GenericHID::kLeftHand);
-    forwardR = IO.ds.DriverXB.GetY(GenericHID::kRightHand) * -1;
-    leftTrigDr = IO.ds.DriverXB.GetTriggerAxis(GenericHID::kLeftHand);
-    rightTrigDr = IO.ds.DriverXB.GetTriggerAxis(GenericHID::kRightHand); //Negative
-    leftBumpDr = IO.ds.DriverXB.GetBumper(GenericHID::kLeftHand);
-    rightBumpDr = IO.ds.DriverXB.GetBumper(GenericHID::kRightHand);
-    btnACrossDr = IO.ds.DriverXB.GetAButton();
-    btnBCircleDr = IO.ds.DriverXB.GetBButton();
-    btnXSquareDr = IO.ds.DriverXB.GetXButton();
-    btnYTriangleDr = IO.ds.DriverXB.GetYButtonPressed();
-    btnUpDr = IO.ds.DriverXB.GetPOV() == 315 || IO.ds.DriverXB.GetPOV() == 0 || IO.ds.DriverXB.GetPOV() == 45;
-    btnRightDr = IO.ds.DriverXB.GetPOV() == 45 || IO.ds.DriverXB.GetPOV() == 90 || IO.ds.DriverXB.GetPOV() == 135;
-    btnLeftDr = IO.ds.DriverXB.GetPOV() == 225 || IO.ds.DriverXB.GetPOV() == 270 || IO.ds.DriverXB.GetPOV() == 315;
-    btnDownDr = IO.ds.DriverXB.GetPOV() == 135 || IO.ds.DriverXB.GetPOV() == 180 || IO.ds.DriverXB.GetPOV() == 225;
-    btnBackDr = IO.ds.DriverXB.GetBackButton();
-    btnStartDr = IO.ds.DriverXB.GetStartButtonPressed();
-
-    leftTrigOp = IO.ds.OperatorXB.GetTriggerAxis(GenericHID::kLeftHand);
-    rightTrigOp = IO.ds.OperatorXB.GetTriggerAxis(GenericHID::kRightHand); //Negative
-    leftOpY = IO.ds.OperatorXB.GetY(GenericHID::kLeftHand);
-    rightOpY = IO.ds.OperatorXB.GetY(GenericHID::kRightHand);
-    leftBumpOp = IO.ds.OperatorXB.GetBumper(GenericHID::kLeftHand);
-    rightBumpOp = IO.ds.OperatorXB.GetBumper(GenericHID::kRightHand);
-    btnYTriangleOp = IO.ds.OperatorXB.GetYButtonPressed();
-    btnACrossOp = IO.ds.OperatorXB.GetAButton();
-    btnBCircleOp = IO.ds.OperatorXB.GetBButton();
-    btnXSquareOp = IO.ds.OperatorXB.GetXButton();
-    btnUpOp = IO.ds.OperatorXB.GetPOV() == 315 || IO.ds.OperatorXB.GetPOV() == 0 || IO.ds.OperatorXB.GetPOV() == 45;
-    btnRightOp = IO.ds.OperatorXB.GetPOV() == 45 || IO.ds.OperatorXB.GetPOV() == 90 || IO.ds.OperatorXB.GetPOV() == 135;
-    btnLeftOp = IO.ds.OperatorXB.GetPOV() == 225 || IO.ds.OperatorXB.GetPOV() == 270 || IO.ds.OperatorXB.GetPOV() == 315;
-    btnDownOp = IO.ds.OperatorXB.GetPOV() == 135 || IO.ds.OperatorXB.GetPOV() == 180 || IO.ds.OperatorXB.GetPOV() == 225;
-    btnBackOp = IO.ds.OperatorXB.GetBackButton();
-    btnStartOp = IO.ds.OperatorXB.GetStartButton();
+    if (driveMode == SplitArcade)
+    {
+      driveMode = Tank;
+    }
+    else if (driveMode == Tank)
+    {
+      driveMode = Mecanum;
+    }
+    else if (driveMode == Mecanum)
+    {
+      driveMode = SplitArcade;
+    }
   }
 
   // Drive
-  forward = Deadband(forward, deadband);
-  rotate = Deadband(rotate, deadband);
-  forwardR = Deadband(forwardR, deadband);
-  strafe = Deadband(strafe, deadband);
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, deadband);
+  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1, deadband);
+  double forwardR = Deadband(IO.ds.Driver.GetY(GenericHID::kRightHand) * -1, deadband);
+  double strafe = Deadband(IO.ds.Driver.GetX(GenericHID::kLeftHand), deadband);
 
-  
-  
-
-  if(driveMode == SplitArcade)
+  if (driveMode == SplitArcade)
   {
     IO.drivebase.Arcade(forward, rotate);
-
-    if(btnStartDr) driveMode = Tank;
   }
-  else if(driveMode == Tank)
+  else if (driveMode == Tank)
   {
     IO.drivebase.Tank(forward, forwardR);
-    
-    if(btnStartDr) driveMode = Mecanum;
   }
-  else if(driveMode == Mecanum)
+  else if (driveMode == Mecanum)
   {
     IO.drivebase.Mecanum(forward, rotate, strafe);
-    
-    if(btnStartDr) driveMode = SplitArcade;
   }
-  
-  if(leftBumpDr) 
+
+  // Shifting
+  if (IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
   {
     IO.drivebase.SetLowGear();
   }
 
-  if(rightBumpDr) 
+  if (IO.ds.Driver.GetBumper(GenericHID::kRightHand))
   {
     IO.drivebase.SetHighGear();
   }
 
   // Manip
-  IO.manip.SetA(leftTrigDr - rightTrigDr + leftTrigOp - rightTrigOp  );
+  double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
+  double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
+  double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
+  double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
+  IO.manip.SetA(leftTrigDr - rightTrigDr + leftTrigOp - rightTrigOp);
 
-  IO.manip.SetSol1(btnXSquareDr | btnXSquareOp);
+  IO.manip.SetSol1(IO.ds.Driver.GetSquareButton() | IO.ds.Operator.GetSquareButton());
 
-  if(btnYTriangleDr | btnYTriangleOp)
+  if (IO.ds.Driver.GetTriangleButton() | IO.ds.Operator.GetTriangleButton())
   {
     IO.manip.ToggleSol2();
   }
 
-  if(btnACrossDr | btnACrossOp)
+  if (IO.ds.Driver.GetCrossButton() | IO.ds.Operator.GetCrossButton())
   {
     IO.manip.SetB(1.0);
   }
 
-  if(btnBCircleDr | btnBCircleOp)
+  if ( IO.ds.Driver.GetCircleButton() |  IO.ds.Operator.GetCircleButton())
   {
     IO.manip.SetB(0.0);
   }
-
 }
-void Robot::TestPeriodic() {}
 
 double Robot::Deadband(double input, double deadband)
 {
@@ -257,36 +147,21 @@ double Robot::Deadband(double input, double deadband)
 
 void Robot::UpdateSD()
 {
-  //  Don't update smart dash every loop,
+  // Don't update smart dash every loop,
   // it causes watchdog warnings
-  if (smartDashSkip > 30)
-  {
-    smartDashSkip = 0;
-  }
-
-  //
-  // Sensor Override
-  //
+  smartDashSkip %= 30;
   switch (smartDashSkip)
   {
   case 0:
   {
-    if (IO.ds.chooseDriveLimit.GetSelected() == IO.ds.sUnlimitted)
-    {
-      IO.drivebase.ActivateSensorOverride();
-    }
-    else
-    {
-      IO.drivebase.DeactivateSensorOverride();
-    }
-
+    IO.drivebase.SensorOverride( IO.ds.chooseDriveLimit.GetSelected() == IO.ds.sUnlimitted );
     break;
   }
 
   case 2:
   {
     IO.drivebase.UpdateSmartdash();
-    
+
     SmartDashboard::PutNumber("DriveMode", driveMode);
     break;
   }
@@ -297,12 +172,6 @@ void Robot::UpdateSD()
     break;
   }
 
-
-
-  default:
-  {
-    break;
-  }
   }
 
   // Critical

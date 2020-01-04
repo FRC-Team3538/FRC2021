@@ -26,6 +26,7 @@ class AutoLineCross : public AutoInterface {
     // Constructor requires a reference to the RobotMap
     AutoLineCross() = delete;
     AutoLineCross(robotmap& );
+    ~AutoLineCross();
 
     // Auto Program Logic
     void Run();

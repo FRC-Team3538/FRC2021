@@ -8,14 +8,10 @@
 
 Logging::Logging(string path, string filename)
 {
-    // Default Values
-    if(path == "") path = "/u/logs/";
-    if(filename == "") filename = "log-#.csv";
-
     // Get a log serial number from robot Preferences
     auto pref = frc::Preferences::GetInstance();
     auto logNumber = pref->GetInt("LogNumber", 1);
-    pref->PutInt("LogNumber", (logNumber + 1) % 200 ); // Limit to 200 log files
+    pref->PutInt("LogNumber", (logNumber + 1) % 10000 ); // Limit # of log files
 
     // pad with zeros
     auto logNumberStr = to_string(logNumber);
@@ -26,7 +22,7 @@ Logging::Logging(string path, string filename)
 
     // Replace # in the log file name with the log number
     auto i = filename.find("#");
-    if (i >= 0)
+    if (i <= filename.length())
     {
         filename = filename.replace(i, 1, logNumberStr, 0, logNumberStr.length());
     }

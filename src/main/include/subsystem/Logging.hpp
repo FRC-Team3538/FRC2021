@@ -18,7 +18,7 @@ class Logging
     bool m_started = false;
 
   public:
-    Logging(string path = "", string filename = "");
+    Logging(string path = "/u/logs/", string filename = "log-#.csv");
     
     void AddKey(string key);
     void Start();
