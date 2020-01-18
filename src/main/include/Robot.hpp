@@ -34,15 +34,8 @@ private:
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
-  enum DriveMode
-  {
-    SplitArcade = 0,
-    Tank,
-    Mecanum,
-    numDriveModes
-  } driveMode;
-
   const double deadband = 0.1;
+  double indexerSpeed = 0.5;
 
   // Dont update smart dash every loop
   int smartDashSkip = 0;

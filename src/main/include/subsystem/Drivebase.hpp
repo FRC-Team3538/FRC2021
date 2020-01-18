@@ -1,5 +1,6 @@
 #pragma once
 
+#include <frc/smartdashboard/SendableChooser.h>
 #include <frc/Solenoid.h>
 #include <ctre/Phoenix.h>
 #include <frc/SpeedControllerGroup.h>
@@ -95,6 +96,10 @@ private:
 #define KP_FORWARD (0.02)
 #define KI_FORWARD (0.00)
 #define KD_FORWARD (0.003)
+
+  SendableChooser<std::string> chooseDriveLimit;
+	const std::string sLimit = "Limited";
+	const std::string sUnlimitted = "Unlimited";
 
 public:
   // Default Constructor

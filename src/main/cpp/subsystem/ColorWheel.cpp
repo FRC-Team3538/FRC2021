@@ -16,7 +16,14 @@ void ColorWheel::Stop()
 
 void ColorWheel::SetColorWheel(double speed)
 {
-   motorColorWheel.Set(speed);
+   if(solenoidColorWheel.Get())
+   {
+      motorColorWheel.Set(speed);
+   }
+   else
+   {
+      motorColorWheel.Set(0.0);
+   }
 }
 
 void ColorWheel::ColorWheelDeploy()

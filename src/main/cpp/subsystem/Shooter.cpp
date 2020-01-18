@@ -9,6 +9,9 @@ Shooter::Shooter()
   motorShooter0.ConfigVoltageCompSaturation(10.0);
   motorShooter1.ConfigVoltageCompSaturation(10.0);
   shootDelay.Start();
+
+  chooseShooterMode.SetDefaultOption(sManualMode, sManualMode);
+  chooseShooterMode.AddOption(sAutoMode, sAutoMode);
 }
 
 // Stop all motors
@@ -19,6 +22,7 @@ void Shooter::Stop()
     motorIntake.StopMotor();
     motorIndexer.StopMotor();
     motorFeeder.StopMotor();
+    motorHood.StopMotor();
 }
 
 void Shooter::SetShooterDistance(double distance)
@@ -56,8 +60,19 @@ void Shooter::SetIndexer(double speed)
    motorIndexer.Set(speed);
 }
 
+void Shooter::SetHood(double speed)
+{
+   if(manualMode)
+   {
+      motorHood.Set(speed);
+   }
+}
+
 void Shooter::UpdateSmartdash()
 {
+    SmartDashboard::PutData("_ShooterMode", &chooseShooterMode);
+    manualMode = (chooseShooterMode.GetSelected() == sManualMode);
+
     SmartDashboard::PutNumber("Shooter", motorShooter0.Get());
     SmartDashboard::PutNumber("Intake", motorIntake.Get());
     SmartDashboard::PutNumber("Indexer", motorIndexer.Get());

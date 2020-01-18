@@ -22,10 +22,6 @@ class DS
 		const std::string sPS4 = "PS4";
 		const std::string sXBX = "Xbox";
 
-    SendableChooser<std::string> chooseDriveLimit;
-		const std::string sLimit = "Limited";
-		const std::string sUnlimitted = "Unlimited";
-
     DS();
     void SmartDash();
 

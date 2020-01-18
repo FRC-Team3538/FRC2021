@@ -107,6 +107,10 @@ Drivebase::Drivebase()
     motorLeft1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::primary);
     motorRight1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::aux);
     motorRight1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::primary);
+
+    chooseDriveLimit.SetDefaultOption(sUnlimitted, sUnlimitted);
+	chooseDriveLimit.AddOption(sLimit, sLimit);
+
 }
 
 // Arcade Drive
@@ -345,4 +349,6 @@ void Drivebase::UpdateSmartdash()
 
     SmartDashboard::PutNumber("Heading Setpoint", forwardHeading);
 
+    SmartDashboard::PutData("_DriveLimits", &chooseDriveLimit);
+    SensorOverride(chooseDriveLimit.GetSelected() == sUnlimitted);
 }

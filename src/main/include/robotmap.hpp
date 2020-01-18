@@ -2,12 +2,16 @@
 
 #include <subsystem/DS.hpp>
 #include <subsystem/Drivebase.hpp>
-#include <subsystem/Manip.hpp>
+#include <subsystem/Shooter.hpp>
+#include <subsystem/Climber.hpp>
+#include <subsystem/ColorWheel.hpp>
 
 class robotmap
 {
   public:
     DS ds;
     Drivebase drivebase;
-    Manip manip;
+    Shooter shooter;
+    Climber climber;
+    ColorWheel colorWheel;
 };

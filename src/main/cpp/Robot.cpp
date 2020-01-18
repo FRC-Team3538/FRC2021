@@ -53,41 +53,11 @@ void Robot::DisabledInit()
 void Robot::TeleopPeriodic()
 {
 
-  // Drive Mode
-  if (IO.ds.Driver.GetOptionsButtonPressed())
-  {
-    if (driveMode == SplitArcade)
-    {
-      driveMode = Tank;
-    }
-    else if (driveMode == Tank)
-    {
-      driveMode = Mecanum;
-    }
-    else if (driveMode == Mecanum)
-    {
-      driveMode = SplitArcade;
-    }
-  }
-
   // Drive
   double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, deadband);
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1, deadband);
-  double forwardR = Deadband(IO.ds.Driver.GetY(GenericHID::kRightHand) * -1, deadband);
-  double strafe = Deadband(IO.ds.Driver.GetX(GenericHID::kLeftHand), deadband);
 
-  if (driveMode == SplitArcade)
-  {
-    IO.drivebase.Arcade(forward, rotate);
-  }
-  else if (driveMode == Tank)
-  {
-    IO.drivebase.Tank(forward, forwardR);
-  }
-  else if (driveMode == Mecanum)
-  {
-    IO.drivebase.Mecanum(forward, rotate, strafe);
-  }
+  IO.drivebase.Arcade(forward, rotate);
 
   // Shifting
   if (IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
@@ -100,35 +70,65 @@ void Robot::TeleopPeriodic()
     IO.drivebase.SetHighGear();
   }
 
-  // Manip
-  double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
-  double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
+  //Shooter
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
-  //IO.manip.SetA(leftTrigDr - rightTrigDr + leftTrigOp - rightTrigOp);
+  double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
+  double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
+  double intakeSpeed = leftTrigOp - rightTrigOp + leftTrigDr - rightTrigDr;
+  intakeSpeed = Deadband(intakeSpeed, deadband);
+  double indexer = 0.0;
+  IO.shooter.SetIntake(intakeSpeed);
 
-  IO.manip.SetSol1(IO.ds.Driver.GetSquareButton() | IO.ds.Operator.GetSquareButton());
-
-  if (IO.ds.Driver.GetTriangleButton() | IO.ds.Operator.GetTriangleButton())
+  if(abs(intakeSpeed) > 0.05)
   {
-    IO.manip.ToggleSol2();
+    indexer = indexerSpeed;
   }
 
-  if (IO.ds.Driver.GetCrossButton() | IO.ds.Operator.GetCrossButton())
+  if(IO.ds.Operator.GetTriangleButton() | IO.ds.Driver.GetTriangleButton())
   {
-    IO.manip.SetA(1.0);
-    IO.manip.SetB(1.0);
-    IO.manip.SetC(1.0);
-    IO.manip.SetD(1.0);
+    IO.shooter.SetShooterDistance(105);
+    indexer = indexerSpeed;
   }
+  else if(IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton())
+  {
+    IO.shooter.SetShooterDistance(305);
+    indexer = indexerSpeed;
+  }
+  else
+  {
+    IO.shooter.SetShooterDistance(0.0);
+  }
+  
+  IO.shooter.SetIndexer(indexer);
 
-  if ( IO.ds.Driver.GetCircleButton() |  IO.ds.Operator.GetCircleButton())
+  //Hood
+  double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
+  IO.shooter.SetHood(hoodAnalog);
+
+  //Climber
+  if(IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
   {
-    IO.manip.SetA(0.0);
-    IO.manip.SetB(0.0);
-    IO.manip.SetC(0.0);
-    IO.manip.SetD(0.0);
+    IO.climber.ClimberDeploy();
   }
+  if(IO.ds.Operator.GetBumperPressed(GenericHID::kLeftHand))
+  {
+    IO.climber.ClimberRetract();
+  }
+  double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
+  IO.climber.SetClimber(climbAnalog);
+  
+  //ColorWheel
+   if(IO.ds.Operator.GetUpButton())
+  {
+    IO.colorWheel.ColorWheelDeploy();
+  }
+  if(IO.ds.Operator.GetDownButton())
+  {
+    IO.colorWheel.ColorWheelRetract();
+  }
+  double colorAnalog = Deadband(IO.ds.Operator.GetX(GenericHID::kRightHand) * -1, deadband);
+  IO.colorWheel.SetColorWheel(colorAnalog);
 }
 
 double Robot::Deadband(double input, double deadband)
@@ -160,21 +160,25 @@ void Robot::UpdateSD()
   {
   case 0:
   {
-    IO.drivebase.SensorOverride( IO.ds.chooseDriveLimit.GetSelected() == IO.ds.sUnlimitted );
+    IO.drivebase.UpdateSmartdash();
+    break;
+  }
+
+  case 1:
+  {
+    IO.shooter.UpdateSmartdash();
     break;
   }
 
   case 2:
   {
-    IO.drivebase.UpdateSmartdash();
-
-    SmartDashboard::PutNumber("DriveMode", driveMode);
+    IO.climber.UpdateSmartdash();
     break;
   }
 
   case 3:
   {
-    IO.manip.UpdateSmartdash();
+    IO.colorWheel.UpdateSmartdash();
     break;
   }
 
