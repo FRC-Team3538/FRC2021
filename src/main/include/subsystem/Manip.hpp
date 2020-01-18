@@ -19,13 +19,12 @@ class Manip
     PWMTalonSRX motorB2PWM{9};
 
     // CTRE CAN
-    WPI_TalonSRX motorA1 {6};
-    WPI_TalonSRX motorA2 {7};
-    WPI_TalonSRX motorB1 {8};
-    WPI_TalonSRX motorB2 {9};
-    
-    SpeedControllerGroup motorGroupA{motorA1, motorA2, motorA1PWM, motorA2PWM};
-    SpeedControllerGroup motorGroupB{motorB1, motorB2, motorB1PWM, motorB2PWM};
+    WPI_VictorSPX motorA {6};
+    WPI_VictorSPX motorB {7};
+    WPI_VictorSPX motorC {21};
+    WPI_VictorSPX motorD {22};
+    //WPI_TalonSRX motorB1 {8};
+    //WPI_TalonSRX motorB2 {9};
 
     // Solenoids
     Solenoid sol1{1};
@@ -38,6 +37,8 @@ class Manip
     void Stop();
     void SetA(double speed);
     void SetB(double speed);
+    void SetC(double speed);
+    void SetD(double speed);
 
     void SetSol0(bool state);
     void SetSol1(bool state);

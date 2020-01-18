@@ -105,7 +105,7 @@ void Robot::TeleopPeriodic()
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
-  IO.manip.SetA(leftTrigDr - rightTrigDr + leftTrigOp - rightTrigOp);
+  //IO.manip.SetA(leftTrigDr - rightTrigDr + leftTrigOp - rightTrigOp);
 
   IO.manip.SetSol1(IO.ds.Driver.GetSquareButton() | IO.ds.Operator.GetSquareButton());
 
@@ -116,12 +116,18 @@ void Robot::TeleopPeriodic()
 
   if (IO.ds.Driver.GetCrossButton() | IO.ds.Operator.GetCrossButton())
   {
+    IO.manip.SetA(1.0);
     IO.manip.SetB(1.0);
+    IO.manip.SetC(1.0);
+    IO.manip.SetD(1.0);
   }
 
   if ( IO.ds.Driver.GetCircleButton() |  IO.ds.Operator.GetCircleButton())
   {
+    IO.manip.SetA(0.0);
     IO.manip.SetB(0.0);
+    IO.manip.SetC(0.0);
+    IO.manip.SetD(0.0);
   }
 }
 
