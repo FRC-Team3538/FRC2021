@@ -129,6 +129,11 @@ void Robot::TeleopPeriodic()
   }
   double colorAnalog = Deadband(IO.ds.Operator.GetX(GenericHID::kRightHand) * -1, deadband);
   IO.colorWheel.SetColorWheel(colorAnalog);
+
+  if(IO.ds.Operator.GetStickButton(GenericHID::kRightHand))
+  {
+    IO.colorWheel.AutoColorWheel();
+  }
 }
 
 double Robot::Deadband(double input, double deadband)

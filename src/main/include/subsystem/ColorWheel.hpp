@@ -4,8 +4,10 @@
 #include <frc/PWMTalonSRX.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/Solenoid.h>
+#include <frc/DriverStation.h>
 #include "rev/ColorSensorV3.h"
 #include "rev/ColorMatch.h"
+
 
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
@@ -14,7 +16,7 @@ class ColorWheel
 {
   private:
 
-    WPI_TalonSRX motorColorWheel {14};
+    WPI_VictorSPX motorColorWheel {14};
 
     // Solenoids
     Solenoid solenoidColorWheel{4};
@@ -30,15 +32,33 @@ class ColorWheel
     static constexpr frc::Color kRedTarget = frc::Color(0.561, 0.232, 0.114);
     static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
 
+    enum colors
+    {
+      blue,
+      green,
+      red,
+      yellow,
+      unknown,
+      nothing,
+    };
+
+    colors targetColor;
+    colors detectedColor;
+    double confidence = 0.0;
+    bool blueDetected = false;
+    int spinCounter = 0;
+
   public:
     // Default Constructor
     ColorWheel();
 
     void Stop();
     void SetColorWheel(double speed);
+    void AutoColorWheel();
 
     void ColorWheelDeploy();
     void ColorWheelRetract();
 
+    void ReadColorWheel();
     void UpdateSmartdash();
 };
