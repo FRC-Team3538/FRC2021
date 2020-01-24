@@ -1,10 +1,12 @@
 #include "subsystem/ColorWheel.hpp"
+#include <frc/util/color.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
 // Configure Hardware Settings
 ColorWheel::ColorWheel()
 {
+   motorColorWheel.ConfigFactoryDefault();
    m_colorMatcher.AddColorMatch(kBlueTarget);
    m_colorMatcher.AddColorMatch(kGreenTarget);
    m_colorMatcher.AddColorMatch(kRedTarget);
@@ -37,31 +39,31 @@ void ColorWheel::AutoColorWheel()
    switch (targetColor)
    {
    case blue:
-      if (detectedColor == blue)
+      if (detectedColor == colors::blue)
          wheelSpeed = 0.0;
       break;
    case green:
-      if (detectedColor == green)
+      if (detectedColor == colors::green)
          wheelSpeed = 0.0;
       break;
    case red:
-      if (detectedColor == red)
+      if (detectedColor == colors::red)
          wheelSpeed = 0.0;
       break;
    case yellow:
-      if (detectedColor == yellow)
+      if (detectedColor == colors::yellow)
          wheelSpeed = 0.0;
       break;
    case unknown:
-      if (detectedColor == unknown)
+      if (detectedColor == colors::unknown)
          wheelSpeed = 0.0;
       break;
    case nothing:
-      if (detectedColor == blue)
+      if (detectedColor == colors::blue)
       {
          blueDetected = true;
       }
-      else if (detectedColor == green && blueDetected)
+      else if (detectedColor == colors::green && blueDetected)
       {
          spinCounter++;
          blueDetected = false;
@@ -88,9 +90,9 @@ void ColorWheel::ColorWheelRetract()
 
 void ColorWheel::ReadColorWheel()
 {
-   Color detectedColor = m_colorSensor.GetColor();
+   frc::Color col = m_colorSensor.GetColor();
    confidence = 0.0;
-   Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
+   Color matchedColor = m_colorMatcher.MatchClosestColor(col, confidence);
 
    if (matchedColor == kBlueTarget)
    {
@@ -200,6 +202,6 @@ void ColorWheel::UpdateSmartdash()
       SmartDashboard::PutString("Target Color", "nothing");
       break;
    }
-   
+
    SmartDashboard::PutNumber("Spin Counter", spinCounter);
 }

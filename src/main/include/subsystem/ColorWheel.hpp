@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ctre/Phoenix.h>
-#include <frc/PWMTalonSRX.h>
+#include <frc/PWMVictorSPX.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/Solenoid.h>
 #include <frc/DriverStation.h>
