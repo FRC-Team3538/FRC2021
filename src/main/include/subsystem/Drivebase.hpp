@@ -30,26 +30,26 @@ private:
   };
 
   // PWM 
-  PWMTalonSRX motorLeft1PWM{motors::L1};
-  PWMTalonSRX motorLeft2PWM{motors::L2};
-  PWMTalonSRX motorLeft3PWM{motors::L3};
+  //PWMTalonSRX motorLeft1PWM{motors::L1};
+  //PWMTalonSRX motorLeft2PWM{motors::L2};
+  //PWMTalonSRX motorLeft3PWM{motors::L3};
   
-  PWMTalonSRX motorRight1PWM{motors::R1};
-  PWMTalonSRX motorRight2PWM{motors::R2};
-  PWMTalonSRX motorRight3PWM{motors::R3};
+  //PWMTalonSRX motorRight1PWM{motors::R1};
+  //PWMTalonSRX motorRight2PWM{motors::R2};
+  //PWMTalonSRX motorRight3PWM{motors::R3};
 
-  SpeedControllerGroup motorGroupLeft{motorLeft1PWM, motorLeft2PWM, motorLeft3PWM};
-  SpeedControllerGroup motorGroupRight{motorRight1PWM, motorRight2PWM, motorRight3PWM};
-
+  //SpeedControllerGroup motorGroupLeft{motorLeft1PWM, motorLeft2PWM, motorLeft3PWM};
+  //SpeedControllerGroup motorGroupRight{motorRight1PWM, motorRight2PWM, motorRight3PWM};
+ 
 
   // Talon
-  WPI_TalonSRX motorLeft1{motors::L1};
-  WPI_VictorSPX motorLeft2{motors::L2};
-  WPI_VictorSPX motorLeft3{motors::L3};
+  WPI_TalonFX motorLeft1{motors::L1};
+  WPI_TalonFX motorLeft2{motors::L2};
+  WPI_TalonFX motorLeft3{motors::L3};
 
-  WPI_TalonSRX motorRight1{motors::R1};
-  WPI_VictorSPX motorRight2{motors::R2};
-  WPI_VictorSPX motorRight3{motors::R3};
+  WPI_TalonFX motorRight1{motors::R1};
+  WPI_TalonFX motorRight2{motors::R2};
+  WPI_TalonFX motorRight3{motors::R3};
 
   // NEO
   // CANSparkMax motorRev1{20, CANSparkMax::MotorType::kBrushless};
@@ -98,8 +98,8 @@ private:
 #define KD_FORWARD (0.003)
 
   SendableChooser<std::string> chooseDriveLimit;
-	const std::string sLimit = "Limited";
-	const std::string sUnlimitted = "Unlimited";
+	const std::string sLimited = "Limited";
+	const std::string sUnlimited = "Unlimited";
 
 public:
   // Default Constructor

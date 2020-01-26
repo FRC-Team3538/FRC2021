@@ -88,9 +88,9 @@ void ColorWheel::ColorWheelRetract()
 
 void ColorWheel::ReadColorWheel()
 {
-   Color detectedColor = m_colorSensor.GetColor();
+   Color Col = m_colorSensor.GetColor();
    confidence = 0.0;
-   Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
+   Color matchedColor = m_colorMatcher.MatchClosestColor(Col, confidence);
 
    if (matchedColor == kBlueTarget)
    {

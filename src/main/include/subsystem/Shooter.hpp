@@ -19,7 +19,7 @@ class Shooter
     WPI_VictorSPX motorIntake {8};
     WPI_VictorSPX motorIndexer {9};
     WPI_VictorSPX motorFeeder {10};
-    WPI_TalonFX motorHood {11};
+    WPI_TalonSRX motorHood {11};
 
     Solenoid solenoidIntake{1};
     Solenoid solenoidHood{3};

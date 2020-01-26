@@ -54,9 +54,12 @@ void Robot::TeleopPeriodic()
 {
 
   // Drive
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, deadband);
-  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1, deadband);
-
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, 0.0);
+  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.0);
+  if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
+  {
+    rotate *= 0.65;
+  }
   IO.drivebase.Arcade(forward, rotate);
 
   // Shifting
@@ -70,7 +73,7 @@ void Robot::TeleopPeriodic()
     IO.drivebase.SetHighGear();
   }
 
-  //Shooter
+  // Shooter
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
   double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
@@ -134,6 +137,7 @@ void Robot::TeleopPeriodic()
   {
     IO.colorWheel.AutoColorWheel();
   }
+  
 }
 
 double Robot::Deadband(double input, double deadband)

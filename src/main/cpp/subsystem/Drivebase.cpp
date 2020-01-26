@@ -7,8 +7,7 @@
 Drivebase::Drivebase()
 {
     // PWM
-    motorGroupLeft.SetInverted(true);
-    motorGroupRight.SetInverted(false);
+   
 
     // CTRE CAN
     motorLeft1.ConfigFactoryDefault();
@@ -18,23 +17,28 @@ Drivebase::Drivebase()
     motorRight2.ConfigFactoryDefault();
     motorRight3.ConfigFactoryDefault();
 
-    motorLeft1.OverrideLimitSwitchesEnable(false);
-    motorRight1.OverrideLimitSwitchesEnable(false);
+    // Invert one side of the drive
+    motorLeft1.SetInverted(false);
+    motorLeft2.SetInverted(false);
+    motorLeft3.SetInverted(false);
+
+    motorRight1.SetInverted(true);
+    motorRight2.SetInverted(true);
+    motorRight3.SetInverted(true);
+
+    // Brake / Coast Mode
+    motorLeft1.SetNeutralMode(NeutralMode::Brake);
+    motorLeft2.SetNeutralMode(NeutralMode::Brake);
+    motorLeft3.SetNeutralMode(NeutralMode::Brake);
+    motorRight1.SetNeutralMode(NeutralMode::Brake);
+    motorRight2.SetNeutralMode(NeutralMode::Brake);
+    motorRight3.SetNeutralMode(NeutralMode::Brake);
+
+
+
 
     // set default shifter state
     solenoidShifter.Set(false);
-
-    // Invert one side of the drive
-    motorLeft1.SetInverted(true);
-    motorLeft2.SetInverted(true);
-    motorLeft3.SetInverted(true);
-
-    motorRight1.SetInverted(false);
-    motorRight2.SetInverted(false);
-    motorRight3.SetInverted(false);
-
-    // motorRev1.SetInverted(true);
-    // motorRev2.SetInverted(true);
 
     SensorOverride(false);
 
@@ -108,8 +112,8 @@ Drivebase::Drivebase()
     motorRight1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::aux);
     motorRight1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::primary);
 
-    chooseDriveLimit.SetDefaultOption(sUnlimitted, sUnlimitted);
-	chooseDriveLimit.AddOption(sLimit, sLimit);
+    chooseDriveLimit.SetDefaultOption(sLimited, sLimited);
+	chooseDriveLimit.AddOption(sUnlimited, sUnlimited);
 
 }
 
@@ -131,8 +135,7 @@ void Drivebase::Arcade(double forward, double turn)
     motorRight1.Set(forward + turn);
 
     // PWM
-    motorGroupLeft.Set(forward - turn);
-    motorGroupRight.Set(forward + turn);
+ 
 }
 
 void Drivebase::Tank(double left, double right)
@@ -142,21 +145,10 @@ void Drivebase::Tank(double left, double right)
     motorRight1.Set(right);
 
     // PWM
-    motorGroupLeft.Set(left);
-    motorGroupRight.Set(right);
+
 }
 
-void Drivebase::Mecanum(double fwd, double rot, double left)
-{
-    // CAN
-    // good luck! :)
 
-    // PWM
-    motorLeft1PWM.Set(-fwd + rot + left);
-    motorLeft2PWM.Set(-fwd + rot - left);
-    motorRight1PWM.Set(fwd + rot + left);
-    motorRight2PWM.Set(fwd + rot - left);
-}
 
 // Stop!
 void Drivebase::Stop()
@@ -166,8 +158,7 @@ void Drivebase::Stop()
     motorRight1.StopMotor();
     
     // PWM
-    motorGroupLeft.StopMotor();
-    motorGroupRight.StopMotor();
+   
 }
 
 // Shift to High Gear
@@ -309,24 +300,23 @@ void Drivebase::GlobalReset()
 
 void Drivebase::SensorOverride(bool active)
 {
-    if(sensorOverride != active)
+    sensorOverride = active;
+
+    ctre::phoenix::motorcontrol::SupplyCurrentLimitConfiguration lim;
+    lim.currentLimit = 60;
+    lim.triggerThresholdCurrent = 60;
+    lim.triggerThresholdTime = 0.2;
+    lim.enable = !sensorOverride;
+    motorLeft1.ConfigSupplyCurrentLimit(lim);
+    motorRight1.ConfigSupplyCurrentLimit(lim);
+        
+    if(sensorOverride)
     {
-        sensorOverride = active;
-
-        if(sensorOverride)
-        {
-            motorLeft1.ConfigPeakCurrentLimit(200);
-            motorRight1.ConfigPeakCurrentLimit(200);
-
-            motorRight1.ConfigOpenloopRamp(0.0);
-            motorLeft1.ConfigOpenloopRamp(0.0);
-        } else {     
-            motorLeft1.ConfigPeakCurrentLimit(60);
-            motorRight1.ConfigPeakCurrentLimit(60);
-
-            motorRight1.ConfigOpenloopRamp(0.2);
-            motorLeft1.ConfigOpenloopRamp(0.2);
-        }
+        motorRight1.ConfigOpenloopRamp(0.0);
+        motorLeft1.ConfigOpenloopRamp(0.0);
+    } else {     
+        motorRight1.ConfigOpenloopRamp(0.2);
+        motorLeft1.ConfigOpenloopRamp(0.2);
     }
 
     // TODO: Check if there are more settings that should be changed.
@@ -350,5 +340,5 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("Heading Setpoint", forwardHeading);
 
     SmartDashboard::PutData("_DriveLimits", &chooseDriveLimit);
-    SensorOverride(chooseDriveLimit.GetSelected() == sUnlimitted);
+    SensorOverride(chooseDriveLimit.GetSelected() == sLimited);
 }

@@ -18,6 +18,7 @@ void Climber::SetClimber(double speed)
 {
    motorClimber0.Set(speed);
 }
+   
 
 void Climber::ClimberDeploy()
 {

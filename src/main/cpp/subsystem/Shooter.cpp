@@ -66,6 +66,10 @@ void Shooter::SetHood(double speed)
    {
       motorHood.Set(speed);
    }
+   else
+   {
+     motorHood.Set(0.0); 
+   }
 }
 
 void Shooter::UpdateSmartdash()
