@@ -66,6 +66,10 @@ void Shooter::SetHood(double speed)
    {
       motorHood.Set(speed);
    }
+   else
+   {
+     motorHood.Set(0.0); 
+   }
 }
 
 void Shooter::UpdateSmartdash()
@@ -77,4 +81,5 @@ void Shooter::UpdateSmartdash()
     SmartDashboard::PutNumber("Intake", motorIntake.Get());
     SmartDashboard::PutNumber("Indexer", motorIndexer.Get());
     SmartDashboard::PutNumber("Feeder", motorFeeder.Get());
+    SmartDashboard::PutNumber("Hood", motorHood.Get());
 }

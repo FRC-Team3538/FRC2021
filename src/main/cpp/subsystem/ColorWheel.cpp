@@ -90,9 +90,9 @@ void ColorWheel::ColorWheelRetract()
 
 void ColorWheel::ReadColorWheel()
 {
-   frc::Color col = m_colorSensor.GetColor();
+   Color Col = m_colorSensor.GetColor();
    confidence = 0.0;
-   Color matchedColor = m_colorMatcher.MatchClosestColor(col, confidence);
+   Color matchedColor = m_colorMatcher.MatchClosestColor(Col, confidence);
 
    if (matchedColor == kBlueTarget)
    {

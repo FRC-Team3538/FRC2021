@@ -11,7 +11,7 @@ class robotmap
   public:
     DS ds;
     Drivebase drivebase;
-    Shooter shooter;
-    Climber climber;
-    ColorWheel colorWheel;
+  Shooter shooter;
+  Climber climber;
+  ColorWheel colorWheel;
 };
