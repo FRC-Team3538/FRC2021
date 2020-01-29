@@ -19,4 +19,4 @@
      - [Tuned Color Sensing](src/main/cpp/subsystem/ColorWheel.cpp)
      - Integrated Color Detection
   3. Added Shooter Code
-     - [Temporary Manual Hood Control] (src/main/cpp/subsystem/Shooter.cpp)
+     - [Temporary Manual Hood Control](src/main/cpp/subsystem/Shooter.cpp)
