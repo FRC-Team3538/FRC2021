@@ -292,7 +292,7 @@ void Drivebase::ResetGyro()
 double Drivebase::GetGyroHeading()
 {
     double yaw = navx.GetYaw();
-    return -yaw;
+    return yaw;
 }
 
 void Drivebase::DriveForward(double distance, double currentLimit)
@@ -379,7 +379,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
     Arcade(driveCommandForward, driveCommandRotation);
 }
 
-void Drivebase::Turn(double heading)
+void Drivebase::TurnAbs(double heading)
 {
     forwardHeading = heading;
     double errorRot = forwardHeading - GetGyroHeading();
@@ -393,6 +393,32 @@ void Drivebase::Turn(double heading)
     double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
     Arcade(0, driveCommandRotation);
+}
+
+bool Drivebase::TurnRel(double degrees)
+{
+    target = GetGyroHeading() + degrees;
+    double error = target - navx.GetYaw();
+
+    if(error < 0.5)
+    {
+        return true;
+    }
+
+    if (std::abs(error) < 8)
+    {
+        iAcc += error / 0.02;
+    }
+    else
+    {
+        iAcc = 0;
+    }
+
+    double dError = (error - prevError_rel) / 0.02; // [Inches/second]
+    prevError_rel = error;
+
+    Arcade(0.0, ((error * -KP_ROTATION) + (iAcc * -KI_ROTATION) + (dError * -KD_ROTATION)));
+    return false;
 }
 
 void Drivebase::GlobalReset()

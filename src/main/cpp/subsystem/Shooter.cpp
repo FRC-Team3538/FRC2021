@@ -5,53 +5,63 @@
 // Configure Hardware Settings
 Shooter::Shooter()
 {
-  motorShooter1.Follow(motorShooter0);
-  motorShooter0.ConfigVoltageCompSaturation(10.0);
-  motorShooter1.ConfigVoltageCompSaturation(10.0);
-  shootDelay.Start();
+   flywheel.ConfigFactoryDefault();
+   flywheelB.ConfigFactoryDefault();
 
-  chooseShooterMode.SetDefaultOption(sManualMode, sManualMode);
-  chooseShooterMode.AddOption(sAutoMode, sAutoMode);
+   flywheelB.Follow(flywheel);
+
+   flywheel.ConfigVoltageCompSaturation(10.0);
+   flywheelB.ConfigVoltageCompSaturation(10.0);
+
+   flywheel.Config_kF(0, 0.05643219); //0.05562068
+   flywheel.Config_kP(0, 0.25);       //0.35
+   flywheel.Config_kI(0, 0.0);        // 0.000
+   flywheel.Config_kD(0, 7.000);      //6.0
+
+   flywheel.ConfigClosedloopRamp(0.3);
+   flywheelB.ConfigClosedloopRamp(0.3);
+
+   flywheel.SetInverted(false);
+   flywheelB.SetInverted(true);
+
+   chooseShooterMode.SetDefaultOption(sManualMode, sManualMode);
+   chooseShooterMode.AddOption(sAutoMode, sAutoMode);
 }
 
 // Stop all motors
 void Shooter::Stop()
 {
-    motorShooter0.StopMotor();
-    motorShooter1.StopMotor();
-    motorIntake.StopMotor();
-    motorIndexer.StopMotor();
-    motorFeeder.StopMotor();
-    motorHood.StopMotor();
+   flywheel.StopMotor();
+   flywheelB.StopMotor();
+   motorIntake.StopMotor();
+   motorIndexer.StopMotor();
+   motorFeeder.StopMotor();
+   motorHood.StopMotor();
 }
 
 void Shooter::SetShooterDistance(double distance)
 {
-   if(distance == 0.0)
+   if (distance < 0.0)
    {
       motorFeeder.Set(0.0);
-      motorShooter0.Set(0.0);
-      shootDelay.Reset();
+      flywheel.Set(0.0);
+   }
+   else if(distance < 188)
+   {
+      shootSpeed = (4.2753 * (distance)) + 2041.9;
    }
    else
    {
-      double power = 0.03990359168 * (distance - 109.0) + 45.0;
-      motorShooter0.Set(power);
+      shootSpeed = (3.5415 * distance) + 2480.3;
    }
-   
-   if(shootDelay.Get() > 5.0)
-   {
-      motorFeeder.Set(0.5);
-   }
-
-   solenoidHood.Set(false);
+   flywheel.Set(ControlMode::Velocity, ((shootSpeed / kScaleFactorFly) / 600.0));   
 }
 
 void Shooter::SetIntake(double speed)
 {
    motorIntake.Set(speed);
-   
-   bool deploy = abs(speed)>0.03;
+
+   bool deploy = abs(speed) > 0.03;
    solenoidIntake.Set(deploy);
 }
 
@@ -60,24 +70,31 @@ void Shooter::SetIndexer(double speed)
    motorIndexer.Set(speed);
 }
 
-void Shooter::SetHood(double speed)
+void Shooter::SetHood(int mode, double input)
 {
-   if(manualMode)
+   if (mode == ShooterMode::Percent)
    {
-      motorHood.Set(speed);
+      if (manualMode)
+      {
+         motorHood.Set(input);
+      }
+      else
+      {
+         motorHood.Set(0.0);
+      }
    }
    else
    {
-     motorHood.Set(0.0); 
+      motorHood.Set(ControlMode::MotionMagic, (input / kScaleFactor));
    }
 }
 
 void Shooter::UpdateSmartdash()
 {
-    SmartDashboard::PutData("_ShooterMode", &chooseShooterMode);
-    manualMode = (chooseShooterMode.GetSelected() == sManualMode);
+   SmartDashboard::PutData("_ShooterMode", &chooseShooterMode);
+   manualMode = (chooseShooterMode.GetSelected() == sManualMode);
 
-    SmartDashboard::PutNumber("Shooter", motorShooter0.Get());
+    SmartDashboard::PutNumber("Shooter", flywheel.Get());
     SmartDashboard::PutNumber("Intake", motorIntake.Get());
     SmartDashboard::PutNumber("Indexer", motorIndexer.Get());
     SmartDashboard::PutNumber("Feeder", motorFeeder.Get());
