@@ -14,6 +14,7 @@ void Robot::RobotInit()
 {
   IO.drivebase.ResetEncoders();
   IO.drivebase.ResetGyro();
+  IO.RJV.Init();
 }
 
 void Robot::RobotPeriodic()
@@ -25,6 +26,7 @@ void Robot::RobotPeriodic()
     IO.drivebase.ResetEncoders();
     autoPrograms.Init();
   }
+  IO.RJV.Periodic();
 
   // Update Smart Dash
   UpdateSD();
@@ -56,11 +58,47 @@ void Robot::TeleopPeriodic()
   // Drive
   double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, 0.0);
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.0);
+  double indexer = 0.0; // This is also here now :)
+
   if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
   {
     rotate *= 0.65;
   }
-  IO.drivebase.Arcade(forward, rotate);
+
+  if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
+  {
+    IO.drivebase.Arcade(forward, rotate);
+  }
+  else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton()) //Three Pointer
+  {
+    indexer = indexerSpeed;
+    data = IO.RJV.Run(IO.RJV.ShotType::Three);
+    if (data.filled)
+    {
+      IO.drivebase.TurnRel(data.angle) ? tpCt++ : tpCt = 0;
+      if (tpCt > 10)
+      {
+        IO.shooter.SetShooterDistance(data.distance);
+      }
+    }
+  }
+  else if (IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton()) //Two Pointer
+  {
+    indexer = indexerSpeed;
+    data = IO.RJV.Run(IO.RJV.ShotType::Two);
+    if (data.filled)
+    {
+      IO.drivebase.TurnRel(data.angle);
+      IO.shooter.SetShooterDistance(data.distance);
+    }
+  }
+  else
+  {
+    data.filled = false;
+    tpCt = 0;
+    IO.drivebase.Arcade(0, 0);
+    IO.shooter.SetShooterDistance(-1.0);
+  }
 
   // Shifting
   if (IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
@@ -80,64 +118,50 @@ void Robot::TeleopPeriodic()
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double intakeSpeed = leftTrigOp - rightTrigOp + leftTrigDr - rightTrigDr;
   intakeSpeed = Deadband(intakeSpeed, deadband);
-  double indexer = 0.0;
   IO.shooter.SetIntake(intakeSpeed);
 
-  if(abs(intakeSpeed) > 0.05)
+  if (abs(intakeSpeed) > 0.05)
   {
     indexer = indexerSpeed;
   }
 
-  if(IO.ds.Operator.GetTriangleButton() | IO.ds.Driver.GetTriangleButton())
-  {
-    IO.shooter.SetShooterDistance(105);
-    indexer = indexerSpeed;
-  }
-  else if(IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton())
-  {
-    IO.shooter.SetShooterDistance(305);
-    indexer = indexerSpeed;
-  }
-  else
-  {
-    IO.shooter.SetShooterDistance(0.0);
-  }
-  
   IO.shooter.SetIndexer(indexer);
 
   //Hood
   double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
-  IO.shooter.SetHood(hoodAnalog);
-
+  if (!data.filled)
+  {
+    IO.shooter.SetHood(IO.shooter.ShooterMode::Percent, hoodAnalog);
+  }
+  
   //Climber
-  if(IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
   {
     IO.climber.ClimberDeploy();
   }
-  if(IO.ds.Operator.GetBumperPressed(GenericHID::kLeftHand))
+  if (IO.ds.Operator.GetBumperPressed(GenericHID::kLeftHand))
   {
     IO.climber.ClimberRetract();
   }
   double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
   IO.climber.SetClimber(climbAnalog);
-  
+
   //ColorWheel
-   if(IO.ds.Operator.GetUpButton())
+  if (IO.ds.Operator.GetUpButton())
   {
     IO.colorWheel.ColorWheelDeploy();
   }
-  if(IO.ds.Operator.GetDownButton())
+  if (IO.ds.Operator.GetDownButton())
   {
     IO.colorWheel.ColorWheelRetract();
   }
   double colorAnalog = Deadband(IO.ds.Operator.GetX(GenericHID::kRightHand) * -1, deadband);
   IO.colorWheel.SetColorWheel(colorAnalog);
 
-  if(IO.ds.Operator.GetStickButton(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetStickButton(GenericHID::kRightHand))
   {
     IO.colorWheel.AutoColorWheel();
   }
-  
 }
 
 double Robot::Deadband(double input, double deadband)
@@ -190,7 +214,11 @@ void Robot::UpdateSD()
     IO.colorWheel.UpdateSmartdash();
     break;
   }
-
+  case 4:
+  {
+    IO.RJV.UpdateSmartDash();
+    break;
+  }
   }
 
   // Critical
