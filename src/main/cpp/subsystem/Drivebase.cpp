@@ -7,7 +7,6 @@
 Drivebase::Drivebase()
 {
     // PWM
-   
 
     // CTRE CAN
     motorLeft1.ConfigFactoryDefault();
@@ -34,9 +33,6 @@ Drivebase::Drivebase()
     motorRight2.SetNeutralMode(NeutralMode::Brake);
     motorRight3.SetNeutralMode(NeutralMode::Brake);
 
-
-
-
     // set default shifter state
     solenoidShifter.Set(false);
 
@@ -60,7 +56,7 @@ Drivebase::Drivebase()
     motorRight1.SetSensorPhase(false);
 
     motorLeft1.Config_kF(slots::Forward, 0.0);
-    motorLeft1.Config_kP(slots::Forward, 0.1); 
+    motorLeft1.Config_kP(slots::Forward, 0.1);
     motorLeft1.Config_kI(slots::Forward, 0.0);
     motorLeft1.Config_kD(slots::Forward, 0.04);
 
@@ -113,8 +109,7 @@ Drivebase::Drivebase()
     motorRight1.ConfigSetParameter(ParamEnum::ePIDLoopPeriod, 1, 0x00, PIDind::primary);
 
     chooseDriveLimit.SetDefaultOption(sLimited, sLimited);
-	chooseDriveLimit.AddOption(sUnlimited, sUnlimited);
-
+    chooseDriveLimit.AddOption(sUnlimited, sUnlimited);
 }
 
 // Arcade Drive
@@ -135,20 +130,7 @@ void Drivebase::Arcade(double forward, double turn)
     motorRight1.Set(forward + turn);
 
     // PWM
- 
 }
-
-void Drivebase::Tank(double left, double right)
-{
-    // CAN
-    motorLeft1.Set(left);
-    motorRight1.Set(right);
-
-    // PWM
-
-}
-
-
 
 // Stop!
 void Drivebase::Stop()
@@ -156,9 +138,8 @@ void Drivebase::Stop()
     // CAN
     motorLeft1.StopMotor();
     motorRight1.StopMotor();
-    
+
     // PWM
-   
 }
 
 // Shift to High Gear
@@ -187,7 +168,7 @@ double Drivebase::GetEncoderPositionLeft()
 
 double Drivebase::GetEncoderPositionRight()
 {
-    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor; 
+    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPosition()
@@ -204,15 +185,15 @@ void Drivebase::ResetGyro()
 
 double Drivebase::GetGyroHeading()
 {
-    double yaw = navx.GetYaw(); 
-    return -yaw;
+    double yaw = navx.GetYaw();
+    return yaw;
 }
 
 void Drivebase::DriveForward(double distance, double currentLimit)
 {
     motorLeft1.ConfigNominalOutputForward(0);
     motorLeft1.ConfigNominalOutputReverse(0);
-    motorLeft1.ConfigPeakOutputForward(currentLimit);  // TODO: Looks wrong, verify....
+    motorLeft1.ConfigPeakOutputForward(currentLimit); // TODO: Looks wrong, verify....
     motorLeft1.ConfigPeakOutputReverse(-currentLimit);
 
     motorRight1.ConfigNominalOutputForward(0);
@@ -220,8 +201,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
     motorRight1.ConfigPeakOutputForward(currentLimit);
     motorRight1.ConfigPeakOutputReverse(-currentLimit);
 
-
-    double averageEncCnt = GetEncoderPosition(); 
+    double averageEncCnt = GetEncoderPosition();
     double error = distance - averageEncCnt;
     if (error < 24)
     {
@@ -236,7 +216,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
 
     double driveCommandForward = error * KP_FORWARD + sumError_forward * KI_FORWARD + KD_FORWARD * deltaError;
 
-    double gyroAngle = GetGyroHeading(); // -180 ~ 180 
+    double gyroAngle = GetGyroHeading(); // -180 ~ 180
 
     double errorRot = forwardHeading - gyroAngle;
 
@@ -273,7 +253,7 @@ void Drivebase::DriveForward(double distance, double currentLimit)
     Arcade(driveCommandForward, driveCommandRotation);
 }
 
-void Drivebase::Turn(double heading)
+void Drivebase::TurnAbs(double heading)
 {
     forwardHeading = heading;
     double errorRot = forwardHeading - GetGyroHeading();
@@ -287,6 +267,32 @@ void Drivebase::Turn(double heading)
     double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
     Arcade(0, driveCommandRotation);
+}
+
+bool Drivebase::TurnRel(double degrees)
+{
+    target = GetGyroHeading() + degrees;
+    double error = target - navx.GetYaw();
+
+    if(error < 0.5)
+    {
+        return true;
+    }
+
+    if (std::abs(error) < 8)
+    {
+        iAcc += error / 0.02;
+    }
+    else
+    {
+        iAcc = 0;
+    }
+
+    double dError = (error - prevError_rel) / 0.02; // [Inches/second]
+    prevError_rel = error;
+
+    Arcade(0.0, ((error * -KP_ROTATION) + (iAcc * -KI_ROTATION) + (dError * -KD_ROTATION)));
+    return false;
 }
 
 void Drivebase::GlobalReset()
@@ -309,12 +315,14 @@ void Drivebase::SensorOverride(bool active)
     lim.enable = !sensorOverride;
     motorLeft1.ConfigSupplyCurrentLimit(lim);
     motorRight1.ConfigSupplyCurrentLimit(lim);
-        
-    if(sensorOverride)
+
+    if (sensorOverride)
     {
         motorRight1.ConfigOpenloopRamp(0.0);
         motorLeft1.ConfigOpenloopRamp(0.0);
-    } else {     
+    }
+    else
+    {
         motorRight1.ConfigOpenloopRamp(0.2);
         motorLeft1.ConfigOpenloopRamp(0.2);
     }
@@ -327,7 +335,7 @@ void Drivebase::UpdateSmartdash()
 {
     SmartDashboard::PutNumber("DriveCmdL", motorLeft1.Get());
     SmartDashboard::PutNumber("DriveCmdR", motorRight1.Get());
-    
+
     SmartDashboard::PutBoolean("DriveShifter", solenoidShifter.Get());
 
     SmartDashboard::PutNumber("DriveEncL", GetEncoderPositionLeft());
