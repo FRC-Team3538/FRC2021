@@ -7,6 +7,7 @@
 ColorWheel::ColorWheel()
 {
    motorColorWheel.ConfigFactoryDefault();
+   
    m_colorMatcher.AddColorMatch(kBlueTarget);
    m_colorMatcher.AddColorMatch(kGreenTarget);
    m_colorMatcher.AddColorMatch(kRedTarget);

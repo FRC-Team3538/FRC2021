@@ -42,16 +42,7 @@ private:
   // Encoder Scale Factor (Inches)/(Pulse)
   const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
 
-  enum kRemote
-  {
-    Remote0 = 0,
-    Remote1
-  };
-  enum PIDind
-  {
-    primary = 0,
-    aux
-  };
+  
   enum slots
   {
     Forward = 0,

@@ -26,6 +26,7 @@ Shooter::Shooter()
 
    chooseShooterMode.SetDefaultOption(sManualMode, sManualMode);
    chooseShooterMode.AddOption(sAutoMode, sAutoMode);
+
 }
 
 // Stop all motors
@@ -55,6 +56,10 @@ void Shooter::SetShooterDistance(double distance)
       shootSpeed = (3.5415 * distance) + 2480.3;
    }
    flywheel.Set(ControlMode::Velocity, ((shootSpeed / kScaleFactorFly) / 600.0));   
+
+   // TODO Set Flyweel hood postion
+
+   // TODO Activate feeder and conveyor when setpoint is reached.
 }
 
 void Shooter::SetIntake(double speed)
@@ -70,23 +75,18 @@ void Shooter::SetIndexer(double speed)
    motorIndexer.Set(speed);
 }
 
-void Shooter::SetHood(int mode, double input)
+void Shooter::SetHood(double input)
 {
-   if (mode == ShooterMode::Percent)
+
+   if (manualMode)
    {
-      if (manualMode)
-      {
-         motorHood.Set(input);
-      }
-      else
-      {
-         motorHood.Set(0.0);
-      }
+      motorHood.Set(input);
    }
    else
    {
-      motorHood.Set(ControlMode::MotionMagic, (input / kScaleFactor));
+      motorHood.Set(0.0);
    }
+
 }
 
 void Shooter::UpdateSmartdash()
@@ -99,4 +99,7 @@ void Shooter::UpdateSmartdash()
     SmartDashboard::PutNumber("Indexer", motorIndexer.Get());
     SmartDashboard::PutNumber("Feeder", motorFeeder.Get());
     SmartDashboard::PutNumber("Hood", motorHood.Get());
+
+    SmartDashboard::PutBoolean("Solenoid Intake", solenoidIntake.Get());
+    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
 }

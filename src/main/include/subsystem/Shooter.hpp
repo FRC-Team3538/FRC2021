@@ -51,8 +51,10 @@ public:
   void Stop();
   void SetShooterDistance(double distance);
   void SetIntake(double speed);
+  void IntakeDeploy(); // TODO
+  void IntakeRetract();
   void SetIndexer(double speed);
-  void SetHood(int mode, double input);
+  void SetHood(double input);
 
   void UpdateSmartdash();
 };

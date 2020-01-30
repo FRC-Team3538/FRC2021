@@ -26,6 +26,8 @@ void Robot::RobotPeriodic()
     IO.drivebase.ResetEncoders();
     autoPrograms.Init();
   }
+
+  // Vision
   IO.RJV.Periodic();
 
   // Update Smart Dash
@@ -60,9 +62,10 @@ void Robot::TeleopPeriodic()
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.0);
   double indexer = 0.0; // This is also here now :)
 
+  // Turn speed limiting
   if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
   {
-    rotate *= 0.65;
+    rotate *= kDriveTurnLimit;
   }
 
   if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
@@ -131,9 +134,9 @@ void Robot::TeleopPeriodic()
   double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
   if (!data.filled)
   {
-    IO.shooter.SetHood(IO.shooter.ShooterMode::Percent, hoodAnalog);
+    IO.shooter.SetHood(hoodAnalog);
   }
-  
+
   //Climber
   if (IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
   {
@@ -194,6 +197,7 @@ void Robot::UpdateSD()
   case 0:
   {
     IO.drivebase.UpdateSmartdash();
+    IO.ds.SmartDash();
     break;
   }
 
@@ -216,8 +220,8 @@ void Robot::UpdateSD()
   }
   case 4:
   {
-    IO.RJV.UpdateSmartDash();
-    break;
+  //  IO.RJV.UpdateSmartDash();
+   // break;
   }
   }
 

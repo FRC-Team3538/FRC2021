@@ -5,20 +5,22 @@
 // Configure Hardware Settings
 Climber::Climber()
 {
-   motorClimber1.Follow(motorClimber0);
+   motorClimber0.ConfigFactoryDefault();
+   motorClimber1.ConfigFactoryDefault();
 }
 
 // Stop all motors
 void Climber::Stop()
 {
-    motorClimber0.StopMotor();
+   motorClimber0.StopMotor();
+   motorClimber1.StopMotor();
 }
 
 void Climber::SetClimber(double speed)
 {
    motorClimber0.Set(speed);
+   motorClimber1.Set(speed);
 }
-   
 
 void Climber::ClimberDeploy()
 {
