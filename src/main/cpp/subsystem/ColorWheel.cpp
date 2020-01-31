@@ -22,7 +22,7 @@ void ColorWheel::Stop()
 
 void ColorWheel::SetColorWheel(double speed)
 {
-   if (solenoidColorWheel.Get())
+   if(solenoidColorWheel.Get())
    {
       motorColorWheel.Set(speed);
    }
@@ -37,7 +37,7 @@ void ColorWheel::AutoColorWheel()
    double wheelSpeed = 0.5;
    ReadColorWheel();
 
-   switch (targetColor)
+   switch(targetColor)
    {
    case blue:
       if (detectedColor == colors::blue)

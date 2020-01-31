@@ -130,6 +130,12 @@ void Robot::TeleopPeriodic()
 
   IO.shooter.SetIndexer(indexer);
 
+  //Intake
+  if(IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
+  {
+    
+  }
+
   //Hood
   double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
   if (!data.filled)
@@ -138,11 +144,11 @@ void Robot::TeleopPeriodic()
   }
 
   //Climber
-  if (IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetRightButton())
   {
     IO.climber.ClimberDeploy();
   }
-  if (IO.ds.Operator.GetBumperPressed(GenericHID::kLeftHand))
+  if (IO.ds.Operator.GetLeftButton())
   {
     IO.climber.ClimberRetract();
   }

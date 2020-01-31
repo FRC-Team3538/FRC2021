@@ -65,9 +65,16 @@ void Shooter::SetShooterDistance(double distance)
 void Shooter::SetIntake(double speed)
 {
    motorIntake.Set(speed);
+}
 
-   bool deploy = abs(speed) > 0.03;
-   solenoidIntake.Set(deploy);
+void Shooter::IntakeDeploy()
+{
+   solenoidIntake.Set(true);
+}
+
+void Shooter::IntakeRetract()
+{
+   solenoidIntake.Set(false);
 }
 
 void Shooter::SetIndexer(double speed)
