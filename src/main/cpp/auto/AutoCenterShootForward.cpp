@@ -67,4 +67,11 @@ void AutoCenterShootForward::Run()
     default:
         IO.drivebase.Stop();
     }
+
+    UpdateSmartDash();
+}
+
+void AutoCenterShootForward::UpdateSmartDash()
+{
+    SmartDashboard::PutNumber("Auto State", m_state);
 }

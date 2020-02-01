@@ -7,7 +7,7 @@
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
 
-class AutoCenterShootForward : public AutoInterface {
+class AutoTrenchRun : public AutoInterface {
  public:
     // Name of this program, used by SmartDash
     static std::string GetName();
@@ -17,19 +17,18 @@ class AutoCenterShootForward : public AutoInterface {
     robotmap& IO;
 
     // State Variables
-    int m_state;   
+    int setstate;   
     Timer m_autoTimer;
 
     void NextState();
 
  public:
     // Constructor requires a reference to the RobotMap
-    AutoCenterShootForward() = delete;
-    AutoCenterShootForward(robotmap& );
-    ~AutoCenterShootForward();
+    AutoTrenchRun() = delete;
+    AutoTrenchRun(robotmap& );
+    ~AutoTrenchRun();
 
     // Auto Program Logic
     void Run();
     void UpdateSmartDash();
-    
 };
