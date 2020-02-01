@@ -33,6 +33,11 @@ void Robot::RobotPeriodic()
 
   // Update Smart Dash
   UpdateSD();
+
+  std::string sDF = "Fly Output (Percent)";
+  df = frc::SmartDashboard::GetNumber(sDF, 100.0);
+  frc::SmartDashboard::PutNumber(sDF, df);
+  frc::SmartDashboard::SetPersistent(sDF);
 }
 
 void Robot::AutonomousInit()
@@ -61,8 +66,8 @@ void Robot::TeleopPeriodic()
 {
 
   // Drive
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1, 0.0);
-  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.0);
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * 1, 0.05);
+  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * 1.0, 0.05);
   double indexer = 0.0; // This is also here now :)
 
   // Turn speed limiting
@@ -70,6 +75,7 @@ void Robot::TeleopPeriodic()
   {
     rotate *= kDriveTurnLimit;
   }
+
   // Shooter Manual Mode
   if (IO.shooter.GetModeChooser() == true)
   {
@@ -105,39 +111,56 @@ void Robot::TeleopPeriodic()
     if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
     {
       IO.drivebase.Arcade(forward, rotate);
+      data.filled = false;
+      tpCt = 0;
+      IO.shooter.StopShooter();
+      IO.RJV.Reset();
     }
-    else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton()) //Three Pointer
+    else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
-      indexer = indexerSpeed;
-      data = IO.RJV.Run(IO.RJV.ShotType::Three);
-      if (data.filled)
+      //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
+      if (tpCt > 10)
       {
-        IO.drivebase.TurnRel(data.angle) ? tpCt++ : tpCt = 0;
-        if (tpCt > 10)
-        {
-          IO.shooter.SetShooterDistance(data.distance);
-        }
+        IO.shooter.SetShooterDistanceThree(data.distance);
+        IO.drivebase.Arcade(0.0, 0.0);
+      }
+      else
+      {
+        IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+        IO.shooter.SetVelocity(1500.0);
       }
     }
-    else if (IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton()) //Two Pointer
+    else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
     {
       indexer = indexerSpeed;
       data = IO.RJV.Run(IO.RJV.ShotType::Two);
       if (data.filled)
       {
-        IO.drivebase.TurnRel(data.angle);
-        IO.shooter.SetShooterDistance(data.distance);
+        if (tpCt > 5)
+        {
+          IO.shooter.SetShooterDistanceTwo(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1000.0);
+        }
       }
+    }
+    else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
+    {
+      IO.shooter.SetVelocity(df);
     }
     else
     {
       data.filled = false;
       tpCt = 0;
       IO.drivebase.Arcade(0, 0);
-      IO.shooter.SetShooterDistance(-1.0);
+      IO.shooter.StopShooter();
+      IO.RJV.Reset();
     }
   }
-
   // Shifting
   if (IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
   {
@@ -227,34 +250,36 @@ void Robot::UpdateSD()
   smartDashSkip %= 30;
   switch (smartDashSkip)
   {
-  case 0:
-  {
-    IO.drivebase.UpdateSmartdash();
-    IO.ds.SmartDash();
-    break;
-  }
+    // case 0:
+    // {
+    //   IO.drivebase.UpdateSmartdash();
+    //   break;
+    // }
 
-  case 1:
+  case 5:
   {
     IO.shooter.UpdateSmartdash();
     break;
   }
 
-  case 2:
+  case 10:
   {
     IO.climber.UpdateSmartdash();
     break;
   }
 
-  case 3:
+  case 15:
   {
     IO.colorWheel.UpdateSmartdash();
     break;
   }
-  case 4:
+  case 20:
   {
-    //  IO.RJV.UpdateSmartDash();
-    // break;
+     IO.RJV.UpdateSmartDash();
+    break;
+  }
+  default:
+  {
   }
   }
 

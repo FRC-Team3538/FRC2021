@@ -20,13 +20,13 @@ Drivebase::Drivebase()
     motorRight2.SetInverted(true);
 
     // Encoder Feedback
-    //motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
-    //motorLeft2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorLeft2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
     motorLeft1.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
     motorLeft2.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
 
-    //motorRight1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
-    //motorRight2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorRight1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorRight2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
     motorRight1.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
     motorRight2.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
 
@@ -42,6 +42,46 @@ Drivebase::Drivebase()
     SensorOverride(false);
 
     // Smart Dash Stuff
+    motorLeft1.Config_kF(slots::Forward, 0.0);
+    motorLeft1.Config_kP(slots::Forward, 0.1);
+    motorLeft1.Config_kI(slots::Forward, 0.0);
+    motorLeft1.Config_kD(slots::Forward, 0.04);
+
+    motorLeft2.Config_kF(slots::Forward, 0.0);
+    motorLeft2.Config_kP(slots::Forward, 0.1);
+    motorLeft2.Config_kI(slots::Forward, 0.0);
+    motorLeft2.Config_kD(slots::Forward, 0.04);
+
+    motorRight1.Config_kF(slots::Forward, 0.0);
+    motorRight1.Config_kP(slots::Forward, 0.1);
+    motorRight1.Config_kI(slots::Forward, 0.0);
+    motorRight1.Config_kD(slots::Forward, 0.04);
+
+    motorRight2.Config_kF(slots::Forward, 0.0);
+    motorRight2.Config_kP(slots::Forward, 0.1);
+    motorRight2.Config_kI(slots::Forward, 0.0);
+    motorRight2.Config_kD(slots::Forward, 0.04);
+
+    motorLeft1.ConfigNominalOutputForward(0);
+    motorLeft1.ConfigNominalOutputReverse(0);
+    motorLeft1.ConfigPeakOutputForward(1);
+    motorLeft1.ConfigPeakOutputReverse(-1);
+
+    motorLeft2.ConfigNominalOutputForward(0);
+    motorLeft2.ConfigNominalOutputReverse(0);
+    motorLeft2.ConfigPeakOutputForward(1);
+    motorLeft2.ConfigPeakOutputReverse(-1);
+
+    motorRight1.ConfigNominalOutputForward(0);
+    motorRight1.ConfigNominalOutputReverse(0);
+    motorRight1.ConfigPeakOutputForward(1);
+    motorRight1.ConfigPeakOutputReverse(-1);
+
+    motorRight2.ConfigNominalOutputForward(0);
+    motorRight2.ConfigNominalOutputReverse(0);
+    motorRight2.ConfigPeakOutputForward(1);
+    motorRight2.ConfigPeakOutputReverse(-1);
+
     chooseDriveLimit.SetDefaultOption(sLimited, sLimited);
     chooseDriveLimit.AddOption(sUnlimited, sUnlimited);
 }
@@ -152,6 +192,7 @@ double Drivebase::GetGyroHeading()
 
 void Drivebase::DriveForward(double distance, double maxOutput)
 {
+    
     double averageEncCnt = GetEncoderPosition();
     double error = distance - averageEncCnt;
     if (error < 24)
@@ -239,14 +280,16 @@ void Drivebase::TurnAbs(double heading)
     Arcade(0, -driveCommandRotation);
 }
 
-bool Drivebase::TurnRel(double degrees)
+bool Drivebase::TurnRel(double degrees, double tolerance)
 {
     target = GetGyroHeading() + degrees;
     double error = target - navx.GetYaw();
+    //std::cout << error << std::endl;
 
-    if (error < 0.5)
+    if (std::abs(error) < tolerance)
     {
         return true;
+        Arcade(0.0, 0.0);
     }
 
     if (std::abs(error) < 8)
@@ -261,7 +304,7 @@ bool Drivebase::TurnRel(double degrees)
     double dError = (error - prevError_rel) / 0.02; // [Inches/second]
     prevError_rel = error;
 
-    Arcade(0.0, ((error * -KP_ROTATION) + (iAcc * -KI_ROTATION) + (dError * -KD_ROTATION)));
+    Arcade(0.0, ((error * KP_ROTATION) + (iAcc * KI_ROTATION) + (dError * KD_ROTATION)));
     return false;
 }
 

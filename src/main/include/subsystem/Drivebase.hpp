@@ -62,9 +62,13 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (0.013)  //0.0105
-#define KI_ROTATION (0.00000) //0.00005
-#define KD_ROTATION (0.0)  //0.004
+// #define KP_ROTATION (0.013)  //0.0105
+// #define KI_ROTATION (0.00000) //0.00005
+// #define KD_ROTATION (0.0)  //0.004
+
+#define KP_ROTATION (0.015)
+#define KI_ROTATION (0.00002) //0.00005
+#define KD_ROTATION (0.000015)  //0.004
 
 #define KP_FORWARD (0.01)
 #define KI_FORWARD (0.00)
@@ -105,7 +109,7 @@ public:
 
   void DriveForward(double distance, double currentLimit = 1.0);
   void TurnAbs(double degrees);
-  bool TurnRel(double degrees);
+  bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
   AHRS navx{SPI::Port::kMXP, 200};

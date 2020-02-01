@@ -13,6 +13,7 @@ void RJVisionPipeline::Init()
 {
 	table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 	SetPipeline(0.0);
+	table->PutNumber("ledMode", 1.0);
 }
 
 void RJVisionPipeline::Periodic()
@@ -26,6 +27,7 @@ void RJVisionPipeline::Periodic()
 
 RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telemetry and changes pipeline
 {
+	table->PutNumber("ledMode", 0.0);
 	RJVisionPipeline::visionData telemetry;
 	int shotTypeCor = shotType;
 
@@ -36,6 +38,8 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 
 	if (!pipeSwitchOS)
 	{
+		pipeSwitch.Reset();
+		pipeSwitch.Start();
 		if ((shotType == 1) && (DistEstimation() > 188.0))
 		{
 			SetPipeline(DeterminePipeline(0));
@@ -52,7 +56,7 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 	}
 	else
 	{
-		if (tv == 1.0)
+		if (tv == 1.0 && pipeSwitch.Get() > 0.4)
 		{
 			telemetry.angle = dx;
 			telemetry.distance = (shotTypeCor == 0) ? DistEstimation() : pnpDist;
@@ -77,7 +81,18 @@ void RJVisionPipeline::SetPipeline(double pipeline)
 void RJVisionPipeline::UpdateSmartDash()
 {
 	frc::SmartDashboard::PutNumber("dx", dx);
-	frc::SmartDashboard::PutNumber("pnpDist", sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2)));
+	frc::SmartDashboard::PutNumber("dist", DistEstimation());
+	if (pnpPoints.size() >= 5)
+	{
+		frc::SmartDashboard::PutNumber("pnpDist", sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2)));
+	}
+}
+
+void RJVisionPipeline::Reset()
+{
+	table->PutNumber("ledMode", 1.0);
+	SetPipeline(0.0);
+	pipeSwitchOS = false;
 }
 
 double RJVisionPipeline::DistEstimation()
@@ -92,9 +107,9 @@ double RJVisionPipeline::DeterminePipeline(int shotType)
 	{
 	case 0:
 	{
-		if ((DistEstimation() < 320.0) || (DistEstimation() > 113.0))
+		if ((DistEstimation() < 350.0) && (DistEstimation() > 170.0))
 		{
-			return 4.0;
+			return 3.0;
 		}
 		else
 		{
@@ -106,7 +121,7 @@ double RJVisionPipeline::DeterminePipeline(int shotType)
 
 	case 1:
 	{
-		if (DistEstimation() > 94.0)
+		if (DistEstimation() > 90.0)
 		{
 			return 2.0;
 		}

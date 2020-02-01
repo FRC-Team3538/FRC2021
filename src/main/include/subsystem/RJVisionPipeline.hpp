@@ -6,6 +6,7 @@
 #include "networktables/NetworkTableInstance.h"
 #include "networktables/NetworkTableEntry.h"
 #include <cmath>
+#include <frc/Timer.h>
 
 namespace vision
 {
@@ -17,13 +18,14 @@ namespace vision
 class RJVisionPipeline
 {
 private:
-	const double cameraAngle = 19;
+	const double cameraAngle = 16;
 	const double dh = 44; //distance between camera lens and quarter-way up the goal
 
 	std::shared_ptr<NetworkTable> table;
 	std::vector<double> pnpPoints;
 	double dy, dx, tv, pipe, pnpDist;
 	bool pipeSwitchOS = false;
+	frc::Timer pipeSwitch;
 
 public:
 	typedef struct
@@ -46,5 +48,6 @@ public:
 	void SetPipeline(double pipeline);
 	double DistEstimation();
 	double DeterminePipeline(int shotType);
+	void Reset();
 };
 } // namespace vision
