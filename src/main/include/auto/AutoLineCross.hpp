@@ -30,5 +30,5 @@ class AutoLineCross : public AutoInterface {
 
     // Auto Program Logic
     void Run();
-    
+    void UpdateSmartDash();
 };

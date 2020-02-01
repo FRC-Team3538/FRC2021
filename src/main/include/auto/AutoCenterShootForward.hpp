@@ -30,5 +30,6 @@ class AutoCenterShootForward : public AutoInterface {
 
     // Auto Program Logic
     void Run();
+    void UpdateSmartDash();
     
 };

@@ -1,40 +1,40 @@
-#include "auto/AutoTrenchRun.hpp"
+#include "auto/AutoBackTrench.hpp"
 
 // Name for Smart Dash Chooser
-std::string AutoTrenchRun::GetName()
+std::string AutoBackTrench::GetName()
 {
-    return "2 - AutoTrenchRun";
+    return "3 - AutoBackTrench";
 }
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoTrenchRun::AutoTrenchRun(robotmap &IO) : IO(IO)
+AutoBackTrench::AutoBackTrench(robotmap &IO) : IO(IO)
 {
-    setstate = 0;
+    m_state = 0;
     m_autoTimer.Reset();
     m_autoTimer.Start();
     IO.drivebase.Stop();
 }
 
-AutoTrenchRun::~AutoTrenchRun() { }
-
+AutoBackTrench::~AutoBackTrench() { }
 
 //State Machine
-void AutoTrenchRun::NextState(){
-    setstate++;
+void AutoBackTrench::NextState()
+{
+    m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
 }
 
 // Execute the program
-void AutoTrenchRun::Run()
+void AutoBackTrench::Run()
 {
-    switch (setstate)
+    switch (m_state)
     {
     case 0:
     {
-        IO.drivebase.Stop();
-        IO.shooter.SetShooterDistance(144.0);
+        IO.shooter.IntakeDeploy();
+        IO.shooter.SetShooterDistance(108.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -43,8 +43,7 @@ void AutoTrenchRun::Run()
     }
     case 1:
     {
-        IO.drivebase.TurnAbs(15);
-        IO.shooter.IntakeDeploy();
+        IO.drivebase.TurnAbs(90);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -53,27 +52,15 @@ void AutoTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(-180);
-        IO.shooter.SetIntake(0.5);
-        IO.shooter.SetIndexer(0.5);
+        IO.drivebase.DriveForward(36);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
         }
         break;
     }
-     case 3:
-     {
-        IO.drivebase.DriveForward(-108);
-        if (m_autoTimer.Get() > 2.0)
-        {
-            NextState();
-        }
-        break;
-    }
-    
-    
-    case 4: {
+    case 3:
+    {
         IO.drivebase.TurnAbs(0);
         if (m_autoTimer.Get() > 2.0)
         {
@@ -81,7 +68,37 @@ void AutoTrenchRun::Run()
         }
         break;
     }
-     case 5: {
+     case 4:
+     {
+        IO.shooter.SetIntake(0.5);
+        IO.drivebase.DriveForward(-180);
+        if (m_autoTimer.Get() > 2.0)
+        {
+            NextState();
+        }
+        break;
+    }
+    case 5:
+     {
+        IO.shooter.SetIntake(0.0);
+        IO.drivebase.DriveForward(-108);
+        if (m_autoTimer.Get() > 2.0)
+        {
+            NextState();
+        }
+        break;
+    }
+    case 6:
+    {
+        IO.drivebase.TurnAbs(-15);
+        if (m_autoTimer.Get() > 2.0)
+        {
+            NextState();
+        }
+        break;
+    }
+    case 7:
+    {
         IO.shooter.SetShooterDistance(204);
         if (m_autoTimer.Get() > 2.0)
         {
@@ -90,17 +107,14 @@ void AutoTrenchRun::Run()
         break;
     }
     
-    
-    
     default:
         IO.drivebase.Stop();
-        IO.shooter.Stop();
     }
 
     UpdateSmartDash();
 }
 
-void AutoTrenchRun::UpdateSmartDash()
+void AutoBackTrench::UpdateSmartDash()
 {
-    SmartDashboard::PutNumber("Auto State", setstate);
+    SmartDashboard::PutNumber("Auto State", m_state);
 }

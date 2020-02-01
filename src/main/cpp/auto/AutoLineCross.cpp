@@ -54,4 +54,11 @@ void AutoLineCross::Run()
     default:
         IO.drivebase.Stop();
     }
+
+    UpdateSmartDash();
+}
+
+void AutoLineCross::UpdateSmartDash()
+{
+    SmartDashboard::PutNumber("Auto State", m_state);
 }
