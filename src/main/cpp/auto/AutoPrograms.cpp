@@ -2,6 +2,8 @@
 
 // Include all auto programs [List 1 of 3]
 #include "auto/AutoLineCross.hpp"
+#include "auto/AutoCenterShootForward.hpp"
+#include "auto/AutoCenterShootBack.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -10,6 +12,8 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     // SmartDash Chooser [List 2 of 3]
     m_chooser.SetDefaultOption("0 - None", "0 - None");
     m_chooser.AddOption(AutoLineCross::GetName(), AutoLineCross::GetName());
+    m_chooser.AddOption(AutoCenterShootForward::GetName(), AutoCenterShootForward::GetName());
+    m_chooser.AddOption(AutoCenterShootBack::GetName(), AutoCenterShootBack::GetName());
 
 }
 
@@ -27,6 +31,10 @@ void AutoPrograms::Init()
     if (name == AutoLineCross::GetName())
     {
         m_autoProgram = new AutoLineCross(IO);
+    }
+if (name == AutoCenterShootForward::GetName())
+    {
+        m_autoProgram = new AutoCenterShootForward(IO);
     }
 }
 

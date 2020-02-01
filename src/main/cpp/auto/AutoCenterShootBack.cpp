@@ -1,14 +1,14 @@
-#include "auto/AutoLineCross.hpp"
+#include "auto/AutoCenterShootBack.hpp"
 
 // Name for Smart Dash Chooser
-std::string AutoLineCross::GetName()
+std::string AutoCenterShootBack::GetName()
 {
-    return "1 - AutoLineCross";
+    return "3 - AutoCenterShootBack";
 }
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoLineCross::AutoLineCross(robotmap &IO) : IO(IO)
+AutoCenterShootBack::AutoCenterShootBack(robotmap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();
@@ -16,26 +16,25 @@ AutoLineCross::AutoLineCross(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoLineCross::~AutoLineCross() { }
+AutoCenterShootBack::~AutoCenterShootBack() { }
 
 
 //State Machine
-void AutoLineCross::NextState(){
+void AutoCenterShootBack::NextState(){
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
 }
 
 // Execute the program
-void AutoLineCross::Run()
+void AutoCenterShootBack::Run()
 {
     switch (m_state)
     {
     case 0:
     {
-        double fwd = 0.50;
-        double rot = 0.00;
-        IO.drivebase.Arcade(fwd, rot);
+        IO.drivebase.Stop();
+        IO.shooter.SetShooterDistance(144);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -44,8 +43,8 @@ void AutoLineCross::Run()
     }
     case 1:
     {
-        double fwd = 0.00;
-        double rot = 0.25;
+        double fwd = -0.50;
+        double rot = 0.0;
         IO.drivebase.Arcade(fwd, rot);
         if (m_autoTimer.Get() > 2.0)
         {
@@ -62,6 +61,9 @@ void AutoLineCross::Run()
         }
         break;
     }
+    
+   
+    
     default:
         IO.drivebase.Stop();
     }
