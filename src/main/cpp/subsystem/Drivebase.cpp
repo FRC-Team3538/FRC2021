@@ -19,12 +19,6 @@ Drivebase::Drivebase()
     motorRight1.SetInverted(true);
     motorRight2.SetInverted(true);
 
-    // Brake / Coast Mode
-    motorLeft1.SetNeutralMode(NeutralMode::Brake);
-    motorLeft2.SetNeutralMode(NeutralMode::Brake);
-    motorRight1.SetNeutralMode(NeutralMode::Brake);
-    motorRight2.SetNeutralMode(NeutralMode::Brake);
-
     // Encoder Feedback
     //motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
     //motorLeft2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
@@ -65,6 +59,8 @@ void Drivebase::Arcade(double forward, double turn)
         turn /= std::abs(turn);
     }
 
+    std::cout << forward << std::endl;
+
     // CAN
     motorLeft1.Set(forward - turn);
     motorLeft2.Set(forward - turn);
@@ -97,6 +93,25 @@ void Drivebase::SetLowGear()
 {
     solenoidShifter.Set(false);
 }
+
+//Coast Mode
+void Drivebase::SetCoast()
+{
+    motorLeft1.SetNeutralMode(NeutralMode::Coast);
+    motorLeft2.SetNeutralMode(NeutralMode::Coast);
+    motorRight1.SetNeutralMode(NeutralMode::Coast);
+    motorRight2.SetNeutralMode(NeutralMode::Coast);
+}
+
+//Brake Mode
+void Drivebase::SetBrake()
+{
+    motorLeft1.SetNeutralMode(NeutralMode::Brake);
+    motorLeft2.SetNeutralMode(NeutralMode::Brake);
+    motorRight1.SetNeutralMode(NeutralMode::Brake);
+    motorRight2.SetNeutralMode(NeutralMode::Brake);
+}
+
 
 // Reset Encoders
 void Drivebase::ResetEncoders()
@@ -186,8 +201,18 @@ void Drivebase::DriveForward(double distance, double maxOutput)
         }
     }
 
-    Arcade(driveCommandForward, driveCommandRotation);
+    if(driveCommandForward > maxOutput)
+    {
+        driveCommandForward = maxOutput;
+    }
+    if(driveCommandForward < -maxOutput)
+    {
+        driveCommandForward = -maxOutput;
+    }
+    
+    Arcade(driveCommandForward, -driveCommandRotation * maxOutput);
 }
+
 
 void Drivebase::TurnAbs(double heading)
 {
@@ -202,7 +227,16 @@ void Drivebase::TurnAbs(double heading)
 
     double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
-    Arcade(0, driveCommandRotation);
+    if(driveCommandRotation > 0.25)
+    {
+        driveCommandRotation = 0.25;
+    }
+    if(driveCommandRotation < -0.25)
+    {
+        driveCommandRotation = -0.25;
+    }
+
+    Arcade(0, -driveCommandRotation);
 }
 
 bool Drivebase::TurnRel(double degrees)

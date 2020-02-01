@@ -24,6 +24,7 @@ void Robot::RobotPeriodic()
   if (btnPSDr)
   {
     IO.drivebase.ResetEncoders();
+    IO.drivebase.ResetGyro();
     autoPrograms.Init();
   }
 
@@ -48,10 +49,12 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit()
 {
+  IO.drivebase.SetBrake();
 }
 
 void Robot::DisabledInit()
 {
+  IO.drivebase.SetCoast();
 }
 
 void Robot::TeleopPeriodic()

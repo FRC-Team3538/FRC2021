@@ -40,9 +40,9 @@ private:
   Solenoid solenoidShifter{0};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
+  //const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
+  const double kScaleFactor = 53.1875 / 52896;
 
-  
   enum slots
   {
     Forward = 0,
@@ -62,13 +62,13 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (0.0105)
-#define KI_ROTATION (0.000009) //0.00005
-#define KD_ROTATION (0.00008)  //0.004
+#define KP_ROTATION (0.013)  //0.0105
+#define KI_ROTATION (0.00000) //0.00005
+#define KD_ROTATION (0.0)  //0.004
 
-#define KP_FORWARD (0.02)
+#define KP_FORWARD (0.01)
 #define KI_FORWARD (0.00)
-#define KD_FORWARD (0.003)
+#define KD_FORWARD (0.00) //0.003
 
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";
@@ -86,6 +86,8 @@ public:
   void Stop();
   void SetHighGear();
   void SetLowGear();
+  void SetCoast();
+  void SetBrake();
 
   void SensorOverride(bool active);
 
