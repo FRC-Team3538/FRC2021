@@ -4,6 +4,7 @@
 #include "auto/AutoLineCross.hpp"
 #include "auto/AutoCenterShootForward.hpp"
 #include "auto/AutoCenterShootBack.hpp"
+#include "auto/AutoTrenchRun.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -13,6 +14,7 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(AutoLineCross::GetName(), AutoLineCross::GetName());
     m_chooser.AddOption(AutoCenterShootForward::GetName(), AutoCenterShootForward::GetName());
     m_chooser.AddOption(AutoCenterShootBack::GetName(), AutoCenterShootBack::GetName());
+    m_chooser.AddOption(AutoTrenchRun::GetName(), AutoTrenchRun::GetName());
 }
 
 // Initialize the selected auto program
@@ -37,6 +39,10 @@ void AutoPrograms::Init()
     if (name == AutoCenterShootBack::GetName())
     {
         m_autoProgram = new AutoCenterShootBack(IO);
+    }
+    if (name == AutoTrenchRun::GetName())
+    {
+        m_autoProgram = new AutoTrenchRun(IO);
     }
 }
 
