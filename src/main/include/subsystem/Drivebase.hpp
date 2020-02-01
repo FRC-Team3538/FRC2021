@@ -71,8 +71,8 @@ private:
 #define KD_FORWARD (0.003)
 
   SendableChooser<std::string> chooseDriveLimit;
-  const std::string sLimited = "Limited";
-  const std::string sUnlimited = "Unlimited";
+  const std::string sLimited = "Normal";
+  const std::string sUnlimited = "Override";
 
 public:
   // Default Constructor

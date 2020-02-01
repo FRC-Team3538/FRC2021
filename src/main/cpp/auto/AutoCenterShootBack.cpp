@@ -18,9 +18,9 @@ AutoCenterShootBack::AutoCenterShootBack(robotmap &IO) : IO(IO)
 
 AutoCenterShootBack::~AutoCenterShootBack() { }
 
-
 //State Machine
-void AutoCenterShootBack::NextState(){
+void AutoCenterShootBack::NextState()
+{
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
@@ -34,7 +34,7 @@ void AutoCenterShootBack::Run()
     case 0:
     {
         IO.drivebase.Stop();
-        IO.shooter.SetShooterDistance(144);
+        IO.shooter.SetShooterDistance(144.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -44,7 +44,7 @@ void AutoCenterShootBack::Run()
     case 1:
     {
         double fwd = -0.50;
-        double rot = 0.0;
+        double rot = 0.00;
         IO.drivebase.Arcade(fwd, rot);
         if (m_autoTimer.Get() > 2.0)
         {
@@ -55,14 +55,13 @@ void AutoCenterShootBack::Run()
     case 2:
     {
         IO.drivebase.Stop();
+        IO.shooter.Stop();
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
         }
         break;
     }
-    
-   
     
     default:
         IO.drivebase.Stop();

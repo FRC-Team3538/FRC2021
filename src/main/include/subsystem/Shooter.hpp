@@ -55,6 +55,8 @@ public:
   void IntakeRetract();
   void SetIndexer(double speed);
   void SetHood(double input);
+  bool GetModeChooser();
+  void ManualShoot(double inputFly, double inputKick);
 
   void UpdateSmartdash();
 };

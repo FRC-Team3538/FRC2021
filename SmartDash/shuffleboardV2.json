@@ -10,9 +10,9 @@
         "hgap": 16.0,
         "vgap": 16.0,
         "tiles": {
-          "10,3": {
+          "12,0": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
@@ -21,18 +21,18 @@
               "_title": "Choose Auto"
             }
           },
-          "12,5": {
+          "12,4": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
-              "_type": "ComboBox Chooser",
+              "_type": "Split Button Chooser",
               "_source0": "network_table:///SmartDashboard/_SelectedController",
               "_title": "_SelectedController"
             }
           },
-          "5,1": {
+          "5,0": {
             "size": [
               2,
               1
@@ -43,7 +43,7 @@
               "_title": "Indexer"
             }
           },
-          "0,5": {
+          "0,4": {
             "size": [
               2,
               1
@@ -56,22 +56,35 @@
           },
           "12,3": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
-              "_type": "ComboBox Chooser",
+              "_type": "Split Button Chooser",
               "_source0": "network_table:///SmartDashboard/_ShooterMode",
               "_title": "_ShooterMode"
             }
           },
-          "12,4": {
+          "7,1": {
             "size": [
               2,
               1
             ],
             "content": {
-              "_type": "ComboBox Chooser",
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Intake",
+              "_title": "Solenoid Intake",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "12,5": {
+            "size": [
+              3,
+              1
+            ],
+            "content": {
+              "_type": "Split Button Chooser",
               "_source0": "network_table:///SmartDashboard/_DriveLimits",
               "_title": "_DriveLimits"
             }
@@ -85,30 +98,8 @@
               "_type": "Boolean Box",
               "_source0": "network_table:///SmartDashboard/DriveOverride",
               "_title": "DriveOverride",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
-            }
-          },
-          "2,0": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Drive R1",
-              "_title": "Drive R1"
-            }
-          },
-          "2,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Drive R3",
-              "_title": "Drive R3"
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
             }
           },
           "2,1": {
@@ -122,44 +113,7 @@
               "_title": "Drive R2"
             }
           },
-          "2,3": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/DriveShifter",
-              "_title": "DriveShifter",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
-            }
-          },
-          "10,0": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Target Color",
-              "_title": "Target Color"
-            }
-          },
-          "7,5": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Solenoid Climber",
-              "_title": "Solenoid Climber",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
-            }
-          },
-          "5,5": {
+          "5,3": {
             "size": [
               2,
               1
@@ -170,7 +124,55 @@
               "_title": "Climber"
             }
           },
-          "0,4": {
+          "2,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Drive R1",
+              "_title": "Drive R1"
+            }
+          },
+          "9,1": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Target Color",
+              "_title": "Target Color"
+            }
+          },
+          "2,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/DriveShifter",
+              "_title": "DriveShifter",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "7,3": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Climber",
+              "_title": "Solenoid Climber",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "0,2": {
             "size": [
               2,
               1
@@ -181,7 +183,7 @@
               "_title": "DriveEncL"
             }
           },
-          "2,4": {
+          "2,2": {
             "size": [
               2,
               1
@@ -192,18 +194,7 @@
               "_title": "DriveEncR"
             }
           },
-          "12,0": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Detected Color",
-              "_title": "Detected Color"
-            }
-          },
-          "10,1": {
+          "9,4": {
             "size": [
               2,
               1
@@ -212,6 +203,17 @@
               "_type": "Text View",
               "_source0": "network_table:///SmartDashboard/Spin Counter",
               "_title": "Spin Counter"
+            }
+          },
+          "9,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Detected Color",
+              "_title": "Detected Color"
             }
           },
           "0,0": {
@@ -236,18 +238,7 @@
               "_title": "Drive L2"
             }
           },
-          "0,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Drive L3",
-              "_title": "Drive L3"
-            }
-          },
-          "5,4": {
+          "5,2": {
             "size": [
               2,
               1
@@ -258,7 +249,7 @@
               "_title": "Hood"
             }
           },
-          "12,1": {
+          "9,3": {
             "size": [
               2,
               1
@@ -269,7 +260,7 @@
               "_title": "Confidence"
             }
           },
-          "2,5": {
+          "2,4": {
             "size": [
               2,
               1
@@ -280,7 +271,7 @@
               "_title": "Heading Setpoint"
             }
           },
-          "5,3": {
+          "5,1": {
             "size": [
               2,
               1
@@ -291,9 +282,9 @@
               "_title": "Intake"
             }
           },
-          "10,4": {
+          "12,1": {
             "size": [
-              2,
+              3,
               1
             ],
             "content": {
@@ -302,7 +293,20 @@
               "_title": "Selected Auto"
             }
           },
-          "5,2": {
+          "7,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Hood",
+              "_title": "Solenoid Hood",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "5,5": {
             "size": [
               2,
               1
@@ -313,30 +317,15 @@
               "_title": "Feeder"
             }
           },
-          "7,3": {
+          "9,0": {
             "size": [
               2,
               1
             ],
             "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Solenoid Intake",
-              "_title": "Solenoid Intake",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
-            }
-          },
-          "7,4": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Solenoid Hood",
-              "_title": "Solenoid Hood",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/ColorWheel",
+              "_title": "ColorWheel"
             }
           },
           "7,0": {
@@ -345,25 +334,14 @@
               1
             ],
             "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Shoot RPM Act",
-              "_title": "Shoot RPM Act"
-            }
-          },
-          "7,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
               "_type": "Boolean Box",
               "_source0": "network_table:///SmartDashboard/Solenoid ColWheel",
               "_title": "Solenoid ColWheel",
-              "Colors/Color when true": "#009494FF",
-              "Colors/Color when false": "#4D4D4DFF"
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
             }
           },
-          "5,0": {
+          "5,4": {
             "size": [
               2,
               1
@@ -374,15 +352,15 @@
               "_title": "Shoot RPM Cmd"
             }
           },
-          "7,1": {
+          "7,4": {
             "size": [
               2,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/ColorWheel",
-              "_title": "ColorWheel"
+              "_source0": "network_table:///SmartDashboard/Shoot RPM Act",
+              "_title": "Shoot RPM Act"
             }
           }
         }
@@ -399,6 +377,190 @@
         "vgap": 16.0,
         "tiles": {
           "0,0": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "PDP",
+              "_source0": "network_table:///LiveWindow/Ungrouped/PowerDistributionPanel[0]",
+              "_title": "Ungrouped/PowerDistributionPanel[0]",
+              "Visuals/Show voltage and current values": true
+            }
+          },
+          "3,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [11]",
+              "_title": "Ungrouped/Talon SRX [11]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "5,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [5]",
+              "_title": "Ungrouped/Talon FX [5]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "7,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Victor SPX [12]",
+              "_title": "Ungrouped/Victor SPX [12]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "3,1": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [2]",
+              "_title": "Ungrouped/Talon FX [2]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "5,1": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [4]",
+              "_title": "Ungrouped/Talon FX [4]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "9,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Solenoid[0,3]/Value",
+              "_title": "Ungrouped/Solenoid[0,3]/Value",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "7,1": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [1]",
+              "_title": "Ungrouped/Talon FX [1]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "0,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Victor SPX [10]",
+              "_title": "Ungrouped/Victor SPX [10]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "2,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [3]",
+              "_title": "Ungrouped/Talon FX [3]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "9,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Solenoid[0,2]/Value",
+              "_title": "Ungrouped/Solenoid[0,2]/Value",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "4,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [0]",
+              "_title": "Ungrouped/Talon FX [0]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "6,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Speed Controller",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Victor SPX [9]",
+              "_title": "Ungrouped/Victor SPX [9]",
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "8,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Solenoid[0,1]/Value",
+              "_title": "Ungrouped/Solenoid[0,1]/Value",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "9,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///LiveWindow/Ungrouped/Solenoid[0,0]/Value",
+              "_title": "Ungrouped/Solenoid[0,0]/Value",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "10,0": {
             "size": [
               2,
               4
@@ -557,9 +719,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 0.800000011920929,
+    "x": 0.0,
     "y": 0.0,
-    "width": 1536.0,
+    "width": 1537.5999755859375,
     "height": 633.5999755859375
   }
 }

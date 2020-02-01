@@ -34,7 +34,7 @@ void AutoCenterShootForward::Run()
     case 0:
     {
         IO.drivebase.Stop();
-        IO.shooter.SetShooterDistance(144);
+        IO.shooter.SetShooterDistance(144.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();

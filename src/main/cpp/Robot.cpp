@@ -67,40 +67,72 @@ void Robot::TeleopPeriodic()
   {
     rotate *= kDriveTurnLimit;
   }
+  // Shooter Manual Mode
+  if (IO.shooter.GetModeChooser() == true)
+  {
+    //Hood
+    double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
+    IO.shooter.SetHood(hoodAnalog);
 
-  if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
-  {
-    IO.drivebase.Arcade(forward, rotate);
-  }
-  else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton()) //Three Pointer
-  {
-    indexer = indexerSpeed;
-    data = IO.RJV.Run(IO.RJV.ShotType::Three);
-    if (data.filled)
+    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
-      IO.drivebase.TurnRel(data.angle) ? tpCt++ : tpCt = 0;
-      if (tpCt > 10)
+      IO.shooter.ManualShoot(0.0, 0.0);
+    }
+    if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+    {
+      manualShootTimer.Start();
+      if (manualShootTimer.Get() < 1.0)
       {
-        IO.shooter.SetShooterDistance(data.distance);
+        IO.shooter.ManualShoot(1.0, 0.0);
+      }
+      else
+      {
+        indexer = 1.0;
+        IO.shooter.ManualShoot(1.0, 1.0);
       }
     }
-  }
-  else if (IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton()) //Two Pointer
-  {
-    indexer = indexerSpeed;
-    data = IO.RJV.Run(IO.RJV.ShotType::Two);
-    if (data.filled)
+    else
     {
-      IO.drivebase.TurnRel(data.angle);
-      IO.shooter.SetShooterDistance(data.distance);
+      manualShootTimer.Stop();
+      manualShootTimer.Reset();
     }
   }
   else
   {
-    data.filled = false;
-    tpCt = 0;
-    IO.drivebase.Arcade(0, 0);
-    IO.shooter.SetShooterDistance(-1.0);
+    if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
+    {
+      IO.drivebase.Arcade(forward, rotate);
+    }
+    else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton()) //Three Pointer
+    {
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.ShotType::Three);
+      if (data.filled)
+      {
+        IO.drivebase.TurnRel(data.angle) ? tpCt++ : tpCt = 0;
+        if (tpCt > 10)
+        {
+          IO.shooter.SetShooterDistance(data.distance);
+        }
+      }
+    }
+    else if (IO.ds.Operator.GetCrossButton() | IO.ds.Driver.GetCrossButton()) //Two Pointer
+    {
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.ShotType::Two);
+      if (data.filled)
+      {
+        IO.drivebase.TurnRel(data.angle);
+        IO.shooter.SetShooterDistance(data.distance);
+      }
+    }
+    else
+    {
+      data.filled = false;
+      tpCt = 0;
+      IO.drivebase.Arcade(0, 0);
+      IO.shooter.SetShooterDistance(-1.0);
+    }
   }
 
   // Shifting
@@ -131,16 +163,8 @@ void Robot::TeleopPeriodic()
   IO.shooter.SetIndexer(indexer);
 
   //Intake
-  if(IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
   {
-    
-  }
-
-  //Hood
-  double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
-  if (!data.filled)
-  {
-    IO.shooter.SetHood(hoodAnalog);
   }
 
   //Climber
@@ -226,8 +250,8 @@ void Robot::UpdateSD()
   }
   case 4:
   {
-  //  IO.RJV.UpdateSmartDash();
-   // break;
+    //  IO.RJV.UpdateSmartDash();
+    // break;
   }
   }
 

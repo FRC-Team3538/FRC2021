@@ -153,8 +153,8 @@ void ColorWheel::ReadColorWheel()
 
 void ColorWheel::UpdateSmartdash()
 {
-   SmartDashboard::PutNumber("Motor ColorWheel", motorColorWheel.Get());
-   SmartDashboard::PutBoolean("Solenoid ColorWheel", solenoidColorWheel.Get());
+   SmartDashboard::PutNumber("ColorWheel", motorColorWheel.Get());
+   SmartDashboard::PutBoolean("Solenoid ColWheel", solenoidColorWheel.Get());
 
    ReadColorWheel();
 

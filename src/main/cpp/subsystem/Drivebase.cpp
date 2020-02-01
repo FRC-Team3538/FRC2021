@@ -75,6 +75,10 @@ void Drivebase::Arcade(double forward, double turn)
 // Stop!
 void Drivebase::Stop()
 {
+    motorLeft1.Set(0.0);
+    motorLeft2.Set(0.0);
+    motorRight1.Set(0.0);
+    motorRight2.Set(0.0);
     // CAN
     motorLeft1.StopMotor();
     motorLeft2.StopMotor();
@@ -289,5 +293,5 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("Heading Setpoint", forwardHeading);
 
     SmartDashboard::PutData("_DriveLimits", &chooseDriveLimit);
-    SensorOverride(chooseDriveLimit.GetSelected() == sLimited);
+    SensorOverride(chooseDriveLimit.GetSelected() == sUnlimited);
 }

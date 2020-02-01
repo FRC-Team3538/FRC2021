@@ -24,8 +24,8 @@ Shooter::Shooter()
    flywheel.SetInverted(false);
    flywheelB.SetInverted(true);
 
-   chooseShooterMode.SetDefaultOption(sManualMode, sManualMode);
-   chooseShooterMode.AddOption(sAutoMode, sAutoMode);
+   chooseShooterMode.SetDefaultOption(sAutoMode, sAutoMode);
+   chooseShooterMode.AddOption(sManualMode, sManualMode);
 
 }
 
@@ -38,6 +38,7 @@ void Shooter::Stop()
    motorIndexer.StopMotor();
    motorFeeder.StopMotor();
    motorHood.StopMotor();
+   shootSpeed = 0.0;
 }
 
 void Shooter::SetShooterDistance(double distance)
@@ -46,8 +47,11 @@ void Shooter::SetShooterDistance(double distance)
    {
       motorFeeder.Set(0.0);
       flywheel.Set(0.0);
+      shootSpeed = 0.0;
+      return;
    }
-   else if(distance < 188)
+
+   if(distance < 188)
    {
       shootSpeed = (4.2753 * (distance)) + 2041.9;
    }
@@ -84,16 +88,18 @@ void Shooter::SetIndexer(double speed)
 
 void Shooter::SetHood(double input)
 {
-
-   if (manualMode)
-   {
       motorHood.Set(input);
-   }
-   else
-   {
-      motorHood.Set(0.0);
-   }
+}
 
+bool Shooter::GetModeChooser()
+{
+   return manualMode;
+}
+
+void Shooter::ManualShoot(double inputFly, double inputKick)
+{
+   flywheel.Set(inputFly);
+   motorFeeder.Set(inputKick);
 }
 
 void Shooter::UpdateSmartdash()
@@ -101,7 +107,8 @@ void Shooter::UpdateSmartdash()
    SmartDashboard::PutData("_ShooterMode", &chooseShooterMode);
    manualMode = (chooseShooterMode.GetSelected() == sManualMode);
 
-    SmartDashboard::PutNumber("Shooter", flywheel.Get());
+    SmartDashboard::PutNumber("Shoot RPM Cmd", shootSpeed);
+    SmartDashboard::PutNumber("Shoot RPM Act", flywheel.GetSelectedSensorVelocity() * kScaleFactorFly * 600.0);
     SmartDashboard::PutNumber("Intake", motorIntake.Get());
     SmartDashboard::PutNumber("Indexer", motorIndexer.Get());
     SmartDashboard::PutNumber("Feeder", motorFeeder.Get());

@@ -16,6 +16,8 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include <opencv2/videoio.hpp>
 #include <frc/PowerDistributionPanel.h>
+#include <frc/Timer.h>
+
 using namespace cv;
 
 class Robot : public frc::TimedRobot
@@ -49,4 +51,7 @@ private:
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
   int tpCt = 0; //TODO Bad var name
+
+  //Timer 
+  Timer manualShootTimer;
 };
