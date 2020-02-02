@@ -1,7 +1,7 @@
 # FRC2020
 ### 2/1/20:
   1. [Debugged Vision, Shooter, and Integration of These Systems](src/main/cpp/Robot.cpp)
-     - [Tuned Shooter and Distancing]()
+     - [Tuned Shooter and Distancing](https://drive.google.com/open?id=1-B2QTZ6yiJMroI5dedXIeb6OXCrGLCgO)
      - Fixed Bugs With Auto Shooting and Feeding
   2. [Added Auto State Machines](src/main/cpp/auto)
      - Basic State Machine From Previous Years
