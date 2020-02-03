@@ -1,4 +1,6 @@
 # FRC2020
+### 2/3/20:
+  1. Patched a Build Error and a Runtime Error
 ### 2/1/20:
   1. [Debugged Vision, Shooter, and Integration of These Systems](src/main/cpp/Robot.cpp)
      - [Tuned Shooter and Distancing](https://drive.google.com/open?id=1-B2QTZ6yiJMroI5dedXIeb6OXCrGLCgO)
