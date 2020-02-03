@@ -20,13 +20,13 @@ Drivebase::Drivebase()
     motorRight2.SetInverted(true);
 
     // Encoder Feedback
-    motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
-    motorLeft2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
+    motorLeft2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
     motorLeft1.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
     motorLeft2.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
 
-    motorRight1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
-    motorRight2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, PIDind::primary);
+    motorRight1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
+    motorRight2.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
     motorRight1.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
     motorRight2.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
 

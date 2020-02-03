@@ -119,15 +119,20 @@ void Robot::TeleopPeriodic()
     else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
       //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
-      if (tpCt > 10)
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.ShotType::Three);
+      if (data.filled)
       {
-        IO.shooter.SetShooterDistanceThree(data.distance);
-        IO.drivebase.Arcade(0.0, 0.0);
-      }
-      else
-      {
-        IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-        IO.shooter.SetVelocity(1500.0);
+        if (tpCt > 10)
+        {
+          IO.shooter.SetShooterDistanceThree(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1500.0);
+        }
       }
     }
     else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
@@ -275,7 +280,7 @@ void Robot::UpdateSD()
   }
   case 20:
   {
-     IO.RJV.UpdateSmartDash();
+    IO.RJV.UpdateSmartDash();
     break;
   }
   default:

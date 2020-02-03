@@ -56,7 +56,7 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 	}
 	else
 	{
-		if (tv == 1.0 && pipeSwitch.Get() > 0.4)
+		if (tv == 1.0 && pipeSwitch.Get() > 0.5)
 		{
 			telemetry.angle = dx;
 			telemetry.distance = (shotTypeCor == 0) ? DistEstimation() : pnpDist;

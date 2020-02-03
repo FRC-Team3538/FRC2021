@@ -55,7 +55,6 @@ private:
 
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
-  int tpCt = 0; //TODO Bad var name
 
   //Timer
   Timer manualShootTimer;
