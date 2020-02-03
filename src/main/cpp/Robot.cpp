@@ -80,6 +80,7 @@ void Robot::TeleopPeriodic()
   if (IO.shooter.GetModeChooser() == true)
   {
     //Hood
+    IO.drivebase.Arcade(forward, rotate);
     double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
     IO.shooter.SetHood(hoodAnalog);
 
