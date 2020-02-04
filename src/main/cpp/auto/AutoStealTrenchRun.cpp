@@ -34,7 +34,7 @@ void AutoStealTrenchRun::Run()
     case 0:
     {
         IO.shooter.IntakeDeploy();
-        IO.shooter.SetShooterDistance(108.0);
+        IO.shooter.SetShooterDistanceThree(108.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -99,7 +99,7 @@ void AutoStealTrenchRun::Run()
     }
     case 7:
     {
-        IO.shooter.SetShooterDistance(204);
+        IO.shooter.SetShooterDistanceTwo(204);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
