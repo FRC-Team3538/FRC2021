@@ -22,6 +22,9 @@ class AutoBackTrench : public AutoInterface {
 
     void NextState();
 
+    vision::RJVisionPipeline::visionData data;
+    int tpCt = 0;
+
  public:
     // Constructor requires a reference to the RobotMap
     AutoBackTrench() = delete;

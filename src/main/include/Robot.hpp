@@ -37,8 +37,13 @@ private:
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
   const double deadband = 0.1;
+
   double indexerSpeed = 1.0; // TODO SmartDash input
   double kDriveTurnLimit = 0.65;
+
+  int tpCt = 0;
+  double df;
+  bool blastOS = false;
 
   // Dont update smart dash every loop
   int smartDashSkip = 0;
@@ -50,8 +55,7 @@ private:
 
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
-  int tpCt = 0; //TODO Bad var name
 
-  //Timer 
+  //Timer
   Timer manualShootTimer;
 };

@@ -7,28 +7,33 @@
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
 
-class AutoTrenchRun : public AutoInterface {
- public:
-    // Name of this program, used by SmartDash
-    static std::string GetName();
 
- private:
-    // Get a referance to the robotmap
-    robotmap& IO;
+class AutoTrenchRun : public AutoInterface
+{
+public:
+   // Name of this program, used by SmartDash
+   static std::string GetName();
 
-    // State Variables
-    int m_state;   
-    Timer m_autoTimer;
+private:
+   // Get a referance to the robotmap
+   robotmap &IO;
 
-    void NextState();
+   // State Variables
+   int m_state;
+   Timer m_autoTimer;
 
- public:
-    // Constructor requires a reference to the RobotMap
-    AutoTrenchRun() = delete;
-    AutoTrenchRun(robotmap& );
-    ~AutoTrenchRun();
+   vision::RJVisionPipeline::visionData data;
+   int tpCt = 0;
 
-    // Auto Program Logic
-    void Run();
-    void UpdateSmartDash();
+   void NextState();
+
+public:
+   // Constructor requires a reference to the RobotMap
+   AutoTrenchRun() = delete;
+   AutoTrenchRun(robotmap &);
+   ~AutoTrenchRun();
+
+   // Auto Program Logic
+   void Run();
+   void UpdateSmartDash();
 };

@@ -100,17 +100,6 @@
               "_title": "Drive R1"
             }
           },
-          "2,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Drive R3",
-              "_title": "Drive R3"
-            }
-          },
           "2,1": {
             "size": [
               2,
@@ -234,17 +223,6 @@
               "_type": "Text View",
               "_source0": "network_table:///SmartDashboard/Drive L2",
               "_title": "Drive L2"
-            }
-          },
-          "0,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Drive L3",
-              "_title": "Drive L3"
             }
           },
           "5,4": {

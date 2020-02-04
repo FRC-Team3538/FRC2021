@@ -40,9 +40,9 @@ private:
   Solenoid solenoidShifter{0};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
+  //const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
+  const double kScaleFactor = 53.1875 / 52896;
 
-  
   enum slots
   {
     Forward = 0,
@@ -62,12 +62,17 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (0.013) 
-#define KI_ROTATION (0.0)    
-#define KD_ROTATION (0.0025) //0.0004 
-#define KP_FORWARD (0.013) //0.01
-#define KI_FORWARD (0.0)  
-#define KD_FORWARD (0.0)
+// #define KP_ROTATION (0.013)  //0.0105
+// #define KI_ROTATION (0.00000) //0.00005
+// #define KD_ROTATION (0.0)  //0.004
+
+#define KP_ROTATION (0.015)
+#define KI_ROTATION (0.00002) //0.00005
+#define KD_ROTATION (0.000015)  //0.004
+
+#define KP_FORWARD (0.01)
+#define KI_FORWARD (0.00)
+#define KD_FORWARD (0.00) //0.003
 
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";
@@ -85,6 +90,8 @@ public:
   void Stop();
   void SetHighGear();
   void SetLowGear();
+  void SetCoast();
+  void SetBrake();
 
   void SensorOverride(bool active);
 
@@ -102,7 +109,7 @@ public:
 
   void DriveForward(double distance, double currentLimit = 1.0);
   void TurnAbs(double degrees);
-  bool TurnRel(double degrees);
+  bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
   AHRS navx{SPI::Port::kMXP, 200};

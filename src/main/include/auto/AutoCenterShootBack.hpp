@@ -7,28 +7,32 @@
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
 
-class AutoCenterShootBack : public AutoInterface {
- public:
-    // Name of this program, used by SmartDash
-    static std::string GetName();
+class AutoCenterShootBack : public AutoInterface
+{
+public:
+   // Name of this program, used by SmartDash
+   static std::string GetName();
 
- private:
-    // Get a referance to the robotmap
-    robotmap& IO;
+private:
+   // Get a referance to the robotmap
+   robotmap &IO;
 
-    // State Variables
-    int m_state;   
-    Timer m_autoTimer;
+   // State Variables
+   int m_state;
+   Timer m_autoTimer;
 
-    void NextState();
+   vision::RJVisionPipeline::visionData data;
+   int tpCt = 0;
 
- public:
-    // Constructor requires a reference to the RobotMap
-    AutoCenterShootBack() = delete;
-    AutoCenterShootBack(robotmap& );
-    ~AutoCenterShootBack();
+   void NextState();
 
-    // Auto Program Logic
-    void Run();
-    void UpdateSmartDash();
+public:
+   // Constructor requires a reference to the RobotMap
+   AutoCenterShootBack() = delete;
+   AutoCenterShootBack(robotmap &);
+   ~AutoCenterShootBack();
+
+   // Auto Program Logic
+   void Run();
+   void UpdateSmartDash();
 };

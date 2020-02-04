@@ -16,7 +16,7 @@ AutoCenterShootBack::AutoCenterShootBack(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoCenterShootBack::~AutoCenterShootBack() { }
+AutoCenterShootBack::~AutoCenterShootBack() {}
 
 //State Machine
 void AutoCenterShootBack::NextState()
@@ -24,6 +24,10 @@ void AutoCenterShootBack::NextState()
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
+    data.filled = false;
+    tpCt = 0;
+    IO.shooter.StopShooter();
+    IO.RJV.Reset();
 }
 
 // Execute the program
@@ -34,7 +38,22 @@ void AutoCenterShootBack::Run()
     case 0:
     {
         IO.drivebase.Stop();
-        IO.shooter.SetShooterDistance(144.0);
+
+        data = IO.RJV.Run(IO.RJV.ShotType::Three);
+        if (data.filled)
+        {
+            if (tpCt > 10)
+            {
+                IO.shooter.SetShooterDistanceThree(data.distance);
+                IO.drivebase.Arcade(0.0, 0.0);
+            }
+            else
+            {
+                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+                IO.shooter.SetVelocity(1500.0);
+            }
+        }
+
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -62,7 +81,7 @@ void AutoCenterShootBack::Run()
         }
         break;
     }
-    
+
     default:
         IO.drivebase.Stop();
     }

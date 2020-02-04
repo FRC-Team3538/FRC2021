@@ -16,7 +16,7 @@ AutoBackTrench::AutoBackTrench(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoBackTrench::~AutoBackTrench() { }
+AutoBackTrench::~AutoBackTrench() {}
 
 //State Machine
 void AutoBackTrench::NextState()
@@ -24,6 +24,10 @@ void AutoBackTrench::NextState()
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
+    data.filled = false;
+    tpCt = 0;
+    IO.shooter.StopShooter();
+    IO.RJV.Reset();
 }
 
 // Execute the program
@@ -34,7 +38,22 @@ void AutoBackTrench::Run()
     case 0:
     {
         IO.shooter.IntakeDeploy();
-        IO.shooter.SetShooterDistance(108.0);
+
+        data = IO.RJV.Run(IO.RJV.ShotType::Three);
+        if (data.filled)
+        {
+            if (tpCt > 10)
+            {
+                IO.shooter.SetShooterDistanceThree(data.distance);
+                IO.drivebase.Arcade(0.0, 0.0);
+            }
+            else
+            {
+                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+                IO.shooter.SetVelocity(1500.0);
+            }
+        }
+
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -68,8 +87,8 @@ void AutoBackTrench::Run()
         }
         break;
     }
-     case 4:
-     {
+    case 4:
+    {
         IO.shooter.SetIntake(0.5);
         IO.drivebase.DriveForward(-180.0);
         if (m_autoTimer.Get() > 2.0)
@@ -79,7 +98,7 @@ void AutoBackTrench::Run()
         break;
     }
     case 5:
-     {
+    {
         IO.shooter.SetIntake(0.0);
         IO.drivebase.DriveForward(-108.0);
         if (m_autoTimer.Get() > 2.0)
@@ -99,14 +118,28 @@ void AutoBackTrench::Run()
     }
     case 7:
     {
-        IO.shooter.SetShooterDistance(204.0);
+        data = IO.RJV.Run(IO.RJV.ShotType::Two);
+        if (data.filled)
+        {
+            if (tpCt > 5)
+            {
+                IO.shooter.SetShooterDistanceTwo(data.distance);
+                IO.drivebase.Arcade(0.0, 0.0);
+            }
+            else
+            {
+                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+                IO.shooter.SetVelocity(1000.0);
+            }
+        }
+
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
         }
         break;
     }
-    
+
     default:
         IO.drivebase.Stop();
     }

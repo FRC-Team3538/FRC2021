@@ -16,14 +16,17 @@ AutoTrenchRun::AutoTrenchRun(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoTrenchRun::~AutoTrenchRun() { }
-
+AutoTrenchRun::~AutoTrenchRun() {}
 
 //State Machine
 void AutoTrenchRun::NextState(){
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
+    data.filled = false;
+    tpCt = 0;
+    IO.shooter.StopShooter();
+    IO.RJV.Reset();
 }
 
 // Execute the program
@@ -33,9 +36,23 @@ void AutoTrenchRun::Run()
     {
     case 0:
     {
-        IO.drivebase.Stop();
         IO.shooter.IntakeDeploy();
-        IO.shooter.SetShooterDistance(144.0);
+        IO.drivebase.Stop();
+        data = IO.RJV.Run(IO.RJV.ShotType::Two);
+        if (data.filled)
+        {
+            if (tpCt > 5)
+            {
+                IO.shooter.SetShooterDistanceTwo(data.distance);
+                IO.drivebase.Arcade(0.0, 0.0);
+            }
+            else
+            {
+                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+                IO.shooter.SetVelocity(1000.0);
+            }
+        }
+
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -82,17 +99,31 @@ void AutoTrenchRun::Run()
         }
         break;
     }
-     case 5: {
-        IO.shooter.SetShooterDistance(204.0);
+    case 5:
+    {
+
+        data = IO.RJV.Run(IO.RJV.ShotType::Two);
+        if (data.filled)
+        {
+            if (tpCt > 5)
+            {
+                IO.shooter.SetShooterDistanceTwo(data.distance);
+                IO.drivebase.Arcade(0.0, 0.0);
+            }
+            else
+            {
+                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+                IO.shooter.SetVelocity(1000.0);
+            }
+        }
+
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
         }
         break;
     }
-    
-    
-    
+
     default:
         IO.drivebase.Stop();
         IO.shooter.Stop();
