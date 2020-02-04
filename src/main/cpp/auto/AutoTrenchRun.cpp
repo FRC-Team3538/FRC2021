@@ -10,7 +10,7 @@ std::string AutoTrenchRun::GetName()
 // Constructor requires a reference to the robot map
 AutoTrenchRun::AutoTrenchRun(robotmap &IO) : IO(IO)
 {
-    setstate = 0;
+    m_state = 0;
     m_autoTimer.Reset();
     m_autoTimer.Start();
     IO.drivebase.Stop();
@@ -21,7 +21,7 @@ AutoTrenchRun::~AutoTrenchRun() { }
 
 //State Machine
 void AutoTrenchRun::NextState(){
-    setstate++;
+    m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
 }
@@ -29,11 +29,12 @@ void AutoTrenchRun::NextState(){
 // Execute the program
 void AutoTrenchRun::Run()
 {
-    switch (setstate)
+    switch (m_state)
     {
     case 0:
     {
         IO.drivebase.Stop();
+        IO.shooter.IntakeDeploy();
         IO.shooter.SetShooterDistance(144.0);
         if (m_autoTimer.Get() > 2.0)
         {
@@ -43,7 +44,7 @@ void AutoTrenchRun::Run()
     }
     case 1:
     {
-        IO.drivebase.TurnAbs(15);
+        IO.drivebase.TurnAbs(15.0);
         IO.shooter.IntakeDeploy();
         if (m_autoTimer.Get() > 2.0)
         {
@@ -53,7 +54,7 @@ void AutoTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(-180);
+        IO.drivebase.DriveForward(-180.0);
         IO.shooter.SetIntake(0.5);
         IO.shooter.SetIndexer(0.5);
         if (m_autoTimer.Get() > 2.0)
@@ -64,7 +65,7 @@ void AutoTrenchRun::Run()
     }
      case 3:
      {
-        IO.drivebase.DriveForward(-108);
+        IO.drivebase.DriveForward(-108.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -74,7 +75,7 @@ void AutoTrenchRun::Run()
     
     
     case 4: {
-        IO.drivebase.TurnAbs(0);
+        IO.drivebase.TurnAbs(0.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -82,7 +83,7 @@ void AutoTrenchRun::Run()
         break;
     }
      case 5: {
-        IO.shooter.SetShooterDistance(204);
+        IO.shooter.SetShooterDistance(204.0);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -102,5 +103,5 @@ void AutoTrenchRun::Run()
 
 void AutoTrenchRun::UpdateSmartDash()
 {
-    SmartDashboard::PutNumber("Auto State", setstate);
+    SmartDashboard::PutNumber("Auto State", m_state);
 }

@@ -1,14 +1,14 @@
-#include "auto/AutoBackTrench.hpp"
+#include "auto/AutoStealTrenchRun.hpp"
 
 // Name for Smart Dash Chooser
-std::string AutoBackTrench::GetName()
+std::string AutoStealTrenchRun::GetName()
 {
-    return "3 - AutoBackTrench";
+    return "4 - AutoStealTrenchRun";
 }
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoBackTrench::AutoBackTrench(robotmap &IO) : IO(IO)
+AutoStealTrenchRun::AutoStealTrenchRun(robotmap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();
@@ -16,10 +16,10 @@ AutoBackTrench::AutoBackTrench(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoBackTrench::~AutoBackTrench() { }
+AutoStealTrenchRun::~AutoStealTrenchRun() { }
 
 //State Machine
-void AutoBackTrench::NextState()
+void AutoStealTrenchRun::NextState()
 {
     m_state++;
     m_autoTimer.Reset();
@@ -27,7 +27,7 @@ void AutoBackTrench::NextState()
 }
 
 // Execute the program
-void AutoBackTrench::Run()
+void AutoStealTrenchRun::Run()
 {
     switch (m_state)
     {
@@ -99,7 +99,7 @@ void AutoBackTrench::Run()
     }
     case 7:
     {
-        IO.shooter.SetShooterDistance(204.0);
+        IO.shooter.SetShooterDistance(204);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -114,7 +114,7 @@ void AutoBackTrench::Run()
     UpdateSmartDash();
 }
 
-void AutoBackTrench::UpdateSmartDash()
+void AutoStealTrenchRun::UpdateSmartDash()
 {
     SmartDashboard::PutNumber("Auto State", m_state);
 }

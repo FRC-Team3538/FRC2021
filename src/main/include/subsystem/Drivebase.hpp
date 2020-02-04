@@ -62,13 +62,12 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (0.0105)
-#define KI_ROTATION (0.000009) //0.00005
-#define KD_ROTATION (0.00008)  //0.004
-
-#define KP_FORWARD (0.02)
-#define KI_FORWARD (0.00)
-#define KD_FORWARD (0.003)
+#define KP_ROTATION (0.013) 
+#define KI_ROTATION (0.0)    
+#define KD_ROTATION (0.0025) //0.0004 
+#define KP_FORWARD (0.013) //0.01
+#define KI_FORWARD (0.0)  
+#define KD_FORWARD (0.0)
 
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";

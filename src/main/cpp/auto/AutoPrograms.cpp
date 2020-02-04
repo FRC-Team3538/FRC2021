@@ -6,7 +6,7 @@
 #include "auto/AutoCenterShootBack.hpp"
 #include "auto/AutoTrenchRun.hpp"
 #include "auto/AutoBackTrench.hpp"
-
+#include "auto/AutoStealTrenchRun.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -18,6 +18,9 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(AutoCenterShootBack::GetName(), AutoCenterShootBack::GetName());
     m_chooser.AddOption(AutoTrenchRun::GetName(), AutoTrenchRun::GetName());
     m_chooser.AddOption(AutoBackTrench::GetName(), AutoBackTrench::GetName());
+    m_chooser.AddOption(AutoStealTrenchRun::GetName(), AutoStealTrenchRun::GetName());
+
+
 
 }
 
@@ -52,6 +55,10 @@ void AutoPrograms::Init()
     {
         m_autoProgram = new AutoTrenchRun(IO);
     }
+     if (name == AutoStealTrenchRun::GetName())
+    {
+        m_autoProgram = new AutoStealTrenchRun(IO);
+    }
 }
 
 // Run the selected Auto Program
@@ -69,11 +76,4 @@ void AutoPrograms::SmartDash()
     std::string name = m_chooser.GetSelected();
     SmartDashboard::PutString("Selected Auto", name);
 
-    if(m_autoProgram != NULL)
-    {
-       if(name == "3 - AutoCenterShootBack")
-       {
-           AutoCenterShootBack::GetName();
-       }
-    } 
 }

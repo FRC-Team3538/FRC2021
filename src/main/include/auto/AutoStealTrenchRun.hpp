@@ -7,7 +7,7 @@
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
 
-class AutoTrenchRun : public AutoInterface {
+class AutoStealTrenchRun : public AutoInterface {
  public:
     // Name of this program, used by SmartDash
     static std::string GetName();
@@ -24,11 +24,20 @@ class AutoTrenchRun : public AutoInterface {
 
  public:
     // Constructor requires a reference to the RobotMap
-    AutoTrenchRun() = delete;
-    AutoTrenchRun(robotmap& );
-    ~AutoTrenchRun();
+    AutoStealTrenchRun() = delete;
+    AutoStealTrenchRun(robotmap& );
+    ~AutoStealTrenchRun();
 
     // Auto Program Logic
     void Run();
     void UpdateSmartDash();
 };
+#pragma once
+
+#include <string>
+
+#include <frc/Timer.h>
+
+#include "AutoInterface.hpp"
+#include "robotmap.hpp"
+
