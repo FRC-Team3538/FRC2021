@@ -256,11 +256,11 @@ void Robot::UpdateSD()
   smartDashSkip %= 30;
   switch (smartDashSkip)
   {
-    // case 0:
-    // {
-    //   IO.drivebase.UpdateSmartdash();
-    //   break;
-    // }
+     case 0:
+     {
+       IO.drivebase.UpdateSmartdash();
+       break;
+     }
 
   case 5:
   {

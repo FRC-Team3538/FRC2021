@@ -13,11 +13,11 @@ Drivebase::Drivebase()
     motorRight2.ConfigFactoryDefault();
 
     // Invert one side of the drive
-    motorLeft1.SetInverted(false);
-    motorLeft2.SetInverted(false);
+    motorLeft1.SetInverted(true);
+    motorLeft2.SetInverted(true);
 
-    motorRight1.SetInverted(true);
-    motorRight2.SetInverted(true);
+    motorRight1.SetInverted(false);
+    motorRight2.SetInverted(false);
 
     // Encoder Feedback
     motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
@@ -255,7 +255,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
 }
 
 
-void Drivebase::TurnAbs(double heading)
+void Drivebase::TurnAbs(double heading, double maxoutput)
 {
     forwardHeading = heading;
     double errorRot = forwardHeading - GetGyroHeading();
@@ -268,13 +268,13 @@ void Drivebase::TurnAbs(double heading)
 
     double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
-    if(driveCommandRotation > 0.25)
+    if(driveCommandRotation > maxoutput)
     {
-        driveCommandRotation = 0.25;
+        driveCommandRotation = maxoutput;
     }
-    if(driveCommandRotation < -0.25)
+    if(driveCommandRotation < -maxoutput)
     {
-        driveCommandRotation = -0.25;
+        driveCommandRotation = -maxoutput;
     }
 
     Arcade(0, -driveCommandRotation);

@@ -62,17 +62,13 @@ private:
 
   bool oneShotAngle = false;
 
-// #define KP_ROTATION (0.013)  //0.0105
-// #define KI_ROTATION (0.00000) //0.00005
-// #define KD_ROTATION (0.0)  //0.004
+#define KP_ROTATION (0.013)    // 0.015
+#define KI_ROTATION (0.0)  // 0.00002
+#define KD_ROTATION (0.0025) // 0.000015
 
-#define KP_ROTATION (0.015)
-#define KI_ROTATION (0.00002) //0.00005
-#define KD_ROTATION (0.000015)  //0.004
-
-#define KP_FORWARD (0.01)
-#define KI_FORWARD (0.00)
-#define KD_FORWARD (0.00) //0.003
+#define KP_FORWARD (0.013)      // 0.01
+#define KI_FORWARD (0.00)      // 0.00
+#define KD_FORWARD (0.00)      // 0.00
 
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";
@@ -107,10 +103,11 @@ public:
 
   void UpdateSmartdash();
 
-  void DriveForward(double distance, double currentLimit = 1.0);
-  void TurnAbs(double degrees);
+  void DriveForward(double distance, double maxoutput = 1.0);
+  void TurnAbs(double degrees, double maxoutput = 1.0);
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
+  
 
   AHRS navx{SPI::Port::kMXP, 200};
 };
