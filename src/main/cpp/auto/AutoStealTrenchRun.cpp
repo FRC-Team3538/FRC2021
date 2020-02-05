@@ -52,7 +52,7 @@ void AutoStealTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(36.0);
+        IO.drivebase.DriveForward(36.0, 0.15);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -61,7 +61,7 @@ void AutoStealTrenchRun::Run()
     }
     case 3:
     {
-        IO.drivebase.TurnAbs(0.0);
+        IO.drivebase.TurnAbs(0.0, 0.15);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -71,7 +71,7 @@ void AutoStealTrenchRun::Run()
      case 4:
      {
         IO.shooter.SetIntake(0.5);
-        IO.drivebase.DriveForward(-180.0);
+        IO.drivebase.DriveForward(-180.0, 0.15);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -81,7 +81,7 @@ void AutoStealTrenchRun::Run()
     case 5:
      {
         IO.shooter.SetIntake(0.0);
-        IO.drivebase.DriveForward(-108.0);
+        IO.drivebase.DriveForward(-108.0, 0.15);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
@@ -90,7 +90,7 @@ void AutoStealTrenchRun::Run()
     }
     case 6:
     {
-        IO.drivebase.TurnAbs(-15.0);
+        IO.drivebase.TurnAbs(-15.0, 0.15);
         if (m_autoTimer.Get() > 2.0)
         {
             NextState();
