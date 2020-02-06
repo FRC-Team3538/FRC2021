@@ -40,7 +40,6 @@ private:
   Solenoid solenoidShifter{0};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  //const double kScaleFactor = (1.0 / 4096.0) * 6 * 3.1415;
   const double kScaleFactor = 53.1875 / 52896;
 
   enum slots
@@ -62,13 +61,17 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (0.013)    // 0.015
-#define KI_ROTATION (0.0)  // 0.00002
-#define KD_ROTATION (0.0025) // 0.000015
+#define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.01))
+#define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0))
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0025))
 
-#define KP_FORWARD (0.013)      // 0.01
-#define KI_FORWARD (0.00)      // 0.00
-#define KD_FORWARD (0.00)      // 0.00
+  //#define KP_ROTATION (0.01)    // 0.01  //0.013
+  //#define KI_ROTATION (0.0)   // 0.00002
+  //#define KD_ROTATION (0.0025) // 0.000015  //0.0025
+
+#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.013))
+#define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.0))
+#define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";
@@ -107,7 +110,6 @@ public:
   void TurnAbs(double degrees, double maxoutput = 1.0);
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
-  
 
   AHRS navx{SPI::Port::kMXP, 200};
 };

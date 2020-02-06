@@ -62,7 +62,7 @@ void AutoTrenchRun::Run()
     }
     case 1:
     {
-        IO.drivebase.TurnAbs(-15.0, 0.15);
+        IO.drivebase.TurnAbs(-15.0, 0.3);
         IO.shooter.IntakeDeploy();
         if (m_autoTimer.Get() > 2.0)
         {
@@ -72,7 +72,7 @@ void AutoTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(-155.0, 0.15);
+        IO.drivebase.DriveForward(-155.0, 0.3);
         IO.shooter.SetIntake(0.5);
         IO.shooter.SetIndexer(0.5);
         if (m_autoTimer.Get() > 2.0)

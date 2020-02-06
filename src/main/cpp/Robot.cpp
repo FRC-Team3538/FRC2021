@@ -66,105 +66,132 @@ void Robot::TeleopPeriodic()
 {
 
   // Drive
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * 1, 0.05);
-  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * 1.0, 0.05);
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, 0.05);
+  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.05);
   double indexer = 0.0; // This is also here now :)
 
-  // Turn speed limiting
-  if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
+  if (IO.ds.Driver.GetUpButton())
   {
-    rotate *= kDriveTurnLimit;
+    IO.drivebase.DriveForward(12.0, 0.20);
+    //IO.drivebase.Arcade(0.2, 0.0);
   }
-
-  // Shooter Manual Mode
-  if (IO.shooter.GetModeChooser() == true)
+  else if (IO.ds.Driver.GetDownButton())
   {
-    //Hood
-    IO.drivebase.Arcade(forward, rotate);
-    double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
-    IO.shooter.SetHood(hoodAnalog);
-
-    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
-    {
-      IO.shooter.ManualShoot(0.0, 0.0);
-    }
-    if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
-    {
-      manualShootTimer.Start();
-      if (manualShootTimer.Get() < 1.0)
-      {
-        IO.shooter.ManualShoot(1.0, 0.0);
-      }
-      else
-      {
-        indexer = 1.0;
-        IO.shooter.ManualShoot(1.0, 1.0);
-      }
-    }
-    else
-    {
-      manualShootTimer.Stop();
-      manualShootTimer.Reset();
-    }
+    IO.drivebase.DriveForward(-12.0, 0.20);
+    //IO.drivebase.Arcade(-0.2, 0.0);
+  }
+  else if (IO.ds.Driver.GetLeftButton())
+  {
+    IO.drivebase.TurnAbs(-45.0, 0.20);
+    //IO.drivebase.Arcade(0.0, 0.2);
+  }
+  else if (IO.ds.Driver.GetRightButton())
+  {
+    IO.drivebase.TurnAbs(45.0, 0.20);
+    //IO.drivebase.Arcade(0.0, -0.2);
   }
   else
   {
-    if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
+    //IO.drivebase.Arcade(forward, rotate);
+    IO.drivebase.ResetEncoders();
+    IO.drivebase.ResetGyro();
+
+    // Turn speed limiting
+    if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
     {
+      rotate *= kDriveTurnLimit;
+    }
+
+    // Shooter Manual Mode
+    if (IO.shooter.GetModeChooser() == true)
+    {
+      //Hood
       IO.drivebase.Arcade(forward, rotate);
-      data.filled = false;
-      tpCt = 0;
-      IO.shooter.StopShooter();
-      IO.RJV.Reset();
-    }
-    else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
-    {
-      //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
-      indexer = indexerSpeed;
-      data = IO.RJV.Run(IO.RJV.ShotType::Three);
-      if (data.filled)
+      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
+      IO.shooter.SetHood(hoodAnalog);
+
+      if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
       {
-        if (tpCt > 10)
+        IO.shooter.ManualShoot(0.0, 0.0);
+      }
+      if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+      {
+        manualShootTimer.Start();
+        if (manualShootTimer.Get() < 1.0)
         {
-          IO.shooter.SetShooterDistanceThree(data.distance);
-          IO.drivebase.Arcade(0.0, 0.0);
+          IO.shooter.ManualShoot(1.0, 0.0);
         }
         else
         {
-          IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1500.0);
+          indexer = 1.0;
+          IO.shooter.ManualShoot(1.0, 1.0);
         }
       }
-    }
-    else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
-    {
-      indexer = indexerSpeed;
-      data = IO.RJV.Run(IO.RJV.ShotType::Two);
-      if (data.filled)
+      else
       {
-        if (tpCt > 5)
-        {
-          IO.shooter.SetShooterDistanceTwo(data.distance);
-          IO.drivebase.Arcade(0.0, 0.0);
-        }
-        else
-        {
-          IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1000.0);
-        }
+        manualShootTimer.Stop();
+        manualShootTimer.Reset();
       }
-    }
-    else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
-    {
-      IO.shooter.SetVelocity(df);
     }
     else
     {
-      data.filled = false;
-      tpCt = 0;
-      IO.drivebase.Arcade(0, 0);
-      IO.shooter.StopShooter();
-      IO.RJV.Reset();
+      if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
+      {
+        IO.drivebase.Arcade(forward, rotate);
+        data.filled = false;
+        tpCt = 0;
+        IO.shooter.StopShooter();
+        IO.RJV.Reset();
+      }
+      else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+      {
+        //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
+        indexer = indexerSpeed;
+        data = IO.RJV.Run(IO.RJV.ShotType::Three);
+        if (data.filled)
+        {
+          if (tpCt > 10)
+          {
+            IO.shooter.SetShooterDistanceThree(data.distance);
+            IO.drivebase.Arcade(0.0, 0.0);
+          }
+          else
+          {
+            IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+            IO.shooter.SetVelocity(1500.0);
+          }
+        }
+      }
+      else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
+      {
+        indexer = indexerSpeed;
+        data = IO.RJV.Run(IO.RJV.ShotType::Two);
+        if (data.filled)
+        {
+          if (tpCt > 5)
+          {
+            IO.shooter.SetShooterDistanceTwo(data.distance);
+            IO.drivebase.Arcade(0.0, 0.0);
+          }
+          else
+          {
+            IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
+            IO.shooter.SetVelocity(1000.0);
+          }
+        }
+      }
+      else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
+      {
+        IO.shooter.SetVelocity(df);
+      }
+      else
+      {
+        data.filled = false;
+        tpCt = 0;
+        IO.drivebase.Arcade(0, 0);
+        IO.shooter.StopShooter();
+        IO.RJV.Reset();
+      }
     }
   }
   // Shifting
@@ -256,11 +283,11 @@ void Robot::UpdateSD()
   smartDashSkip %= 30;
   switch (smartDashSkip)
   {
-     case 0:
-     {
-       IO.drivebase.UpdateSmartdash();
-       break;
-     }
+  case 0:
+  {
+    IO.drivebase.UpdateSmartdash();
+    break;
+  }
 
   case 5:
   {

@@ -13,11 +13,11 @@ Drivebase::Drivebase()
     motorRight2.ConfigFactoryDefault();
 
     // Invert one side of the drive
-    motorLeft1.SetInverted(true);
-    motorLeft2.SetInverted(true);
+    motorLeft1.SetInverted(false);
+    motorLeft2.SetInverted(false);
 
-    motorRight1.SetInverted(false);
-    motorRight2.SetInverted(false);
+    motorRight1.SetInverted(true);
+    motorRight2.SetInverted(true);
 
     // Encoder Feedback
     motorLeft1.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0);
@@ -99,8 +99,6 @@ void Drivebase::Arcade(double forward, double turn)
         turn /= std::abs(turn);
     }
 
-    std::cout << forward << std::endl;
-
     // CAN
     motorLeft1.Set(forward - turn);
     motorLeft2.Set(forward - turn);
@@ -108,7 +106,7 @@ void Drivebase::Arcade(double forward, double turn)
     motorRight2.Set(forward + turn);
 }
 
-// Stop!
+// Stop! Hammer Time....
 void Drivebase::Stop()
 {
     motorLeft1.Set(0.0);
@@ -152,7 +150,6 @@ void Drivebase::SetBrake()
     motorRight2.SetNeutralMode(NeutralMode::Brake);
 }
 
-
 // Reset Encoders
 void Drivebase::ResetEncoders()
 {
@@ -186,24 +183,24 @@ void Drivebase::ResetGyro()
 
 double Drivebase::GetGyroHeading()
 {
-    double yaw = navx.GetYaw();
+    double yaw = -navx.GetYaw();
     return yaw;
 }
 
 void Drivebase::DriveForward(double distance, double maxOutput)
 {
-    
+
     double averageEncCnt = GetEncoderPosition();
     double error = distance - averageEncCnt;
     if (error < 24)
     {
-        sumError_forward += error / 0.02;
+        sumError_forward += error;
     }
     else
     {
         sumError_forward = 0;
     }
-    double deltaError = (error - prevError_forward) / 0.02;
+    double deltaError = (error - prevError_forward);
     prevError_forward = error;
 
     double driveCommandForward = error * KP_FORWARD + sumError_forward * KI_FORWARD + KD_FORWARD * deltaError;
@@ -242,18 +239,17 @@ void Drivebase::DriveForward(double distance, double maxOutput)
         }
     }
 
-    if(driveCommandForward > maxOutput)
+    if (driveCommandForward > maxOutput)
     {
         driveCommandForward = maxOutput;
     }
-    if(driveCommandForward < -maxOutput)
+    if (driveCommandForward < -maxOutput)
     {
         driveCommandForward = -maxOutput;
     }
-    
-    Arcade(driveCommandForward, -driveCommandRotation * maxOutput);
-}
 
+    Arcade(driveCommandForward, driveCommandRotation * maxOutput);
+}
 
 void Drivebase::TurnAbs(double heading, double maxoutput)
 {
@@ -268,17 +264,18 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
 
     double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
-    if(driveCommandRotation > maxoutput)
+    if (driveCommandRotation > maxoutput)
     {
         driveCommandRotation = maxoutput;
     }
-    if(driveCommandRotation < -maxoutput)
+    if (driveCommandRotation < -maxoutput)
     {
         driveCommandRotation = -maxoutput;
     }
 
-    Arcade(0, -driveCommandRotation);
+    Arcade(0, driveCommandRotation);
 }
+
 
 bool Drivebase::TurnRel(double degrees, double tolerance)
 {
@@ -371,4 +368,15 @@ void Drivebase::UpdateSmartdash()
 
     SmartDashboard::PutData("_DriveLimits", &chooseDriveLimit);
     SensorOverride(chooseDriveLimit.GetSelected() == sUnlimited);
+  
+  
+    
+    SmartDashboard::PutNumber("KP_FORWARD", KP_FORWARD);
+    SmartDashboard::PutNumber("KI_FORWARD", KI_FORWARD);
+    SmartDashboard::PutNumber("KD_FORWARD", KD_FORWARD);
+
+    SmartDashboard::PutNumber("KP_ROTATION", KP_ROTATION);
+    SmartDashboard::PutNumber("KI_ROTATION", KI_ROTATION);
+    SmartDashboard::PutNumber("KD_ROTATION", KD_ROTATION);
+
 }
