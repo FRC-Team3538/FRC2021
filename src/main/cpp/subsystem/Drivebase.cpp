@@ -387,4 +387,8 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("KP_ROTATION", KP_ROTATION);
     SmartDashboard::PutNumber("KI_ROTATION", KI_ROTATION);
     SmartDashboard::PutNumber("KD_ROTATION", KD_ROTATION);
+
+    SmartDashboard::PutNumber("KP_FORWARDGYRO", KP_FORWARDGYRO);
+    SmartDashboard::PutNumber("KI_FORWARDGYRO", KI_FORWARDGYRO);
+    SmartDashboard::PutNumber("KD_FORWARDGYRO", KD_FORWARDGYRO);
 }

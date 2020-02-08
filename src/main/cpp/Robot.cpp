@@ -72,22 +72,22 @@ void Robot::TeleopPeriodic()
 
   if (IO.ds.Driver.GetUpButton())
   {
-    IO.drivebase.DriveForward(36.0, 0.20);
+    IO.drivebase.DriveForward(84.0, 0.20);
     //IO.drivebase.Arcade(0.2, 0.0);
   }
   else if (IO.ds.Driver.GetDownButton())
   {
-    IO.drivebase.DriveForward(-36.0, 0.20);
+    IO.drivebase.DriveForward(-84.0, 0.20);
     //IO.drivebase.Arcade(-0.2, 0.0);
   }
   else if (IO.ds.Driver.GetLeftButton())
   {
-    IO.drivebase.TurnAbs(45.0, 0.20);
+    IO.drivebase.TurnAbs(90.0, 0.20);
     //IO.drivebase.Arcade(0.0, 0.2);
   }
   else if (IO.ds.Driver.GetRightButton())
   {
-    IO.drivebase.TurnAbs(-45.0, 0.20);
+    IO.drivebase.TurnAbs(-90.0, 0.20);
     //IO.drivebase.Arcade(0.0, -0.2);
   }
   else

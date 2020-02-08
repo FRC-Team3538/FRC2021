@@ -54,7 +54,7 @@ void AutoTrenchRun::Run()
             }
         }
 
-        if (m_autoTimer.Get() > 2.0)
+        if (m_autoTimer.Get() > 3.0)
         {
             NextState();
         }
@@ -62,9 +62,9 @@ void AutoTrenchRun::Run()
     }
     case 1:
     {
-        IO.drivebase.TurnAbs(-15.0, 0.3);
+        IO.drivebase.TurnAbs(-15.0, 0.20);
         IO.shooter.IntakeDeploy();
-        if (m_autoTimer.Get() > 2.0)
+        if (IO.drivebase.GetGyroHeading() < -10)
         {
             NextState();
         }
@@ -72,10 +72,10 @@ void AutoTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(-155.0, 0.3);
+        IO.drivebase.DriveForward(-155.0, 0.20);
         IO.shooter.SetIntake(0.5);
         IO.shooter.SetIndexer(0.5);
-        if (m_autoTimer.Get() > 2.0)
+        if (IO.drivebase.GetEncoderPosition() < -150.0)
         {
             NextState();
         }
@@ -83,8 +83,8 @@ void AutoTrenchRun::Run()
     }
      case 3:
      {
-        IO.drivebase.DriveForward(-108.0, 0.15);
-        if (m_autoTimer.Get() > 2.0)
+        IO.drivebase.DriveForward(-108.0, 0.20);
+        if (IO.drivebase.GetEncoderPosition() > -113.0)
         {
             NextState();
         }
@@ -93,8 +93,8 @@ void AutoTrenchRun::Run()
     
     
     case 4: {
-        IO.drivebase.TurnAbs(0.0, 0.15);
-        if (m_autoTimer.Get() > 2.0)
+        IO.drivebase.TurnAbs(-5.0, 0.20);
+        if (IO.drivebase.GetGyroHeading() > -10.0)
         {
             NextState();
         }
@@ -118,7 +118,7 @@ void AutoTrenchRun::Run()
             }
         }
 
-        if (m_autoTimer.Get() > 2.0)
+        if (m_autoTimer.Get() > 3.0)
         {
             NextState();
         }
