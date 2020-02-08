@@ -61,16 +61,16 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.01))
+#define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.013))
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0))
 #define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0025))
 
-  //#define KP_ROTATION (0.01)    // 0.01  //0.013
-  //#define KI_ROTATION (0.0)   // 0.00002
-  //#define KD_ROTATION (0.0025) // 0.000015  //0.0025
+  //#define KP_ROTATION (0.01)    // 0.01      //0.013
+  //#define KI_ROTATION (0.0)     // 0.00002
+  //#define KD_ROTATION (0.0025)  // 0.000015  //0.0025
 
-#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.013))
-#define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.0))
+#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
+#define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.0005))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
 #define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.1))

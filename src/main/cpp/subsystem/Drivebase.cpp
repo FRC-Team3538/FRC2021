@@ -190,9 +190,9 @@ double Drivebase::GetGyroHeading()
 void Drivebase::DriveForward(double distance, double maxOutput)
 {
 
-    double averageEncCnt = GetEncoderPosition();
+    double averageEncCnt = GetEncoderPositionLeft();
     double error = distance - averageEncCnt;
-    if (error < 24)
+    if(abs(error) > 0.25 && abs(error) < 12.0)
     {
         sumError_forward += error;
     }
@@ -200,6 +200,9 @@ void Drivebase::DriveForward(double distance, double maxOutput)
     {
         sumError_forward = 0;
     }
+
+    std::cout << error << " " << sumError_forward << std::endl;
+
     double deltaError = (error - prevError_forward);
     prevError_forward = error;
 
@@ -214,9 +217,9 @@ void Drivebase::DriveForward(double distance, double maxOutput)
     if (errorRot < -180.0)
         errorRot += 360.0;
 
-    if (errorRot < 10)
+    if (abs(errorRot) > 0.5 && abs(errorRot) < 10)
     {
-        sumError_rotation += errorRot / 0.02;
+        sumError_rotation += errorRot;
     }
     else
     {
@@ -227,16 +230,14 @@ void Drivebase::DriveForward(double distance, double maxOutput)
 
     double driveCommandRotation = errorRot * KP_FORWARDGYRO + KI_FORWARDGYRO * sumError_rotation + KD_FORWARDGYRO * deltaErrorRot;
 
-    if (abs(driveCommandRotation) > 0.5)    
+    //Drive Limits
+    if (driveCommandRotation> maxOutput)
     {
-        if (driveCommandRotation > 0)
-        {
-            driveCommandRotation = 0.5;
-        }
-        else
-        {
-            driveCommandRotation = -0.5;
-        }
+        driveCommandRotation = maxOutput;
+    }
+    if (driveCommandRotation < -maxOutput)
+    {
+        driveCommandRotation = -maxOutput;
     }
 
     if (driveCommandForward > maxOutput)
@@ -248,7 +249,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
         driveCommandForward = -maxOutput;
     }
 
-    Arcade(driveCommandForward, driveCommandRotation * maxOutput);
+    Arcade(driveCommandForward, driveCommandRotation);
 }
 
 void Drivebase::TurnAbs(double heading, double maxoutput)
@@ -259,10 +260,21 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
         errorRot -= 360.0;
     if (errorRot < -180.0)
         errorRot += 360.0;
+
+    if (abs(errorRot) > 0.5 && abs(errorRot) < 10)
+    {
+        sumError_rotation += errorRot;
+    }
+    else
+    {
+        sumError_rotation = 0;
+    }
+
     double deltaErrorRot = errorRot - prevError_rot;
     prevError_rot = errorRot;
 
-    double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
+    double driveCommandRotation = errorRot * KP_ROTATION + KI_ROTATION * sumError_rotation + KD_ROTATION * deltaErrorRot;
+    //double driveCommandRotation = (errorRot * KP_ROTATION) + (KD_ROTATION * deltaErrorRot);
 
     if (driveCommandRotation > maxoutput)
     {
@@ -275,7 +287,6 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
 
     Arcade(0, driveCommandRotation);
 }
-
 
 bool Drivebase::TurnRel(double degrees, double tolerance)
 {
@@ -368,9 +379,7 @@ void Drivebase::UpdateSmartdash()
 
     SmartDashboard::PutData("_DriveLimits", &chooseDriveLimit);
     SensorOverride(chooseDriveLimit.GetSelected() == sUnlimited);
-  
-  
-    
+
     SmartDashboard::PutNumber("KP_FORWARD", KP_FORWARD);
     SmartDashboard::PutNumber("KI_FORWARD", KI_FORWARD);
     SmartDashboard::PutNumber("KD_FORWARD", KD_FORWARD);
@@ -378,5 +387,4 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("KP_ROTATION", KP_ROTATION);
     SmartDashboard::PutNumber("KI_ROTATION", KI_ROTATION);
     SmartDashboard::PutNumber("KD_ROTATION", KD_ROTATION);
-
 }
