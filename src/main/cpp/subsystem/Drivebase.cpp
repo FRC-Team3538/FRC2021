@@ -225,9 +225,9 @@ void Drivebase::DriveForward(double distance, double maxOutput)
     double deltaErrorRot = errorRot - prevError_rot;
     prevError_rot = error;
 
-    double driveCommandRotation = errorRot * KP_ROTATION + KI_ROTATION * sumError_rotation + KD_ROTATION * deltaErrorRot;
+    double driveCommandRotation = errorRot * KP_FORWARDGYRO + KI_FORWARDGYRO * sumError_rotation + KD_FORWARDGYRO * deltaErrorRot;
 
-    if (abs(driveCommandRotation) > 0.5)
+    if (abs(driveCommandRotation) > 0.5)    
     {
         if (driveCommandRotation > 0)
         {

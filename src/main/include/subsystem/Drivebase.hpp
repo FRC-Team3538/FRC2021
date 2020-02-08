@@ -73,6 +73,10 @@ private:
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.0))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
+#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.1))
+#define KI_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.1))
+#define KD_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.1))
+
   SendableChooser<std::string> chooseDriveLimit;
   const std::string sLimited = "Normal";
   const std::string sUnlimited = "Override";
