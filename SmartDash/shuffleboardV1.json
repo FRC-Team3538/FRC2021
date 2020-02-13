@@ -362,105 +362,6 @@
               "_source0": "network_table:///SmartDashboard/ColorWheel",
               "_title": "ColorWheel"
             }
-          },
-          "14,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KP_FORWARD",
-              "_title": "KP_FORWARD"
-            }
-          },
-          "14,3": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KI_FORWARD",
-              "_title": "KI_FORWARD"
-            }
-          },
-          "14,4": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KD_FORWARD",
-              "_title": "KD_FORWARD"
-            }
-          },
-          "16,2": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KP_ROTATION",
-              "_title": "KP_ROTATION"
-            }
-          },
-          "16,3": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KI_ROTATION",
-              "_title": "KI_ROTATION"
-            }
-          },
-          "16,4": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/KD_ROTATION",
-              "_title": "KD_ROTATION"
-            }
-          },
-          "15,0": {
-            "size": [
-              3,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Fly Output (Percent)",
-              "_title": "Fly Output (Percent)"
-            }
-          },
-          "4,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/dx",
-              "_title": "dx"
-            }
-          },
-          "4,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/dist",
-              "_title": "dist"
-            }
           }
         }
       }
@@ -625,12 +526,6 @@
                   "_title": "Solenoid[0,4]/Value",
                   "Colors/Color when true": "#7CFC00FF",
                   "Colors/Color when false": "#8B0000FF"
-                },
-                {
-                  "_type": "Speed Controller",
-                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [10]",
-                  "_title": "Talon SRX [10]",
-                  "Visuals/Orientation": "HORIZONTAL"
                 }
               ]
             }
@@ -640,9 +535,9 @@
     }
   ],
   "windowGeometry": {
-    "x": -9.600000381469727,
+    "x": 0.800000011920929,
     "y": 0.0,
-    "width": 1538.4000244140625,
-    "height": 830.4000244140625
+    "width": 1536.0,
+    "height": 633.5999755859375
   }
 }

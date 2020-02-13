@@ -228,7 +228,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
     double deltaErrorRot = errorRot - prevError_rot;
     prevError_rot = error;
 
-    double driveCommandRotation = errorRot * KP_ROTATION + KI_ROTATION * sumError_rotation + KD_ROTATION * deltaErrorRot;
+    double driveCommandRotation = errorRot * KP_FORWARDGYRO + KI_FORWARDGYRO * sumError_rotation + KD_FORWARDGYRO * deltaErrorRot;
 
     //Drive Limits
     if (driveCommandRotation> maxOutput)
@@ -387,4 +387,8 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("KP_ROTATION", KP_ROTATION);
     SmartDashboard::PutNumber("KI_ROTATION", KI_ROTATION);
     SmartDashboard::PutNumber("KD_ROTATION", KD_ROTATION);
+
+    SmartDashboard::PutNumber("KP_FORWARDGYRO", KP_FORWARDGYRO);
+    SmartDashboard::PutNumber("KI_FORWARDGYRO", KI_FORWARDGYRO);
+    SmartDashboard::PutNumber("KD_FORWARDGYRO", KD_FORWARDGYRO);
 }
