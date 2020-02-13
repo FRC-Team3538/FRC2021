@@ -7,11 +7,15 @@
 ColorWheel::ColorWheel()
 {
    motorColorWheel.ConfigFactoryDefault();
-   
+
    m_colorMatcher.AddColorMatch(kBlueTarget);
    m_colorMatcher.AddColorMatch(kGreenTarget);
    m_colorMatcher.AddColorMatch(kRedTarget);
    m_colorMatcher.AddColorMatch(kYellowTarget);
+
+   m_led.SetLength(kLength);
+   m_led.SetData(m_ledBuffer);
+   m_led.Start();
 }
 
 // Stop all motors
@@ -22,7 +26,7 @@ void ColorWheel::Stop()
 
 void ColorWheel::SetColorWheel(double speed)
 {
-   if(solenoidColorWheel.Get())
+   if (solenoidColorWheel.Get())
    {
       motorColorWheel.Set(speed);
    }
@@ -37,7 +41,7 @@ void ColorWheel::AutoColorWheel()
    double wheelSpeed = 0.5;
    ReadColorWheel();
 
-   switch(targetColor)
+   switch (targetColor)
    {
    case blue:
       if (detectedColor == colors::blue)
@@ -98,22 +102,47 @@ void ColorWheel::ReadColorWheel()
    if (matchedColor == kBlueTarget)
    {
       detectedColor = blue;
+      for (int i = kMiddleStart; i < kMiddleEnd; i++)
+      {
+         m_ledBuffer[i].SetRGB(0, 0, 255);
+      }
+      m_led.SetData(m_ledBuffer);
    }
    else if (matchedColor == kRedTarget)
    {
       detectedColor = red;
+      for (int i = kMiddleStart; i < kMiddleEnd; i++)
+      {
+         m_ledBuffer[i].SetRGB(255, 0, 0);
+      }
+      m_led.SetData(m_ledBuffer);
    }
    else if (matchedColor == kGreenTarget)
    {
       detectedColor = green;
+      for (int i = kMiddleStart; i < kMiddleEnd; i++)
+      {
+         m_ledBuffer[i].SetRGB(0, 255, 0);
+      }
+      m_led.SetData(m_ledBuffer);
    }
    else if (matchedColor == kYellowTarget)
    {
       detectedColor = yellow;
+      for (int i = kMiddleStart; i < kMiddleEnd; i++)
+      {
+         m_ledBuffer[i].SetRGB(255, 255, 0);
+      }
+      m_led.SetData(m_ledBuffer);
    }
    else
    {
       detectedColor = unknown;
+      for (int i = kMiddleStart; i < kMiddleEnd; i++)
+      {
+         m_ledBuffer[i].SetRGB(255, 255, 255);
+      }
+      m_led.SetData(m_ledBuffer);
    }
 
    std::string gameData;
@@ -125,22 +154,67 @@ void ColorWheel::ReadColorWheel()
       case 'B':
          //Blue case code
          targetColor = blue;
+           for (int i = 0; i < kMiddleStart; i++) 
+           {
+              m_ledBuffer[i].SetRGB(0, 0, 255);
+           }
+           for (int i = kMiddleEnd; i < kLength; i++)
+           {
+              m_ledBuffer[i].SetRGB(0, 0, 255);
+           }
+            m_led.SetData(m_ledBuffer);
          break;
       case 'G':
          //Green case code
          targetColor = green;
+            for (int i = 0; i < kMiddleStart; i++) 
+           {
+              m_ledBuffer[i].SetRGB(0, 255, 0);
+           }
+           for (int i = kMiddleEnd; i < kLength; i++)
+           {
+              m_ledBuffer[i].SetRGB(0, 255, 0);
+           }
+            m_led.SetData(m_ledBuffer);
          break;
       case 'R':
          //Red case code
          targetColor = red;
+            for (int i = 0; i < kMiddleStart; i++) 
+           {
+              m_ledBuffer[i].SetRGB(255, 0, 0);
+           }
+           for (int i = kMiddleEnd; i < kLength; i++)
+           {
+              m_ledBuffer[i].SetRGB(255, 0, 0);
+           }
+            m_led.SetData(m_ledBuffer);
          break;
       case 'Y':
          //Yellow case code
          targetColor = yellow;
+            for (int i = 0; i < kMiddleStart; i++) 
+           {
+              m_ledBuffer[i].SetRGB(255, 255, 0);
+           }
+           for (int i = kMiddleEnd; i < kLength; i++)
+           {
+              m_ledBuffer[i].SetRGB(255, 255, 0);
+           }
+            m_led.SetData(m_ledBuffer);
          break;
       default:
          //This is corrupt data
          targetColor = unknown;
+            for (int i = 0; i < kMiddleStart; i++) 
+           {
+              m_ledBuffer[i].SetRGB(255, 255, 255);
+           }
+           for (int i = kMiddleEnd; i < kLength; i++)
+           {
+              m_ledBuffer[i].SetRGB(255, 255, 255);
+           }
+            m_led.SetData(m_ledBuffer);
          break;
       }
    }

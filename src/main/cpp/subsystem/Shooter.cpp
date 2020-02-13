@@ -203,6 +203,8 @@ void Shooter::UpdateSmartdash()
    SmartDashboard::PutNumber("Feeder", motorFeeder.Get());
    SmartDashboard::PutNumber("Hood", motorHood.Get());
 
+   SmartDashboard::PutNumber("Shoot Encoder", flywheel.GetSelectedSensorPosition(0));
+
    SmartDashboard::PutBoolean("Solenoid Intake", solenoidIntake.Get());
    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
 }
