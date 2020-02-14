@@ -1,6 +1,24 @@
 # FRC2020
+### 2/8/20:
+  1. Reworked Vision Sequencing
+  2. Began Ramsette Controller
+  3. Worked on Drivetrain Positioning
+### 2/7/20:
+  1. Worked on Drivetrain Positioning
+     - Started Work on Two Different Rotation PID Values For Deadspinning and Turning While Moving
+### 2/5/20:
+  1. Worked on Drivetrain Positioning
+  2. Updated Limelight to New Flash and Tuned Vision
+  3. [Made and Tested Auto Modes](src/main/cpp/auto)
+     - Currently Don't Work
+     - Current Auto Modes
+       -* Center Shoot Back
+       -* Center Shoot Front
+       -* Trench Run
+       -* Back Trench
 ### 2/3/20:
   1. Patched a Build Error and a Runtime Error
+  2. Worked on Verifying Code on an Actual Control Board
 ### 2/1/20:
   1. [Debugged Vision, Shooter, and Integration of These Systems](src/main/cpp/Robot.cpp)
      - [Tuned Shooter and Distancing](https://drive.google.com/open?id=1-B2QTZ6yiJMroI5dedXIeb6OXCrGLCgO)
