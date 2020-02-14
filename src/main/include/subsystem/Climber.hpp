@@ -13,7 +13,7 @@ class Climber
   private:
 
     // CTRE CAN
-    WPI_VictorSPX motorClimber0 {12};
+    WPI_TalonFX motorClimber0 {12};
     WPI_VictorSPX motorClimber1 {13};
 
     // Solenoids

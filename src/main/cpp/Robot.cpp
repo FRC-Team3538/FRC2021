@@ -20,6 +20,8 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic()
 {
   // Reset Encoders
+  frc::SmartDashboard::PutNumber("Hood Angle", IO.shooter.GetHoodAngle());
+
   bool btnPSDr = IO.ds.Driver.GetPSButton();
   if (btnPSDr)
   {
@@ -38,6 +40,10 @@ void Robot::RobotPeriodic()
   df = frc::SmartDashboard::GetNumber(sDF, 100.0);
   frc::SmartDashboard::PutNumber(sDF, df);
   frc::SmartDashboard::SetPersistent(sDF);
+
+  std::string sDFe = "Hood Target";
+  c = frc::SmartDashboard::GetNumber(sDFe, 45.0);
+  frc::SmartDashboard::PutNumber(sDFe, c);
 }
 
 void Robot::AutonomousInit()
@@ -62,11 +68,18 @@ void Robot::DisabledInit()
   IO.drivebase.SetCoast();
 }
 
+void Robot::TestInit()
+{
+}
+
+void Robot::TestPeriodic()
+{
+}
+
 void Robot::TeleopPeriodic()
 {
-
   // Drive
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, 0.05);
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * 1.0, 0.05);
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.05);
   double indexer = 0.0; // This is also here now :)
 
@@ -107,8 +120,15 @@ void Robot::TeleopPeriodic()
     {
       //Hood
       IO.drivebase.Arcade(forward, rotate);
-      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1, deadband);
-      IO.shooter.SetHood(hoodAnalog);
+      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * 1, deadband);
+      if (IO.ds.Operator.GetOptionsButton())
+      {
+        IO.shooter.SetHoodAngle(c);
+      }
+      else
+      {
+        IO.shooter.SetHood(hoodAnalog);
+      }
 
       if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
       {
@@ -119,12 +139,12 @@ void Robot::TeleopPeriodic()
         manualShootTimer.Start();
         if (manualShootTimer.Get() < 1.0)
         {
-          IO.shooter.ManualShoot(1.0, 0.0);
+          IO.shooter.ManualShoot(-0.6, 0.0);
         }
         else
         {
           indexer = 1.0;
-          IO.shooter.ManualShoot(1.0, 1.0);
+          IO.shooter.ManualShoot(-0.6, 1.0);
         }
       }
       else

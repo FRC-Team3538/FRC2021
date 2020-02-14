@@ -24,8 +24,16 @@ Shooter::Shooter()
    flywheel.SetInverted(false);
    flywheelB.SetInverted(true);
 
+   Test2.Follow(motorIndexer);
+   Test.Follow(motorIndexer);
+   Test2.SetInverted(false);
+   Test.SetInverted(true);
+   motorIndexer.SetInverted(true);
+   motorFeeder.SetInverted(true);
+   motorIntake.SetInverted(true);
    chooseShooterMode.SetDefaultOption(sAutoMode, sAutoMode);
    chooseShooterMode.AddOption(sManualMode, sManualMode);
+   hoodEnc.SetDistancePerRotation(360 / 2.5);
 }
 
 // Stop all motors
@@ -177,7 +185,54 @@ void Shooter::SetIndexer(double speed)
 
 void Shooter::SetHood(double input)
 {
-   motorHood.Set(input);
+   if((GetHoodAngle() > 70.0) && (input > 0.0))
+   {
+      motorHood.Set(0.0);
+   }
+   else if((GetHoodAngle() < 0.0) && (input < 0.0))
+   {
+      motorHood.Set(0.0);
+   }
+   else
+   {
+      motorHood.Set(input);
+   }
+   
+}
+
+void Shooter::SetHoodAngle(double angle)
+{
+   if(angle > 70.0)
+   {
+      angle = 70.0;
+   }
+   else if (angle < 0.0)
+   {
+      angle = 0.0;
+   }
+   else
+   {
+      //YeetYaw
+   }
+   
+   double error = angle - GetHoodAngle();
+   //std::cout << error << std::endl;
+
+   if (std::abs(error) < 5.0)
+   {
+      iAcc += error / 0.02;
+   }
+   else
+   {
+      iAcc = 0;
+   }
+
+   motorHood.Set(ControlMode::PercentOutput, ((error * kPHood) + (iAcc * kIHood)));
+}
+
+double Shooter::GetHoodAngle()
+{
+   return hoodEnc.GetDistance();
 }
 
 bool Shooter::GetModeChooser()

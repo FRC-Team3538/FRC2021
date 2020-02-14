@@ -6,6 +6,7 @@
 #include <frc/Solenoid.h>
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/DutyCycleEncoder.h>
 
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
@@ -18,8 +19,10 @@ private:
   WPI_TalonFX flywheelB{7};
   WPI_VictorSPX motorIntake{8};
   WPI_VictorSPX motorIndexer{9};
+  WPI_VictorSPX Test{21};
+  WPI_VictorSPX Test2{22};
   WPI_TalonSRX motorFeeder{10}; //Actually a victor
-  WPI_TalonSRX motorHood{11};
+  WPI_VictorSPX motorHood{11};
 
   Solenoid solenoidIntake{1};
   Solenoid solenoidHood{3};
@@ -40,6 +43,14 @@ private:
   // Degrees / Pulses
   const double kScaleFactor = 360.0 / 8056.0;
   const double kScaleFactorFly = (1.0 / 2048);
+  const double kScaleFactorHood = (2.0 / 5.0) * (360.0 / 8096.0);
+
+  DutyCycleEncoder hoodEnc{0};
+
+  double iAcc = 0;
+  double prevError_rel = 0;
+  const double kPHood = 0.0225;
+  const double kIHood = 0.00015;
 
 public:
   // Default Constructor
@@ -62,6 +73,8 @@ public:
   void SetIndexer(double speed);
 
   void SetHood(double input);
+  void SetHoodAngle(double angle);
+  double GetHoodAngle();
   bool GetModeChooser();
   void ManualShoot(double inputFly, double inputKick);
 

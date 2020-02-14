@@ -30,6 +30,8 @@ public:
   void TeleopInit() override;
   void TeleopPeriodic() override;
   void DisabledInit() override;
+  void TestInit() override;
+  void TestPeriodic() override;
 
 private:
   robotmap IO;
@@ -44,6 +46,7 @@ private:
   int tpCt = 0;
   double df;
   bool blastOS = false;
+  double c;
 
   // Dont update smart dash every loop
   int smartDashSkip = 0;
