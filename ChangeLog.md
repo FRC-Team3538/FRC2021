@@ -12,10 +12,10 @@
   3. [Made and Tested Auto Modes](src/main/cpp/auto)
      - Currently Don't Work
      - Current Auto Modes
-       -* Center Shoot Back
-       -* Center Shoot Front
-       -* Trench Run
-       -* Back Trench
+       - Center Shoot Back
+       - Center Shoot Front
+       - Trench Run
+       - Back Trench
 ### 2/3/20:
   1. Patched a Build Error and a Runtime Error
   2. Worked on Verifying Code on an Actual Control Board
