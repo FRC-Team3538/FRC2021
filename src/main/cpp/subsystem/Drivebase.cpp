@@ -300,7 +300,7 @@ bool Drivebase::TurnRel(double degrees, double tolerance)
         Arcade(0.0, 0.0);
     }
 
-    if (std::abs(error) < 8)
+    if (std::abs(error) < 5)
     {
         iAcc += error / 0.02;
     }

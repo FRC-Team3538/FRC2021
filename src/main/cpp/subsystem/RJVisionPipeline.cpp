@@ -29,37 +29,26 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 {
 	table->PutNumber("ledMode", 0.0);
 	RJVisionPipeline::visionData telemetry;
-	int shotTypeCor = shotType;
+
+	SetPipeline(shotType);
 
 	if (pnpPoints.size() >= 5)
 	{
 		pnpDist = sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2));
 	}
 
-	if (!pipeSwitchOS)
+	if (((pipeSwitch.Get() < 1.0) && pipeSwitchOS))
 	{
-		pipeSwitch.Reset();
-		pipeSwitch.Start();
-		if ((shotType == 1) && (DistEstimation() > 188.0))
-		{
-			SetPipeline(DeterminePipeline(0));
-			shotTypeCor = 0;
-		}
-		else
-		{
-			SetPipeline(DeterminePipeline(shotType));
-		}
-		pipeSwitchOS = true;
 		telemetry.angle = 420.0;
 		telemetry.distance = -1.0;
 		telemetry.filled = false;
 	}
-	else
+	else if (pipeSwitch.Get() > 1.0 || !pipeSwitchOS)
 	{
-		if (tv == 1.0 && pipeSwitch.Get() > 0.5)
+		if (tv == 1.0)
 		{
-			telemetry.angle = dx;
-			telemetry.distance = (shotTypeCor == 0) ? DistEstimation() : pnpDist;
+			telemetry.angle = -dx;
+			telemetry.distance = (shotType == 0) ? DistEstimation() : pnpDist;
 			telemetry.filled = true;
 		}
 		else
@@ -74,14 +63,35 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 
 void RJVisionPipeline::SetPipeline(double pipeline)
 {
-	table->PutNumber("pipeline", pipeline);
-	table->PutNumber("camMode", 0.0);
+	if (pipeline != GetPipeline())
+	{
+		table->PutNumber("pipeline", pipeline);
+		table->PutNumber("camMode", 0.0);
+		pipeSwitch.Reset();
+		pipeSwitch.Start();
+		pipeSwitchOS = true;
+	}
+	else
+	{
+		pipeSwitchOS = false;
+	}
+	
+}
+
+double RJVisionPipeline::GetPipeline()
+{
+	return table->GetNumber("getpipe", 0.0);
+}
+
+void RJVisionPipeline::TakePicture(bool pic)
+{
+	pic ? table->PutNumber("snapshot", 1.0) : table->PutNumber("snapshot", 0.0);
 }
 
 void RJVisionPipeline::UpdateSmartDash()
 {
 	frc::SmartDashboard::PutNumber("dx", dx);
-	frc::SmartDashboard::PutNumber("dist", DistEstimation());
+	frc::SmartDashboard::PutNumber("Vision Dist", DistEstimation());
 	if (pnpPoints.size() >= 5)
 	{
 		frc::SmartDashboard::PutNumber("pnpDist", sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2)));
@@ -93,11 +103,12 @@ void RJVisionPipeline::Reset()
 	table->PutNumber("ledMode", 1.0);
 	SetPipeline(0.0);
 	pipeSwitchOS = false;
+	pipeSwitchCt = 0;
 }
 
 double RJVisionPipeline::DistEstimation()
 {
-	double dist = 44.0 / (tan((dy + cameraAngle) * (3.1415 / 180)));
+	double dist = dh / (tan((dy + cameraAngle) * (3.1415 / 180.0)));
 	return dist;
 }
 
@@ -107,7 +118,7 @@ double RJVisionPipeline::DeterminePipeline(int shotType)
 	{
 	case 0:
 	{
-		if ((DistEstimation() < 350.0) && (DistEstimation() > 170.0))
+		if ((DistEstimation() < 400.0) && (DistEstimation() > 170.0))
 		{
 			return 3.0;
 		}
@@ -121,7 +132,7 @@ double RJVisionPipeline::DeterminePipeline(int shotType)
 
 	case 1:
 	{
-		if (DistEstimation() > 90.0)
+		if (DistEstimation() > 130.0)
 		{
 			return 2.0;
 		}
@@ -130,6 +141,10 @@ double RJVisionPipeline::DeterminePipeline(int shotType)
 			return 1.0;
 		}
 		break;
+	}
+	case 2:
+	{
+		return 4.0;
 	}
 	default:
 	{

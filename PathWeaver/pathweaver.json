@@ -1,0 +1,8 @@
+{
+  "lengthUnit": "Foot",
+  "maxVelocity": 13.0,
+  "maxAcceleration": 13.0,
+  "wheelBase": 2.0,
+  "gameName": "Infinite Recharge",
+  "outputDir": "../Motion Profiles"
+}

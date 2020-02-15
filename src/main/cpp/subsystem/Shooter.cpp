@@ -25,15 +25,15 @@ Shooter::Shooter()
    flywheel.SetInverted(true);
    flywheelB.SetInverted(false);
 
-   flywheel.Config_kF(0, 0.05643219);
+   flywheel.Config_kF(0, 0.056494409);
    flywheel.Config_kP(0, 0.25);
    flywheel.Config_kI(0, 0.000);
    flywheel.Config_kD(0, 7.000);
 
    motorIntake.SetInverted(false);
-   motorIndexer.SetInverted(false);
-   motorIndexerB.SetInverted(false);
-   motorIndexerC.SetInverted(true);
+   motorIndexer.SetInverted(true);
+   motorIndexerB.SetInverted(true);
+   motorIndexerC.SetInverted(false);
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
 
@@ -126,6 +126,7 @@ void Shooter::SetShooterDistanceTwo(double distance)
       dist = distance;
       distOS = true;
    }
+   std::cout << dist << std::endl;
 
    if (dist < 0.0)
    {
@@ -135,11 +136,12 @@ void Shooter::SetShooterDistanceTwo(double distance)
    }
    else if (dist < 188)
    {
-      shootSpeed = (4.2753 * (dist)) + 2041.9;
+      shootSpeed = (4.2753 * dist) + 2041.9;
    }
    else
    {
-      shootSpeed = (0.0021 * pow(dist, 2)) + (2.3603 * dist) + 2500.8;
+      shootSpeed = (0.0021 * pow(dist, 2)) + (2.3603 * dist) + 2600.8;
+      //shootSpeed = (3.7015 * distance) + 2560.3; //2480.3 3.6415
    }
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
 
@@ -164,7 +166,8 @@ void Shooter::SetShooterDistanceTwo(double distance)
 
 void Shooter::SetVelocity(double velocity)
 {
-   flywheel.Set(ControlMode::Velocity, -((velocity / kScaleFactorFly) / 600.0));
+   shootSpeed = velocity;
+   flywheel.Set(ControlMode::Velocity, ((velocity / kScaleFactorFly) / 600.0));
 }
 
 void Shooter::SetIntake(double speed)
@@ -184,9 +187,9 @@ void Shooter::IntakeRetract()
 
 void Shooter::SetIndexer(double speed)
 {
-   motorIndexer.Set(speed * 0.75);
-   motorIndexerB.Set(speed);
-   motorIndexerC.Set(speed);
+   motorIndexer.Set(ControlMode::PercentOutput, speed * 0.75);
+   motorIndexerB.Set(ControlMode::PercentOutput, speed);
+   motorIndexerC.Set(ControlMode::PercentOutput, speed);
 }
 
 void Shooter::SetFeeder(double speed)

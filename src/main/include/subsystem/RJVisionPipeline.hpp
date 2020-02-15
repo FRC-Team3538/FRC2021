@@ -18,13 +18,14 @@ namespace vision
 class RJVisionPipeline
 {
 private:
-	const double cameraAngle = 16;
-	const double dh = 44; //distance between camera lens and quarter-way up the goal
+	const double cameraAngle = 32;
+	const double dh = 63.0; //distance between camera lens and quarter-way up the goal
 
 	std::shared_ptr<NetworkTable> table;
 	std::vector<double> pnpPoints;
 	double dy, dx, tv, pipe, pnpDist;
 	bool pipeSwitchOS = false;
+	int pipeSwitchCt = 0;
 	frc::Timer pipeSwitch;
 
 public:
@@ -40,12 +41,22 @@ public:
 		Three
 	};
 
+	enum Pipe
+	{
+		TwoClose = 0,
+		ThreeClose,
+		LongShot,
+		ThreeFar
+	};
+
 	RJVisionPipeline();
 	void Init();
 	void Periodic();
 	RJVisionPipeline::visionData Run(int shotType);
 	void UpdateSmartDash();
 	void SetPipeline(double pipeline);
+	double GetPipeline();
+	void TakePicture(bool pic);
 	double DistEstimation();
 	double DeterminePipeline(int shotType);
 	void Reset();

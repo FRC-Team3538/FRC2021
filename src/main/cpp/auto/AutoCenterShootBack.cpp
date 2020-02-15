@@ -42,7 +42,7 @@ void AutoCenterShootBack::Run()
         data = IO.RJV.Run(IO.RJV.ShotType::Three);
         if (data.filled)
         {
-            if (tpCt > 10)
+            if (tpCt > 7)
             {
                 IO.shooter.SetShooterDistanceThree(data.distance);
                 IO.drivebase.Arcade(0.0, 0.0);
@@ -50,13 +50,13 @@ void AutoCenterShootBack::Run()
             else
             {
                 IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-                IO.shooter.SetVelocity(1500.0);
+                IO.shooter.SetVelocity(1000.0);
             }
         }
 
         if (m_autoTimer.Get() > 2.0)
         {
-            NextState();
+            // NextState();
         }
         break;
     }

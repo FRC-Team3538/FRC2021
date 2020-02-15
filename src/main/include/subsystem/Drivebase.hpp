@@ -7,6 +7,8 @@
 #include <frc/PWMTalonSRX.h>
 #include <AHRS.h>
 #include <iostream>
+#include <frc/trajectory/TrajectoryConfig.h>
+#include <frc/kinematics/DifferentialDriveKinematics.h>
 // #include "rev/CANSparkMax.h"
 
 using namespace ctre::phoenix::motorcontrol::can;
@@ -110,4 +112,6 @@ public:
   void SetMaxSpeed();
 
   AHRS navx{SPI::Port::kMXP, 200};
+
+  //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
 };

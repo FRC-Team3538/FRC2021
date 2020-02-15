@@ -41,11 +41,14 @@ private:
   const double deadband = 0.1;
 
   double indexerSpeed = 1.0;
-  double kDriveTurnLimit = 0.70;
+  double kDriveTurnLimit = 0.3;
 
   int tpCt = 0;
   bool blastOS = false;
   double c;
+  int picCt = 0;
+
+  double hoodAngle = -1.0;
 
   // Dont update smart dash every loop
   int smartDashSkip = 0;
@@ -60,7 +63,7 @@ private:
 
   // Timer
   Timer manualShootTimer;
-  double manualShootPercent = 0.6;
+  double manualShootPercent = 3500;
 
   // Test Mode
   SendableChooser<std::string> chooseTestDevice;
@@ -68,8 +71,10 @@ private:
   const std::string sIntake = "2 - Intake";
   const std::string sIndexer = "3 - Indexer";
   const std::string sFeeder = "4 - Feeder";
-  const std::string sShooter = "5 - Shooter";
+  const std::string sShooter = "5.0 - Shooter";
+  const std::string sShooterVelocity = "5.1 - ShooterVelocity";
   const std::string sHood = "6 - Hood";
   const std::string sClimber = "7 - Climber";
   const std::string sColorWheel = "8 - Color Wheel";
+  const std::string sVision = "9 - Vision";
 };

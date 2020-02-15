@@ -21,9 +21,11 @@ void Robot::RobotInit()
   chooseTestDevice.AddOption(sIndexer, sIndexer);
   chooseTestDevice.AddOption(sFeeder, sFeeder);
   chooseTestDevice.AddOption(sShooter, sShooter);
+  chooseTestDevice.AddOption(sShooterVelocity, sShooterVelocity);
   chooseTestDevice.AddOption(sHood, sHood);
   chooseTestDevice.AddOption(sClimber, sClimber);
   chooseTestDevice.AddOption(sColorWheel, sColorWheel);
+  chooseTestDevice.AddOption(sVision, sVision);
 }
 
 void Robot::RobotPeriodic()
@@ -44,7 +46,6 @@ void Robot::RobotPeriodic()
 
   // Update Smart Dash
   UpdateSD();
-
 }
 
 void Robot::AutonomousInit()
@@ -164,6 +165,25 @@ void Robot::TestPeriodic()
   {
     IO.shooter.SetShooter(forward);
   }
+  else if (testdevice == sShooterVelocity)
+  {
+    if (X)
+    {
+      IO.shooter.SetVelocity(3500.0);
+    }
+    if (O)
+    {
+      IO.shooter.SetVelocity(2500.0);
+    }
+    if (S)
+    {
+      IO.shooter.SetVelocity(1500.0);
+    }
+    if (T)
+    {
+      IO.shooter.SetVelocity(0.0);
+    }
+  }
   else
   {
     IO.shooter.SetShooter(0.0);
@@ -233,6 +253,31 @@ void Robot::TestPeriodic()
   {
     IO.colorWheel.SetColorWheel(0.0);
   }
+
+  // Vision
+  if (testdevice == sVision)
+  {
+    if (X)
+    {
+      IO.RJV.Run(IO.RJV.Pipe::TwoClose);
+    }
+    if (O)
+    {
+      IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
+    }
+    if (S)
+    {
+      IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
+    }
+    if (T)
+    {
+      IO.RJV.Run(IO.RJV.Pipe::LongShot);
+    }
+  }
+  else
+  {
+    IO.RJV.Reset();
+  }
 }
 
 void Robot::TeleopPeriodic()
@@ -253,42 +298,75 @@ void Robot::TeleopPeriodic()
   {
     IO.drivebase.Arcade(forward, rotate);
 
-    // Hood
-    if (IO.ds.Operator.GetOptionsButton())
+    // Hood Presets
+    if (IO.ds.Operator.GetStickButton(frc::GenericHID::kRightHand))
     {
-      IO.shooter.SetHoodAngle(c);
+      if (IO.ds.Operator.GetDownButton())
+        hoodAngle = 14.0;
+      else if (IO.ds.Operator.GetUpButton())
+        hoodAngle = 54.0;
+      else if (IO.ds.Operator.GetLeftButton())
+        hoodAngle = 52.0;
+      else if (IO.ds.Operator.GetRightButton())
+        hoodAngle = c;
+    }
+
+    // Manual Hood Control
+    double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
+    if ((hoodAnalog != 0.0 || hoodAngle < 0.0) && !IO.ds.Operator.GetStickButton(frc::GenericHID::kRightHand))
+    {
+      hoodAngle = -1.0;
+      IO.shooter.SetHood(hoodAnalog);
+    }
+    else if (hoodAngle >= 0.0)
+    {
+      IO.shooter.SetHoodAngle(hoodAngle);
     }
     else
     {
-      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
-      IO.shooter.SetHood(hoodAnalog);
+      IO.shooter.SetHoodAngle(IO.shooter.GetHoodAngle());
     }
 
     // Manual Shooting System
-    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+    bool atSpeed = (manualShootPercent > 1.0) && (abs(manualShootPercent - IO.shooter.GetVelocity()) < 100);
+
+    if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed)
     {
-      IO.shooter.ManualShoot(0.0, 0.0);
+      indexer = 0.8;
+      IO.shooter.SetFeeder(1.0);
+    }
+    else
+    {
+      IO.shooter.SetFeeder(0.0);
     }
 
     if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
-      manualShootTimer.Start();
-      if (manualShootTimer.Get() < 0.3)
+      if (std::abs(manualShootPercent) <= 1.0)
       {
-        IO.shooter.SetFeeder(0.0);
         IO.shooter.SetShooter(manualShootPercent);
       }
       else
       {
-        indexer = 0.8;
-        IO.shooter.SetFeeder(1.0);
-        IO.shooter.SetShooter(manualShootPercent);
+        IO.shooter.SetVelocity(manualShootPercent);
+      }
+    }
+
+    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+    {
+      IO.shooter.SetShooter(0.0);
+    }
+    if (IO.ds.Driver.GetSquareButton())
+    {
+      data = IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
+      if (data.filled)
+      {
+        IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
       }
     }
     else
     {
-      manualShootTimer.Stop();
-      manualShootTimer.Reset();
+      data.filled = false;
     }
   }
   else
@@ -300,47 +378,134 @@ void Robot::TeleopPeriodic()
       tpCt = 0;
       IO.shooter.StopShooter();
       IO.RJV.Reset();
+      if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+      {
+        IO.RJV.SetPipeline(IO.RJV.Pipe::ThreeClose);
+      }
+      else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+      {
+        IO.RJV.SetPipeline(IO.RJV.Pipe::ThreeFar);
+      }
+      else if (IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton())
+      {
+        IO.RJV.SetPipeline(IO.RJV.Pipe::LongShot);
+      }
+      else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
+      {
+        IO.RJV.SetPipeline(IO.RJV.Pipe::TwoClose);
+      }
     }
     else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
-      //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
       indexer = indexerSpeed;
-      data = IO.RJV.Run(IO.RJV.ShotType::Three);
+      data = IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
       if (data.filled)
       {
         if (tpCt > 10)
         {
           IO.shooter.SetShooterDistanceThree(data.distance);
           IO.drivebase.Arcade(0.0, 0.0);
+          if (picCt < 10)
+          {
+            IO.RJV.TakePicture(true);
+            picCt++;
+          }
+          else
+          {
+            IO.RJV.TakePicture(false);
+          }
         }
         else
         {
           IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1500.0);
+          IO.shooter.SetVelocity(1000.0);
+          picCt = 0;
         }
       }
     }
-    else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
+    else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
       indexer = indexerSpeed;
-      data = IO.RJV.Run(IO.RJV.ShotType::Two);
+      data = IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
+      if (data.filled)
+      {
+        if (tpCt > 10)
+        {
+          IO.shooter.SetShooterDistanceThree(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+          if (picCt < 10)
+          {
+            IO.RJV.TakePicture(true);
+            picCt++;
+          }
+          else
+          {
+            IO.RJV.TakePicture(false);
+          }
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1000.0);
+          picCt = 0;
+        }
+      }
+    }
+    else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton()) //Two Pointer
+    {
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
       if (data.filled)
       {
         if (tpCt > 5)
         {
           IO.shooter.SetShooterDistanceTwo(data.distance);
           IO.drivebase.Arcade(0.0, 0.0);
+          if (picCt < 10)
+          {
+            IO.RJV.TakePicture(true);
+            picCt++;
+          }
+          else
+          {
+            IO.RJV.TakePicture(false);
+          }
         }
         else
         {
           IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
           IO.shooter.SetVelocity(1000.0);
+          picCt = 0;
         }
       }
     }
-    else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
+    else if (IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) //Two Pointer
     {
-      IO.shooter.SetVelocity(manualShootPercent);
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.Pipe::LongShot);
+      if (data.filled)
+      {
+        if (tpCt > 5)
+        {
+          IO.shooter.SetShooterDistanceTwo(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+          if (picCt < 10)
+          {
+            IO.RJV.TakePicture(true);
+            picCt++;
+          }
+          else
+          {
+            IO.RJV.TakePicture(false);
+          }
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1000.0);
+          picCt = 0;
+        }
+      }
     }
     else
     {
@@ -349,6 +514,7 @@ void Robot::TeleopPeriodic()
       IO.drivebase.Arcade(0, 0);
       IO.shooter.StopShooter();
       IO.RJV.Reset();
+      picCt = 0;
     }
   }
 
@@ -370,7 +536,7 @@ void Robot::TeleopPeriodic()
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double intakeSpeed = leftTrigOp - rightTrigOp + leftTrigDr - rightTrigDr;
   intakeSpeed = Deadband(-intakeSpeed, deadband);
-  IO.shooter.SetIntake(intakeSpeed * 0.6);
+  IO.shooter.SetIntake(intakeSpeed * 0.8);
 
   if (intakeSpeed > 0.05)
   {
@@ -440,6 +606,7 @@ void Robot::UpdateSD()
   // Don't update smart dash every loop,
   // it causes watchdog warnings
   smartDashSkip %= 30;
+  IO.shooter.UpdateSmartdash();
   switch (smartDashSkip)
   {
   case 0:
@@ -450,7 +617,7 @@ void Robot::UpdateSD()
 
   case 5:
   {
-    IO.shooter.UpdateSmartdash();
+
     break;
   }
 
@@ -473,7 +640,7 @@ void Robot::UpdateSD()
   case 25:
   {
     SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
-    
+
     std::string sDF = "ShootManual";
     manualShootPercent = frc::SmartDashboard::GetNumber(sDF, manualShootPercent);
     frc::SmartDashboard::PutNumber(sDF, manualShootPercent);
