@@ -44,7 +44,6 @@ private:
   double kDriveTurnLimit = 0.70;
 
   int tpCt = 0;
-  double df;
   bool blastOS = false;
   double c;
 
@@ -61,6 +60,7 @@ private:
 
   // Timer
   Timer manualShootTimer;
+  double manualShootPercent = 0.6;
 
   // Test Mode
   SendableChooser<std::string> chooseTestDevice;

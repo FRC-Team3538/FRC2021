@@ -45,14 +45,6 @@ void Robot::RobotPeriodic()
   // Update Smart Dash
   UpdateSD();
 
-  std::string sDF = "Fly Output (Percent)";
-  df = frc::SmartDashboard::GetNumber(sDF, 100.0);
-  frc::SmartDashboard::PutNumber(sDF, df);
-  frc::SmartDashboard::SetPersistent(sDF);
-
-  std::string sDFe = "Hood Target";
-  c = frc::SmartDashboard::GetNumber(sDFe, 45.0);
-  frc::SmartDashboard::PutNumber(sDFe, c);
 }
 
 void Robot::AutonomousInit()
@@ -281,16 +273,16 @@ void Robot::TeleopPeriodic()
     if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
       manualShootTimer.Start();
-      if (manualShootTimer.Get() < 1.0)
+      if (manualShootTimer.Get() < 0.3)
       {
         IO.shooter.SetFeeder(0.0);
-        IO.shooter.SetShooter(0.6);
+        IO.shooter.SetShooter(manualShootPercent);
       }
       else
       {
         indexer = 0.8;
         IO.shooter.SetFeeder(1.0);
-        IO.shooter.SetShooter(0.6);
+        IO.shooter.SetShooter(manualShootPercent);
       }
     }
     else
@@ -348,7 +340,7 @@ void Robot::TeleopPeriodic()
     }
     else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
     {
-      IO.shooter.SetVelocity(df);
+      IO.shooter.SetVelocity(manualShootPercent);
     }
     else
     {
@@ -378,7 +370,7 @@ void Robot::TeleopPeriodic()
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double intakeSpeed = leftTrigOp - rightTrigOp + leftTrigDr - rightTrigDr;
   intakeSpeed = Deadband(-intakeSpeed, deadband);
-  IO.shooter.SetIntake(intakeSpeed * 0.5);
+  IO.shooter.SetIntake(intakeSpeed * 0.6);
 
   if (intakeSpeed > 0.05)
   {
@@ -481,6 +473,15 @@ void Robot::UpdateSD()
   case 25:
   {
     SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
+    
+    std::string sDF = "ShootManual";
+    manualShootPercent = frc::SmartDashboard::GetNumber(sDF, manualShootPercent);
+    frc::SmartDashboard::PutNumber(sDF, manualShootPercent);
+    frc::SmartDashboard::SetPersistent(sDF);
+
+    std::string sDFe = "Hood Target";
+    c = frc::SmartDashboard::GetNumber(sDFe, 45.0);
+    frc::SmartDashboard::PutNumber(sDFe, c);
   }
   default:
   {

@@ -49,7 +49,7 @@ private:
 
   double iAcc = 0;
   double prevError_rel = 0;
-  const double kPHood = 0.0225;
+  const double kPHood = 0.0200;
   const double kIHood = 0.00015;
 
 public:

@@ -176,7 +176,7 @@ void Shooter::IntakeRetract()
 
 void Shooter::SetIndexer(double speed)
 {
-   motorIndexer.Set(speed);
+   motorIndexer.Set(speed * 0.75);
    motorIndexerB.Set(speed);
    motorIndexerC.Set(speed);
 }
