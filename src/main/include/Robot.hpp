@@ -59,6 +59,16 @@ private:
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
 
-  //Timer
+  // Timer
   Timer manualShootTimer;
+
+  // Test Mode
+  SendableChooser<std::string> chooseTestDevice;
+  const std::string sIntake = "0 - Intake";
+  const std::string sIndexer = "1 - Indexer";
+  const std::string sFeeder = "2 - Feeder";
+  const std::string sShooter = "3 - Shooter";
+  const std::string sHood = "4 - Hood";
+  const std::string sClimber = "5 - Climber";
+  const std::string sColorWheel = "6 - Color Wheel";
 };

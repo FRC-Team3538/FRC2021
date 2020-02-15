@@ -15,6 +15,15 @@ void Robot::RobotInit()
   IO.drivebase.ResetEncoders();
   IO.drivebase.ResetGyro();
   IO.RJV.Init();
+
+  
+	chooseTestDevice.SetDefaultOption(sIntake, sIntake);
+	chooseTestDevice.AddOption(sIndexer, sIndexer);
+	chooseTestDevice.AddOption(sFeeder, sFeeder);
+	chooseTestDevice.AddOption(sShooter, sShooter);
+	chooseTestDevice.AddOption(sHood, sHood);
+	chooseTestDevice.AddOption(sClimber, sClimber);
+	chooseTestDevice.AddOption(sColorWheel, sColorWheel);
 }
 
 void Robot::RobotPeriodic()
@@ -74,6 +83,129 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic()
 {
+   // Input
+  double cmd = IO.ds.Driver.GetY(GenericHID::kRightHand);
+  bool X = IO.ds.Driver.GetCrossButton();
+  bool O = IO.ds.Driver.GetCircleButton();
+  bool S = IO.ds.Driver.GetSquareButton();
+  bool T = IO.ds.Driver.GetTriangleButton();
+
+	//  Controller Type
+  auto testdevice = chooseTestDevice.GetSelected();
+
+  // Intake
+	if (testdevice == sIntake)
+	{
+    IO.shooter.SetIntake(cmd);
+    if(X)
+    {
+      IO.shooter.IntakeDeploy();
+    }
+    if(O)
+    {
+      IO.shooter.IntakeRetract();
+    }
+  }
+  else
+  {
+    IO.shooter.SetIntake(0.0);
+  }
+
+  // Indexer
+	if (testdevice == sIndexer)
+	{
+    IO.shooter.SetIndexer(cmd);
+  }
+  else
+  {
+    IO.shooter.SetIndexer(0.0);
+  }
+
+  // Feeder
+	if (testdevice == sFeeder)
+	{
+    IO.shooter.SetFeeder(cmd);
+  }
+  else
+  {
+    IO.shooter.SetFeeder(0.0);
+  }
+
+  // Shooter
+	if (testdevice == sShooter)
+	{
+    IO.shooter.SetShooter(cmd);
+  }
+  else
+  {
+    IO.shooter.SetShooter(0.0);
+  }
+
+  // Hood
+	if (testdevice == sHood)
+	{
+    IO.shooter.SetHood(cmd);
+    
+    if(X)
+    {
+      IO.shooter.SetHoodAngle(0.0);
+    }
+    if(O)
+    {
+      IO.shooter.SetHoodAngle(90.0);
+    }
+    if(S)
+    {
+      IO.shooter.SetHoodAngle(30.0);
+    }
+    if(T)
+    {
+      IO.shooter.SetHoodAngle(60.0);
+    }
+  }
+  else
+  {
+    IO.shooter.SetHood(0.0);
+  }
+
+  // Climber
+	if (testdevice == sClimber)
+	{
+    IO.climber.SetClimber(cmd);
+    
+    if(X)
+    {
+      IO.climber.ClimberDeploy();
+    }
+    if(O)
+    {
+      IO.climber.ClimberDeploy();
+    }
+  }
+  else
+  {
+    IO.climber.SetClimber(0.0);
+  }
+
+  // Color Wheel
+	if (testdevice == sColorWheel)
+	{
+    IO.colorWheel.SetColorWheel(cmd);
+    
+    if(X)
+    {
+      IO.colorWheel.ColorWheelDeploy();
+    }
+    if(O)
+    {
+      IO.colorWheel.ColorWheelRetract();
+    }
+  }
+  else
+  {
+    IO.colorWheel.SetColorWheel(0.0);
+  }
+  
 }
 
 void Robot::TeleopPeriodic()
@@ -330,6 +462,10 @@ void Robot::UpdateSD()
   {
     IO.RJV.UpdateSmartDash();
     break;
+  }
+  case 25:
+  {
+    SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
   }
   default:
   {

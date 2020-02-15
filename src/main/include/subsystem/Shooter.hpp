@@ -19,8 +19,8 @@ private:
   WPI_TalonFX flywheelB{7};
   WPI_VictorSPX motorIntake{8};
   WPI_VictorSPX motorIndexer{9};
-  WPI_VictorSPX Test{21};
-  WPI_VictorSPX Test2{22};
+  WPI_VictorSPX motorIndexerB{21};
+  WPI_VictorSPX motorIndexerC{22};
   WPI_TalonSRX motorFeeder{10}; //Actually a victor
   WPI_VictorSPX motorHood{11};
 
@@ -68,6 +68,8 @@ public:
   void SetShooterDistanceThree(double distance);
   void SetVelocity(double velocity);
   void SetIntake(double speed);
+  void SetFeeder(double speed);
+  void SetShooter(double speed);
   void IntakeDeploy(); // TODO
   void IntakeRetract();
   void SetIndexer(double speed);

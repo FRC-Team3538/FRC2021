@@ -13,10 +13,10 @@ Shooter::Shooter()
    flywheel.ConfigVoltageCompSaturation(10.0);
    flywheelB.ConfigVoltageCompSaturation(10.0);
 
-   flywheel.Config_kF(0, 0.05643219); //0.05562068
-   flywheel.Config_kP(0, 0.25);       //0.35
-   flywheel.Config_kI(0, 0.000);      // 0.000
-   flywheel.Config_kD(0, 7.000);      //6.0
+   flywheel.Config_kF(0, 0.05643219); 
+   flywheel.Config_kP(0, 0.25);       
+   flywheel.Config_kI(0, 0.000);    
+   flywheel.Config_kD(0, 7.000);     
 
    flywheel.ConfigClosedloopRamp(0.3);
    flywheelB.ConfigClosedloopRamp(0.3);
@@ -24,10 +24,10 @@ Shooter::Shooter()
    flywheel.SetInverted(false);
    flywheelB.SetInverted(true);
 
-   Test2.Follow(motorIndexer);
-   Test.Follow(motorIndexer);
-   Test2.SetInverted(false);
-   Test.SetInverted(true);
+   motorIndexerB.Follow(motorIndexer);
+   motorIndexerC.Follow(motorIndexer);
+   motorIndexerB.SetInverted(false);
+   motorIndexerC.SetInverted(true);
    motorIndexer.SetInverted(true);
    motorFeeder.SetInverted(true);
    motorIntake.SetInverted(true);
@@ -149,18 +149,6 @@ void Shooter::SetShooterDistanceTwo(double distance)
 void Shooter::SetVelocity(double velocity)
 {
    flywheel.Set(ControlMode::Velocity, -((velocity / kScaleFactorFly) / 600.0));
-   // if(!shootOS)
-   // {
-   //    shootOS = true;
-   //    shootDelay.Reset();
-   //    shootDelay.Start();
-   // }
-   // if(shootDelay.Get() > 1.5)
-   //    motorFeeder.Set(ControlMode::PercentOutput, 100);
-   // else
-   // {
-   //    motorFeeder.Set(ControlMode::PercentOutput, 0);
-   // }
 }
 
 void Shooter::SetIntake(double speed)
@@ -181,6 +169,16 @@ void Shooter::IntakeRetract()
 void Shooter::SetIndexer(double speed)
 {
    motorIndexer.Set(speed);
+}
+
+void Shooter::SetFeeder(double speed)
+{
+   motorFeeder.Set(speed);
+}
+
+void Shooter::SetShooter(double speed)
+{
+   flywheel.Set(speed);
 }
 
 void Shooter::SetHood(double input)
