@@ -40,8 +40,8 @@ private:
 
   const double deadband = 0.1;
 
-  double indexerSpeed = 1.0; // TODO SmartDash input
-  double kDriveTurnLimit = 0.65;
+  double indexerSpeed = 1.0;
+  double kDriveTurnLimit = 0.70;
 
   int tpCt = 0;
   double df;

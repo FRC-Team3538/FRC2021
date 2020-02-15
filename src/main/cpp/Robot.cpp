@@ -259,33 +259,38 @@ void Robot::TeleopPeriodic()
   // Shooter Manual Mode
   if (IO.shooter.GetModeChooser() == true)
   {
-    //Hood
     IO.drivebase.Arcade(forward, rotate);
-    double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * 1, deadband);
+
+    // Hood
     if (IO.ds.Operator.GetOptionsButton())
     {
       IO.shooter.SetHoodAngle(c);
     }
     else
     {
+      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
       IO.shooter.SetHood(hoodAnalog);
     }
 
+    // Manual Shooting System
     if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
       IO.shooter.ManualShoot(0.0, 0.0);
     }
+
     if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
       manualShootTimer.Start();
       if (manualShootTimer.Get() < 1.0)
       {
-        IO.shooter.ManualShoot(-0.6, 0.0);
+        IO.shooter.SetFeeder(0.0);
+        IO.shooter.SetShooter(0.6);
       }
       else
       {
-        indexer = 1.0;
-        IO.shooter.ManualShoot(-0.6, 1.0);
+        indexer = 0.8;
+        IO.shooter.SetFeeder(1.0);
+        IO.shooter.SetShooter(0.6);
       }
     }
     else
@@ -372,26 +377,26 @@ void Robot::TeleopPeriodic()
   double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double intakeSpeed = leftTrigOp - rightTrigOp + leftTrigDr - rightTrigDr;
-  intakeSpeed = Deadband(intakeSpeed, deadband);
-  IO.shooter.SetIntake(intakeSpeed);
+  intakeSpeed = Deadband(-intakeSpeed, deadband);
+  IO.shooter.SetIntake(intakeSpeed * 0.5);
 
-  if (abs(intakeSpeed) > 0.05)
+  if (intakeSpeed > 0.05)
   {
     indexer = indexerSpeed;
+  }
+  else if (intakeSpeed < -0.05)
+  {
+    indexer = -indexerSpeed;
   }
 
   IO.shooter.SetIndexer(indexer);
 
-  //Intake
-  if (IO.ds.Operator.GetBumperPressed(GenericHID::kRightHand))
-  {
-  }
-
-  //Climber
+  // Climber
   if (IO.ds.Operator.GetRightButton())
   {
     IO.climber.ClimberDeploy();
   }
+
   if (IO.ds.Operator.GetLeftButton())
   {
     IO.climber.ClimberRetract();
@@ -399,11 +404,12 @@ void Robot::TeleopPeriodic()
   double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
   IO.climber.SetClimber(climbAnalog);
 
-  //ColorWheel
+  // ColorWheel
   if (IO.ds.Operator.GetUpButton())
   {
     IO.colorWheel.ColorWheelDeploy();
   }
+
   if (IO.ds.Operator.GetDownButton())
   {
     IO.colorWheel.ColorWheelRetract();

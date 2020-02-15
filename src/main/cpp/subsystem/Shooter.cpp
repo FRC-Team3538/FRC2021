@@ -193,11 +193,11 @@ void Shooter::SetShooter(double speed)
 
 void Shooter::SetHood(double input)
 {
-   if((GetHoodAngle() > 70.0) && (input > 0.0))
+   if((GetHoodAngle() > 70.0) && (input < 0.0))
    {
       motorHood.Set(0.0);
    }
-   else if((GetHoodAngle() < 0.0) && (input < 0.0))
+   else if((GetHoodAngle() < 0.0) && (input > 0.0))
    {
       motorHood.Set(0.0);
    }
@@ -219,7 +219,7 @@ void Shooter::SetHoodAngle(double angle)
       angle = 0.0;
    }
    
-   double error = angle - GetHoodAngle();
+   double error = GetHoodAngle() - angle;
 
    if (std::abs(error) < 5.0)
    {
@@ -230,7 +230,7 @@ void Shooter::SetHoodAngle(double angle)
       iAcc = 0;
    }
 
-   motorHood.Set(ControlMode::PercentOutput, ((error * kPHood) + (iAcc * kIHood)));
+   motorHood.Set(ControlMode::PercentOutput, (error * kPHood) + (iAcc * kIHood));
 }
 
 double Shooter::GetHoodAngle()
