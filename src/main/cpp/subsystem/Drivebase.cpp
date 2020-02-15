@@ -192,7 +192,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
 
     double averageEncCnt = GetEncoderPositionLeft();
     double error = distance - averageEncCnt;
-    if(abs(error) > 0.25 && abs(error) < 12.0)
+    if (abs(error) > 0.25 && abs(error) < 12.0)
     {
         sumError_forward += error;
     }
@@ -231,7 +231,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
     double driveCommandRotation = errorRot * KP_FORWARDGYRO + KI_FORWARDGYRO * sumError_rotation + KD_FORWARDGYRO * deltaErrorRot;
 
     //Drive Limits
-    if (driveCommandRotation> maxOutput)
+    if (driveCommandRotation > maxOutput)
     {
         driveCommandRotation = maxOutput;
     }
@@ -327,6 +327,10 @@ void Drivebase::GlobalReset()
 
 void Drivebase::SensorOverride(bool active)
 {
+    if (sensorOverride == active)
+    {
+        return;
+    }
     sensorOverride = active;
 
     ctre::phoenix::motorcontrol::SupplyCurrentLimitConfiguration lim;
@@ -361,10 +365,10 @@ void Drivebase::SensorOverride(bool active)
 void Drivebase::UpdateSmartdash()
 {
     SmartDashboard::PutNumber("Drive L1", motorLeft1.Get());
-    SmartDashboard::PutNumber("Drive L2", motorLeft2.Get());
+    //SmartDashboard::PutNumber("Drive L2", motorLeft2.Get());
     //SmartDashboard::PutNumber("Drive L3", motorLeft3.Get());
     SmartDashboard::PutNumber("Drive R1", motorRight1.Get());
-    SmartDashboard::PutNumber("Drive R2", motorRight2.Get());
+    //SmartDashboard::PutNumber("Drive R2", motorRight2.Get());
     //SmartDashboard::PutNumber("Drive R3", motorRight3.Get());
 
     SmartDashboard::PutBoolean("DriveShifter", solenoidShifter.Get());

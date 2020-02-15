@@ -19,9 +19,9 @@ private:
   WPI_TalonFX flywheelB{7};
   WPI_VictorSPX motorIntake{8};
   WPI_VictorSPX motorIndexer{9};
-  WPI_VictorSPX motorIndexerB{21};
-  WPI_VictorSPX motorIndexerC{22};
-  WPI_TalonSRX motorFeeder{10}; //Actually a victor
+  WPI_VictorSPX motorIndexerB{14};
+  WPI_VictorSPX motorIndexerC{15};
+  WPI_TalonSRX motorFeeder{10};
   WPI_VictorSPX motorHood{11};
 
   Solenoid solenoidIntake{1};
@@ -49,8 +49,8 @@ private:
 
   double iAcc = 0;
   double prevError_rel = 0;
-  const double kPHood = 0.0200;
-  const double kIHood = 0.00015;
+  const double kPHood = 0.0250;
+  const double kIHood = 0.000016; //0.00015
 
 public:
   // Default Constructor
