@@ -67,6 +67,7 @@ public:
   void SetShooterDistanceTwo(double distance);
   void SetShooterDistanceThree(double distance);
   void SetVelocity(double velocity);
+  double GetVelocity();
   void SetIntake(double speed);
   void SetFeeder(double speed);
   void SetShooter(double speed);

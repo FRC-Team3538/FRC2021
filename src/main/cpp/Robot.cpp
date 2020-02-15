@@ -16,14 +16,14 @@ void Robot::RobotInit()
   IO.drivebase.ResetGyro();
   IO.RJV.Init();
 
-  
-	chooseTestDevice.SetDefaultOption(sIntake, sIntake);
-	chooseTestDevice.AddOption(sIndexer, sIndexer);
-	chooseTestDevice.AddOption(sFeeder, sFeeder);
-	chooseTestDevice.AddOption(sShooter, sShooter);
-	chooseTestDevice.AddOption(sHood, sHood);
-	chooseTestDevice.AddOption(sClimber, sClimber);
-	chooseTestDevice.AddOption(sColorWheel, sColorWheel);
+  chooseTestDevice.SetDefaultOption(sDrive, sDrive);
+  chooseTestDevice.AddOption(sIntake, sIntake);
+  chooseTestDevice.AddOption(sIndexer, sIndexer);
+  chooseTestDevice.AddOption(sFeeder, sFeeder);
+  chooseTestDevice.AddOption(sShooter, sShooter);
+  chooseTestDevice.AddOption(sHood, sHood);
+  chooseTestDevice.AddOption(sClimber, sClimber);
+  chooseTestDevice.AddOption(sColorWheel, sColorWheel);
 }
 
 void Robot::RobotPeriodic()
@@ -83,25 +83,61 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic()
 {
-   // Input
-  double cmd = IO.ds.Driver.GetY(GenericHID::kRightHand);
+
+  // Input
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, 0.05);
+  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.05);
+
   bool X = IO.ds.Driver.GetCrossButton();
   bool O = IO.ds.Driver.GetCircleButton();
   bool S = IO.ds.Driver.GetSquareButton();
   bool T = IO.ds.Driver.GetTriangleButton();
 
-	//  Controller Type
+  //  Controller Type
   auto testdevice = chooseTestDevice.GetSelected();
 
+  // Drive
+  if (testdevice == sDrive)
+  {
+    if (IO.ds.Driver.GetUpButton())
+    {
+      //IO.drivebase.DriveForward(84.0, 0.20);
+      IO.drivebase.Arcade(0.2, 0.0);
+    }
+    else if (IO.ds.Driver.GetDownButton())
+    {
+      //IO.drivebase.DriveForward(-84.0, 0.20);
+      IO.drivebase.Arcade(-0.2, 0.0);
+    }
+    else if (IO.ds.Driver.GetLeftButton())
+    {
+      //IO.drivebase.TurnAbs(90.0, 0.20);
+      IO.drivebase.Arcade(0.0, 0.2);
+    }
+    else if (IO.ds.Driver.GetRightButton())
+    {
+      //IO.drivebase.TurnAbs(-90.0, 0.20);
+      IO.drivebase.Arcade(0.0, -0.2);
+    }
+    else
+    {
+      // Drive
+      IO.drivebase.Arcade(forward, rotate);
+
+      IO.drivebase.ResetEncoders();
+      IO.drivebase.ResetGyro();
+    }
+  }
+
   // Intake
-	if (testdevice == sIntake)
-	{
-    IO.shooter.SetIntake(cmd);
-    if(X)
+  if (testdevice == sIntake)
+  {
+    IO.shooter.SetIntake(forward);
+    if (X)
     {
       IO.shooter.IntakeDeploy();
     }
-    if(O)
+    if (O)
     {
       IO.shooter.IntakeRetract();
     }
@@ -112,9 +148,9 @@ void Robot::TestPeriodic()
   }
 
   // Indexer
-	if (testdevice == sIndexer)
-	{
-    IO.shooter.SetIndexer(cmd);
+  if (testdevice == sIndexer)
+  {
+    IO.shooter.SetIndexer(forward);
   }
   else
   {
@@ -122,9 +158,9 @@ void Robot::TestPeriodic()
   }
 
   // Feeder
-	if (testdevice == sFeeder)
-	{
-    IO.shooter.SetFeeder(cmd);
+  if (testdevice == sFeeder)
+  {
+    IO.shooter.SetFeeder(forward);
   }
   else
   {
@@ -132,9 +168,9 @@ void Robot::TestPeriodic()
   }
 
   // Shooter
-	if (testdevice == sShooter)
-	{
-    IO.shooter.SetShooter(cmd);
+  if (testdevice == sShooter)
+  {
+    IO.shooter.SetShooter(forward);
   }
   else
   {
@@ -142,23 +178,23 @@ void Robot::TestPeriodic()
   }
 
   // Hood
-	if (testdevice == sHood)
-	{
-    IO.shooter.SetHood(cmd);
-    
-    if(X)
+  if (testdevice == sHood)
+  {
+    IO.shooter.SetHood(forward);
+
+    if (X)
     {
       IO.shooter.SetHoodAngle(0.0);
     }
-    if(O)
+    if (O)
     {
       IO.shooter.SetHoodAngle(90.0);
     }
-    if(S)
+    if (S)
     {
       IO.shooter.SetHoodAngle(30.0);
     }
-    if(T)
+    if (T)
     {
       IO.shooter.SetHoodAngle(60.0);
     }
@@ -169,15 +205,15 @@ void Robot::TestPeriodic()
   }
 
   // Climber
-	if (testdevice == sClimber)
-	{
-    IO.climber.SetClimber(cmd);
-    
-    if(X)
+  if (testdevice == sClimber)
+  {
+    IO.climber.SetClimber(forward);
+
+    if (X)
     {
       IO.climber.ClimberDeploy();
     }
-    if(O)
+    if (O)
     {
       IO.climber.ClimberDeploy();
     }
@@ -188,15 +224,15 @@ void Robot::TestPeriodic()
   }
 
   // Color Wheel
-	if (testdevice == sColorWheel)
-	{
-    IO.colorWheel.SetColorWheel(cmd);
-    
-    if(X)
+  if (testdevice == sColorWheel)
+  {
+    IO.colorWheel.SetColorWheel(forward);
+
+    if (X)
     {
       IO.colorWheel.ColorWheelDeploy();
     }
-    if(O)
+    if (O)
     {
       IO.colorWheel.ColorWheelRetract();
     }
@@ -205,147 +241,120 @@ void Robot::TestPeriodic()
   {
     IO.colorWheel.SetColorWheel(0.0);
   }
-  
 }
 
 void Robot::TeleopPeriodic()
 {
   // Drive
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * 1.0, 0.05);
+  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, 0.05);
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.05);
   double indexer = 0.0; // This is also here now :)
 
-  if (IO.ds.Driver.GetUpButton())
+  // Turn speed limiting
+  if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
   {
-    IO.drivebase.DriveForward(84.0, 0.20);
-    //IO.drivebase.Arcade(0.2, 0.0);
+    rotate *= kDriveTurnLimit;
   }
-  else if (IO.ds.Driver.GetDownButton())
-  {
-    IO.drivebase.DriveForward(-84.0, 0.20);
-    //IO.drivebase.Arcade(-0.2, 0.0);
-  }
-  else if (IO.ds.Driver.GetLeftButton())
-  {
-    IO.drivebase.TurnAbs(90.0, 0.20);
-    //IO.drivebase.Arcade(0.0, 0.2);
-  }
-  else if (IO.ds.Driver.GetRightButton())
-  {
-    IO.drivebase.TurnAbs(-90.0, 0.20);
-    //IO.drivebase.Arcade(0.0, -0.2);
-  }
-  else
-  {
-    //IO.drivebase.Arcade(forward, rotate);
-    IO.drivebase.ResetEncoders();
-    IO.drivebase.ResetGyro();
 
-    // Turn speed limiting
-    if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
+  // Shooter Manual Mode
+  if (IO.shooter.GetModeChooser() == true)
+  {
+    //Hood
+    IO.drivebase.Arcade(forward, rotate);
+    double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * 1, deadband);
+    if (IO.ds.Operator.GetOptionsButton())
     {
-      rotate *= kDriveTurnLimit;
+      IO.shooter.SetHoodAngle(c);
+    }
+    else
+    {
+      IO.shooter.SetHood(hoodAnalog);
     }
 
-    // Shooter Manual Mode
-    if (IO.shooter.GetModeChooser() == true)
+    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
-      //Hood
-      IO.drivebase.Arcade(forward, rotate);
-      double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * 1, deadband);
-      if (IO.ds.Operator.GetOptionsButton())
+      IO.shooter.ManualShoot(0.0, 0.0);
+    }
+    if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+    {
+      manualShootTimer.Start();
+      if (manualShootTimer.Get() < 1.0)
       {
-        IO.shooter.SetHoodAngle(c);
+        IO.shooter.ManualShoot(-0.6, 0.0);
       }
       else
       {
-        IO.shooter.SetHood(hoodAnalog);
-      }
-
-      if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
-      {
-        IO.shooter.ManualShoot(0.0, 0.0);
-      }
-      if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
-      {
-        manualShootTimer.Start();
-        if (manualShootTimer.Get() < 1.0)
-        {
-          IO.shooter.ManualShoot(-0.6, 0.0);
-        }
-        else
-        {
-          indexer = 1.0;
-          IO.shooter.ManualShoot(-0.6, 1.0);
-        }
-      }
-      else
-      {
-        manualShootTimer.Stop();
-        manualShootTimer.Reset();
+        indexer = 1.0;
+        IO.shooter.ManualShoot(-0.6, 1.0);
       }
     }
     else
     {
-      if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
-      {
-        IO.drivebase.Arcade(forward, rotate);
-        data.filled = false;
-        tpCt = 0;
-        IO.shooter.StopShooter();
-        IO.RJV.Reset();
-      }
-      else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
-      {
-        //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
-        indexer = indexerSpeed;
-        data = IO.RJV.Run(IO.RJV.ShotType::Three);
-        if (data.filled)
-        {
-          if (tpCt > 10)
-          {
-            IO.shooter.SetShooterDistanceThree(data.distance);
-            IO.drivebase.Arcade(0.0, 0.0);
-          }
-          else
-          {
-            IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-            IO.shooter.SetVelocity(1500.0);
-          }
-        }
-      }
-      else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
-      {
-        indexer = indexerSpeed;
-        data = IO.RJV.Run(IO.RJV.ShotType::Two);
-        if (data.filled)
-        {
-          if (tpCt > 5)
-          {
-            IO.shooter.SetShooterDistanceTwo(data.distance);
-            IO.drivebase.Arcade(0.0, 0.0);
-          }
-          else
-          {
-            IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
-            IO.shooter.SetVelocity(1000.0);
-          }
-        }
-      }
-      else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
-      {
-        IO.shooter.SetVelocity(df);
-      }
-      else
-      {
-        data.filled = false;
-        tpCt = 0;
-        IO.drivebase.Arcade(0, 0);
-        IO.shooter.StopShooter();
-        IO.RJV.Reset();
-      }
+      manualShootTimer.Stop();
+      manualShootTimer.Reset();
     }
   }
+  else
+  {
+    if ((abs(forward) > 0.0) || (abs(rotate) > 0.0))
+    {
+      IO.drivebase.Arcade(forward, rotate);
+      data.filled = false;
+      tpCt = 0;
+      IO.shooter.StopShooter();
+      IO.RJV.Reset();
+    }
+    else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+    {
+      //std::cout << IO.drivebase.TurnRel(data.angle) << std::endl;
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.ShotType::Three);
+      if (data.filled)
+      {
+        if (tpCt > 10)
+        {
+          IO.shooter.SetShooterDistanceThree(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1500.0);
+        }
+      }
+    }
+    else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton()) //Two Pointer
+    {
+      indexer = indexerSpeed;
+      data = IO.RJV.Run(IO.RJV.ShotType::Two);
+      if (data.filled)
+      {
+        if (tpCt > 5)
+        {
+          IO.shooter.SetShooterDistanceTwo(data.distance);
+          IO.drivebase.Arcade(0.0, 0.0);
+        }
+        else
+        {
+          IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
+          IO.shooter.SetVelocity(1000.0);
+        }
+      }
+    }
+    else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton())
+    {
+      IO.shooter.SetVelocity(df);
+    }
+    else
+    {
+      data.filled = false;
+      tpCt = 0;
+      IO.drivebase.Arcade(0, 0);
+      IO.shooter.StopShooter();
+      IO.RJV.Reset();
+    }
+  }
+
   // Shifting
   if (IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
   {

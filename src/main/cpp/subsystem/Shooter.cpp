@@ -7,32 +7,39 @@ Shooter::Shooter()
 {
    flywheel.ConfigFactoryDefault();
    flywheelB.ConfigFactoryDefault();
-
+   motorIntake.ConfigFactoryDefault();
+   motorIndexer.ConfigFactoryDefault();
+   motorIndexerB.ConfigFactoryDefault();
+   motorIndexerC.ConfigFactoryDefault();
+   motorFeeder.ConfigFactoryDefault();
+   motorHood.ConfigFactoryDefault();
+   
    flywheelB.Follow(flywheel);
 
    flywheel.ConfigVoltageCompSaturation(10.0);
    flywheelB.ConfigVoltageCompSaturation(10.0);
 
+   flywheel.ConfigClosedloopRamp(0.3);
+   flywheelB.ConfigClosedloopRamp(0.3);
+
+   flywheel.SetInverted(true);
+   flywheelB.SetInverted(false);
+   
    flywheel.Config_kF(0, 0.05643219); 
    flywheel.Config_kP(0, 0.25);       
    flywheel.Config_kI(0, 0.000);    
    flywheel.Config_kD(0, 7.000);     
 
-   flywheel.ConfigClosedloopRamp(0.3);
-   flywheelB.ConfigClosedloopRamp(0.3);
-
-   flywheel.SetInverted(false);
-   flywheelB.SetInverted(true);
-
-   motorIndexerB.Follow(motorIndexer);
-   motorIndexerC.Follow(motorIndexer);
+   motorIntake.SetInverted(false);
+   motorIndexer.SetInverted(false);
    motorIndexerB.SetInverted(false);
    motorIndexerC.SetInverted(true);
-   motorIndexer.SetInverted(true);
    motorFeeder.SetInverted(true);
-   motorIntake.SetInverted(true);
+   motorHood.SetInverted(true);
+   
    chooseShooterMode.SetDefaultOption(sAutoMode, sAutoMode);
    chooseShooterMode.AddOption(sManualMode, sManualMode);
+
    hoodEnc.SetDistancePerRotation(360 / 2.5);
 }
 
@@ -56,6 +63,11 @@ void Shooter::StopShooter()
    distOS = false;
 }
 
+double Shooter::GetVelocity()
+{
+   return flywheel.GetSelectedSensorVelocity() * kScaleFactorFly * 600.0;
+}
+
 void Shooter::SetShooterDistanceThree(double distance)
 {
    if (!distOS || distance < 0.0)
@@ -64,7 +76,6 @@ void Shooter::SetShooterDistanceThree(double distance)
       distOS = true;
    }
 
-   //std::cout << std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) << std::endl;
    if (dist < 0.0)
    {
       motorFeeder.Set(ControlMode::PercentOutput, 0.0);
@@ -73,12 +84,11 @@ void Shooter::SetShooterDistanceThree(double distance)
    }
    else if (dist < 210)
    {
-      shootSpeed = (-0.0135 * pow(dist, 2)) + (7.0252 * dist) + 2073.2; //2098.2
+      shootSpeed = (-0.0135 * pow(dist, 2)) + (7.0252 * dist) + 2073.2;
    }
    else
    {
       shootSpeed = (0.0021 * pow(dist, 2)) + (2.3603 * dist) + 2500.8;
-      //shootSpeed = (3.7015 * distance) + 2560.3; //2480.3 3.6415
    }
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
 
@@ -109,7 +119,6 @@ void Shooter::SetShooterDistanceTwo(double distance)
       distOS = true;
    }
 
-   //std::cout << std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) << std::endl;
    if (dist < 0.0)
    {
       motorFeeder.Set(ControlMode::PercentOutput, 0.0);
@@ -118,12 +127,11 @@ void Shooter::SetShooterDistanceTwo(double distance)
    }
    else if (dist < 188)
    {
-      shootSpeed = (4.2753 * (dist)) + 2041.9; //2041.9
+      shootSpeed = (4.2753 * (dist)) + 2041.9;
    }
    else
    {
       shootSpeed = (0.0021 * pow(dist, 2)) + (2.3603 * dist) + 2500.8;
-      //shootSpeed = (3.7015 * distance) + 2560.3; //2480.3 3.6415
    }
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
 
@@ -169,6 +177,8 @@ void Shooter::IntakeRetract()
 void Shooter::SetIndexer(double speed)
 {
    motorIndexer.Set(speed);
+   motorIndexerB.Set(speed);
+   motorIndexerC.Set(speed);
 }
 
 void Shooter::SetFeeder(double speed)
@@ -208,13 +218,8 @@ void Shooter::SetHoodAngle(double angle)
    {
       angle = 0.0;
    }
-   else
-   {
-      //YeetYaw
-   }
    
    double error = angle - GetHoodAngle();
-   //std::cout << error << std::endl;
 
    if (std::abs(error) < 5.0)
    {
@@ -250,13 +255,12 @@ void Shooter::UpdateSmartdash()
    manualMode = (chooseShooterMode.GetSelected() == sManualMode);
 
    SmartDashboard::PutNumber("Shoot RPM Cmd", shootSpeed);
-   SmartDashboard::PutNumber("Shoot RPM Act", flywheel.GetSelectedSensorVelocity() * kScaleFactorFly * 600.0);
+   SmartDashboard::PutNumber("Shoot RPM Act", GetVelocity());
+
    SmartDashboard::PutNumber("Intake", motorIntake.Get());
    SmartDashboard::PutNumber("Indexer", motorIndexer.Get());
    SmartDashboard::PutNumber("Feeder", motorFeeder.Get());
    SmartDashboard::PutNumber("Hood", motorHood.Get());
-
-   SmartDashboard::PutNumber("Shoot Encoder", flywheel.GetSelectedSensorPosition(0));
 
    SmartDashboard::PutBoolean("Solenoid Intake", solenoidIntake.Get());
    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
