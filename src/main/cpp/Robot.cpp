@@ -296,7 +296,6 @@ void Robot::TeleopPeriodic()
   // Shooter Manual Mode
   if (IO.shooter.GetModeChooser() == true)
   {
-    IO.drivebase.Arcade(forward, rotate);
 
     // Hood Presets
     if (IO.ds.Operator.GetStickButton(frc::GenericHID::kRightHand))
@@ -361,14 +360,19 @@ void Robot::TeleopPeriodic()
     }
     if (IO.ds.Driver.GetSquareButton())
     {
-      data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
+      data = IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
       if (data.filled)
       {
         IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
       }
+      else
+      {
+        IO.drivebase.Arcade(0.0, 0.0);
+      }
     }
     else
     {
+      IO.drivebase.Arcade(forward, rotate);
       data.filled = false;
     }
   }
@@ -400,13 +404,14 @@ void Robot::TeleopPeriodic()
     }
     else if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
     {
-      indexer = indexerSpeed;
       data = IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
+      IO.shooter.SetVelocity(2450.0);
       if (data.filled)
       {
-        if (tpCt > 10)
+        if (tpCt > 5)
         {
           IO.shooter.SetShooterDistanceThree(data.distance);
+          indexer = indexerSpeed;
           IO.drivebase.Arcade(0.0, 0.0);
           if (picCt < 10)
           {
@@ -421,7 +426,6 @@ void Robot::TeleopPeriodic()
         else
         {
           IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1000.0);
           picCt = 0;
         }
       }
@@ -429,17 +433,17 @@ void Robot::TeleopPeriodic()
       {
         IO.drivebase.Arcade(0.0, 0.0);
       }
-      
     }
     else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
-      indexer = indexerSpeed;
       data = IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
+      IO.shooter.SetVelocity(3000.0);
       if (data.filled)
       {
-        if (tpCt > 10)
+        if (tpCt > 5)
         {
           IO.shooter.SetShooterDistanceThree(data.distance);
+          indexer = indexerSpeed;
           IO.drivebase.Arcade(0.0, 0.0);
           if (picCt < 10)
           {
@@ -454,9 +458,12 @@ void Robot::TeleopPeriodic()
         else
         {
           IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1000.0);
           picCt = 0;
         }
+      }
+      else
+      {
+        IO.drivebase.Arcade(0.0, 0.0);
       }
     }
     else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton()) //Two Pointer
@@ -490,7 +497,6 @@ void Robot::TeleopPeriodic()
       {
         IO.drivebase.Arcade(0.0, 0.0);
       }
-      
     }
     else if (IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) //Two Pointer
     {

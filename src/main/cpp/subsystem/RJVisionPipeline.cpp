@@ -39,7 +39,7 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 
 	if (pnpPoints.size() >= 5)
 	{
-		pnpDist = sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2));
+		pnpDist = sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2]), 2));
 	}
 
 	if (((pipeSwitch.Get() < 1.0) && pipeSwitchOS))
@@ -98,7 +98,7 @@ void RJVisionPipeline::UpdateSmartDash()
 	frc::SmartDashboard::PutNumber("Vision Dist", DistEstimation());
 	if (pnpPoints.size() >= 5)
 	{
-		frc::SmartDashboard::PutNumber("pnpDist", sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2] - 29), 2)));
+		frc::SmartDashboard::PutNumber("pnpDist", sqrt(pow(pnpPoints[0], 2) + pow((pnpPoints[2]), 2)));
 	}
 }
 

@@ -46,8 +46,8 @@ public:
 	{
 		TwoClose = 0,
 		ThreeClose,
-		LongShot,
-		ThreeFar
+		ThreeFar,
+		LongShot
 	};
 
 	RJVisionPipeline();
