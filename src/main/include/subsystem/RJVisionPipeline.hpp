@@ -27,6 +27,7 @@ private:
 	bool pipeSwitchOS = false;
 	int pipeSwitchCt = 0;
 	frc::Timer pipeSwitch;
+	frc::Timer lightOn;
 
 public:
 	typedef struct

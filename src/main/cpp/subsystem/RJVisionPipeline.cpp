@@ -18,7 +18,7 @@ void RJVisionPipeline::Init()
 
 void RJVisionPipeline::Periodic()
 {
-	dx = table->GetNumber("tx", 0.0);
+	dx = -(table->GetNumber("tx", 0.0));
 	dy = table->GetNumber("ty", 0.0);
 	tv = table->GetNumber("tv", 0.0);
 	pipe = table->GetNumber("pipeline", 0.0);
@@ -27,7 +27,12 @@ void RJVisionPipeline::Periodic()
 
 RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telemetry and changes pipeline
 {
-	table->PutNumber("ledMode", 0.0);
+	if (table->GetNumber("ledMode", 0.0) != 3.0)
+	{
+		table->PutNumber("ledMode", 3.0);
+		lightOn.Reset();
+		lightOn.Start();
+	}
 	RJVisionPipeline::visionData telemetry;
 
 	SetPipeline(shotType);
@@ -43,11 +48,11 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 		telemetry.distance = -1.0;
 		telemetry.filled = false;
 	}
-	else if (pipeSwitch.Get() > 1.0 || !pipeSwitchOS)
+	else if ((pipeSwitch.Get() > 1.0 || !pipeSwitchOS) && (lightOn.Get() > 0.3))
 	{
 		if (tv == 1.0)
 		{
-			telemetry.angle = -dx;
+			telemetry.angle = dx;
 			telemetry.distance = (shotType == 0) ? DistEstimation() : pnpDist;
 			telemetry.filled = true;
 		}
@@ -75,7 +80,6 @@ void RJVisionPipeline::SetPipeline(double pipeline)
 	{
 		pipeSwitchOS = false;
 	}
-	
 }
 
 double RJVisionPipeline::GetPipeline()

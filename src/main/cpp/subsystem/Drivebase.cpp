@@ -290,9 +290,11 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
 
 bool Drivebase::TurnRel(double degrees, double tolerance)
 {
-    target = GetGyroHeading() + degrees;
-    double error = target - navx.GetYaw();
-    //std::cout << error << std::endl;
+    // Save heading for other fuctions
+    forwardHeading = GetGyroHeading() + degrees;
+
+
+    double error = degrees;
 
     if (std::abs(error) < tolerance)
     {
@@ -300,7 +302,7 @@ bool Drivebase::TurnRel(double degrees, double tolerance)
         Arcade(0.0, 0.0);
     }
 
-    if (std::abs(error) < 5)
+    if (std::abs(error) < 6.0)
     {
         iAcc += error / 0.02;
     }

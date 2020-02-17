@@ -54,8 +54,7 @@ Shooter::Shooter()
 // Stop all motors
 void Shooter::Stop()
 {
-   flywheel.StopMotor();
-   flywheelB.StopMotor();
+   SetVelocity(1500);
    motorIntake.StopMotor();
    motorIndexer.StopMotor();
    motorFeeder.StopMotor();
@@ -65,10 +64,15 @@ void Shooter::Stop()
 
 void Shooter::StopShooter()
 {
-   flywheel.StopMotor();
+   SetVelocity(1500);
    motorFeeder.StopMotor();
    shootOS = false;
    distOS = false;
+}
+
+void Shooter::ResetHood()
+{
+   iAcc = 0.0;
 }
 
 double Shooter::GetVelocity()
@@ -134,9 +138,10 @@ void Shooter::SetShooterDistanceTwo(double distance)
       shootSpeed = 0.0;
       distOS = false;
    }
-   else if (dist < 188)
+   else if (dist < 240.0)
    {
-      shootSpeed = (4.2753 * dist) + 2041.9;
+      shootSpeed = -3000;
+      shootAngle = -(0.0011 * pow(dist, 2)) + (0.3637 * dist) + 20.901;
    }
    else
    {
@@ -144,17 +149,18 @@ void Shooter::SetShooterDistanceTwo(double distance)
       //shootSpeed = (3.7015 * distance) + 2560.3; //2480.3 3.6415
    }
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
+   SetHoodAngle(shootAngle);
 
-   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 300.0 && (shootSpeed > 100.0))
+   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 1000.0)// && (shootSpeed > 100.0))
    {
       shootCounter++;
    }
-   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0 || (shootSpeed < 100.0))
+   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0)// || (shootSpeed < 100.0))
    {
       shootCounter = 0;
    }
 
-   if (shootCounter > 10)
+   if (shootCounter > 3)
    {
       motorFeeder.Set(ControlMode::PercentOutput, 100.0);
    }
@@ -253,9 +259,9 @@ void Shooter::SetHoodAngle(double angle)
    }
    else
    {
+      iAcc = 0;
       motorHood.Set(ControlMode::PercentOutput, 0.0);
    }
-   
 }
 
 double Shooter::GetHoodAngle()

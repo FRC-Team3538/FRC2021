@@ -38,6 +38,7 @@ private:
 
   bool manualMode = false;
   double shootSpeed = 0.0;
+  double shootAngle = 0.0;
   int shootCounter = 0;
 
   // Degrees / Pulses
@@ -82,7 +83,7 @@ public:
   void ManualShoot(double inputFly, double inputKick);
 
   void StopShooter();
-
+  void ResetHood();
 
   void UpdateSmartdash();
 };

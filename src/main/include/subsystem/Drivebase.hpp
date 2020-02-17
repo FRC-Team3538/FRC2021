@@ -55,15 +55,14 @@ private:
   double sumError_forward = 0;
   double prevError_rot = 0;
   double sumError_rotation = 0;
-  double target;
   double prevError_rel = 0.0;
   double iAcc = 0.0;
 
   bool oneShotAngle = false;
 
 #define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.016100))
-#define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.001))
-#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0025))
+#define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.00003))
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))
 
 #define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))

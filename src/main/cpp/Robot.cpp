@@ -317,6 +317,7 @@ void Robot::TeleopPeriodic()
     {
       hoodAngle = -1.0;
       IO.shooter.SetHood(hoodAnalog);
+      IO.shooter.ResetHood();
     }
     else if (hoodAngle >= 0.0)
     {
@@ -328,9 +329,11 @@ void Robot::TeleopPeriodic()
     }
 
     // Manual Shooting System
-    bool atSpeed = (manualShootPercent > 1.0) && (abs(manualShootPercent - IO.shooter.GetVelocity()) < 100);
+    bool atSpeed = (manualShootPercent > 1.0) && (abs(manualShootPercent - IO.shooter.GetVelocity()) < 150);
 
-    if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed)
+    bool atAngle = (abs(c) - IO.shooter.GetHoodAngle()) < 2.0;
+
+    if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed && atAngle)
     {
       indexer = 0.8;
       IO.shooter.SetFeeder(1.0);
@@ -358,7 +361,7 @@ void Robot::TeleopPeriodic()
     }
     if (IO.ds.Driver.GetSquareButton())
     {
-      data = IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
+      data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
       if (data.filled)
       {
         IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
@@ -422,6 +425,11 @@ void Robot::TeleopPeriodic()
           picCt = 0;
         }
       }
+      else
+      {
+        IO.drivebase.Arcade(0.0, 0.0);
+      }
+      
     }
     else if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
@@ -453,13 +461,14 @@ void Robot::TeleopPeriodic()
     }
     else if (IO.ds.Operator.GetSquareButton() || IO.ds.Driver.GetSquareButton()) //Two Pointer
     {
-      indexer = indexerSpeed;
       data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
+      IO.shooter.SetVelocity(3000.0);
       if (data.filled)
       {
         if (tpCt > 5)
         {
           IO.shooter.SetShooterDistanceTwo(data.distance);
+          indexer = indexerSpeed;
           IO.drivebase.Arcade(0.0, 0.0);
           if (picCt < 10)
           {
@@ -473,11 +482,15 @@ void Robot::TeleopPeriodic()
         }
         else
         {
-          IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
-          IO.shooter.SetVelocity(1000.0);
+          IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
           picCt = 0;
         }
       }
+      else
+      {
+        IO.drivebase.Arcade(0.0, 0.0);
+      }
+      
     }
     else if (IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) //Two Pointer
     {
