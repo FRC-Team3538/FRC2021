@@ -34,36 +34,34 @@ public:
   void TestPeriodic() override;
 
 private:
+  double Deadband(double input, double deadband);
+  void UpdateSD();
+
   robotmap IO;
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
   const double deadband = 0.1;
 
-  double indexerSpeed = 1.0;
   double kDriveTurnLimit = 0.3;
 
-  int tpCt = 0;
-  bool blastOS = false;
-  double c;
-  int picCt = 0;
-
-  double hoodAngle = -1.0;
+  double indexerSpeed = 1.0;
 
   // Dont update smart dash every loop
   int smartDashSkip = 0;
-
-  double Deadband(double input, double deadband);
-  void UpdateSD();
 
   PowerDistributionPanel *pdp = new PowerDistributionPanel();
 
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
+  int tpCt = 0;
+  int picCt = 0;
+  
+  // Presets
+  double PresetShooterRPM = 0.0;
+  double PresetHoodAngle = -1.0;
+  int PresetVisionPipeline = 0;
 
-  // Timer
-  Timer manualShootTimer;
-  double manualShootPercent = 3500;
 
   // Test Mode
   SendableChooser<std::string> chooseTestDevice;

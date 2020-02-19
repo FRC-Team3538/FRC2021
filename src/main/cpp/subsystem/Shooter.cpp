@@ -273,7 +273,7 @@ void Shooter::SetHoodAngle(double angle)
 
 double Shooter::GetHoodAngle()
 {
-   return (-hoodEnc.GetDistance() + 90.0);
+   return (-hoodEnc.GetDistance() + 101.0);
 }
 
 bool Shooter::GetModeChooser()
