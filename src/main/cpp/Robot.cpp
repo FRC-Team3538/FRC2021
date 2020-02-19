@@ -315,33 +315,40 @@ void Robot::TeleopPeriodic()
   //
   if (IO.ds.Driver.GetDownButton() || IO.ds.Operator.GetDownButton())
   {
-    PresetShooterRPM = 3000.0;
-    PresetHoodAngle = 0.0;
+    PresetShooterRPM = 2000;
+    PresetHoodAngle = 40;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
+    
+    IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetUpButton() || IO.ds.Operator.GetUpButton())
   {
-    PresetShooterRPM = 0.0;
-    PresetHoodAngle = 0.0;
+    PresetShooterRPM = 5000;
+    PresetHoodAngle = 30;
     PresetVisionPipeline = IO.RJV.Pipe::LongShot;
+    
+    IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetLeftButton() || IO.ds.Operator.GetLeftButton())
   {
-    PresetShooterRPM = 0.0;
-    PresetHoodAngle = 0.0;
+    PresetShooterRPM = 4000;
+    PresetHoodAngle = 50;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
+    
+    IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetRightButton() || IO.ds.Operator.GetRightButton())
   {
-    PresetShooterRPM = 0.0;
-    PresetHoodAngle = 0.0;
+    PresetShooterRPM = 3500;
+    PresetHoodAngle = 60;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+
+    IO.RJV.SetPipeline(PresetVisionPipeline);
   }
 
   //
   // Vision Here
   //
-  IO.RJV.SetPipeline(PresetVisionPipeline);
 
   if (IO.ds.Driver.GetSquareButton() || IO.ds.Operator.GetSquareButton())
   {
@@ -501,7 +508,7 @@ void Robot::TeleopPeriodic()
   }
   else if (intakeSpeed < 0.0)
   {
-    intakeSpeed = -0.8;
+    intakeSpeed = 0.0;
     indexer = -indexerSpeed;
   }
   
@@ -525,7 +532,6 @@ void Robot::TeleopPeriodic()
     PresetHoodAngle = 0.0;
   }
   
-
 
   // 
   // Indexer

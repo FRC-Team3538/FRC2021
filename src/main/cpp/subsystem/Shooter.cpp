@@ -31,9 +31,9 @@ Shooter::Shooter()
    flywheel.Config_kD(0, 7.000);
 
    motorIntake.SetInverted(false);
-   motorIndexer.SetInverted(true);
-   motorIndexerB.SetInverted(true);
-   motorIndexerC.SetInverted(false);
+   motorIndexer.SetInverted(true); // Second set of brushes
+   motorIndexerB.SetInverted(false); // Omni Rollers
+   motorIndexerC.SetInverted(false); // First set of brushes
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
 
