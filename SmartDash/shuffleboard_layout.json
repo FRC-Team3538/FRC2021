@@ -1,0 +1,580 @@
+{
+  "tabPane": [
+    {
+      "title": "Drive Team",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "SmartDashboard",
+      "widgetPane": {
+        "gridSize": 32.0,
+        "showGrid": false,
+        "hgap": 2.0,
+        "vgap": 20.0,
+        "tiles": {
+          "0,0": {
+            "size": [
+              13,
+              8
+            ],
+            "content": {
+              "_type": "Camera Stream",
+              "_source0": "camera_server://limelight",
+              "_title": "Limelight",
+              "Crosshair/Show crosshair": false,
+              "Crosshair/Crosshair color": "#FFFFFFFF",
+              "Controls/Show controls": false,
+              "Controls/Rotation": "NONE",
+              "compression": -1.0,
+              "fps": -1,
+              "imageWidth": 0,
+              "imageHeight": 0
+            }
+          },
+          "14,6": {
+            "size": [
+              6,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///FMSInfo/GameSpecificMessage",
+              "_title": "FMS Target Color"
+            }
+          },
+          "31,0": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/_DriveLimits",
+              "_title": "Drive Limits"
+            }
+          },
+          "14,0": {
+            "size": [
+              6,
+              2
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/Choose Auto",
+              "_title": "Choose Auto"
+            }
+          },
+          "31,2": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/_SelectedController",
+              "_title": "Controller Type"
+            }
+          },
+          "21,0": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Gyro Heading",
+              "_title": "Gyro"
+            }
+          },
+          "21,2": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Hood Angle",
+              "_title": "Hood Angle"
+            }
+          },
+          "21,4": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Shoot RPM Act",
+              "_title": "Shooter RPM"
+            }
+          },
+          "26,2": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Vision Dist",
+              "_title": "Vision Distance"
+            }
+          },
+          "26,0": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/dx",
+              "_title": "Vision Angle"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Pit Crew",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 32.0,
+        "showGrid": false,
+        "hgap": 2.0,
+        "vgap": 20.0,
+        "tiles": {
+          "19,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Climber",
+              "_title": "Climber"
+            }
+          },
+          "0,0": {
+            "size": [
+              6,
+              2
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/_TestDevice",
+              "_title": "Test Device"
+            }
+          },
+          "19,0": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/ColorWheel",
+              "_title": "ColorWheel"
+            }
+          },
+          "0,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Drive L1",
+              "_title": "Drive L1"
+            }
+          },
+          "3,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Drive R1",
+              "_title": "Drive R1"
+            }
+          },
+          "0,4": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/DriveEncL",
+              "_title": "DriveEncL"
+            }
+          },
+          "3,4": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/DriveEncR",
+              "_title": "DriveEncR"
+            }
+          },
+          "7,4": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Feeder",
+              "_title": "Feeder"
+            }
+          },
+          "0,6": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Gyro Heading",
+              "_title": "Gyro Heading"
+            }
+          },
+          "11,0": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Hood",
+              "_title": "Hood"
+            }
+          },
+          "11,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Hood Angle",
+              "_title": "Hood Angle"
+            }
+          },
+          "11,4": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Hood Target",
+              "_title": "Hood Target"
+            }
+          },
+          "7,0": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Intake",
+              "_title": "Intake"
+            }
+          },
+          "15,4": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Shoot RPM Cmd",
+              "_title": "RPM Target"
+            }
+          },
+          "15,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Shoot RPM Act",
+              "_title": "Shooter RPM"
+            }
+          },
+          "19,6": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Climber",
+              "_title": "Climber Sol",
+              "Colors/Color when true": "#008080FF",
+              "Colors/Color when false": "#666666FF"
+            }
+          },
+          "11,6": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Hood",
+              "_title": "Hood Sol",
+              "Colors/Color when true": "#008080FF",
+              "Colors/Color when false": "#666666FF"
+            }
+          },
+          "7,6": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Solenoid Intake",
+              "_title": "Intake Sol",
+              "Colors/Color when true": "#008080FF",
+              "Colors/Color when false": "#666666FF"
+            }
+          },
+          "3,6": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Heading Setpoint",
+              "_title": "Gyro Setpoint"
+            }
+          },
+          "7,2": {
+            "size": [
+              3,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Indexer",
+              "_title": "Indexer"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Software Tuning",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 16.0,
+        "showGrid": false,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "22,3": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Detected Color",
+              "_title": "Detected Color"
+            }
+          },
+          "22,6": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Confidence",
+              "_title": "Color Confidence"
+            }
+          },
+          "1,6": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KD_FORWARD",
+              "_title": "FWD KD"
+            }
+          },
+          "5,6": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KD_FORWARDGYRO",
+              "_title": "FWD GYRO KD"
+            }
+          },
+          "9,6": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KD_ROTATION",
+              "_title": "ROTATION KD"
+            }
+          },
+          "1,3": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KI_FORWARD",
+              "_title": "FWD KI"
+            }
+          },
+          "5,3": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KI_FORWARDGYRO",
+              "_title": "FWD GYRO KI"
+            }
+          },
+          "9,3": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KI_ROTATION",
+              "_title": "ROTATION KI"
+            }
+          },
+          "1,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KP_FORWARD",
+              "_title": "FWD KP"
+            }
+          },
+          "9,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KP_ROTATION",
+              "_title": "ROTATION KP"
+            }
+          },
+          "5,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/KP_FORWARDGYRO",
+              "_title": "FWD GYRO KP"
+            }
+          },
+          "13,3": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/DriveEncL",
+              "_title": "Drive Enc L"
+            }
+          },
+          "17,3": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/DriveEncR",
+              "_title": "Drive Enc R"
+            }
+          },
+          "13,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Gyro Heading",
+              "_title": "Gyro"
+            }
+          },
+          "17,0": {
+            "size": [
+              4,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Heading Setpoint",
+              "_title": "Gyro Setpoint"
+            }
+          },
+          "22,0": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Target Color",
+              "_title": "Target Color"
+            }
+          },
+          "22,9": {
+            "size": [
+              5,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Spin Counter",
+              "_title": "Spin Counter"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "windowGeometry": {
+    "x": -6.0,
+    "y": 1.0,
+    "width": 1377.0,
+    "height": 539.0
+  }
+}
