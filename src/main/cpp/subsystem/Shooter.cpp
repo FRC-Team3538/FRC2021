@@ -31,9 +31,11 @@ Shooter::Shooter()
    flywheel.Config_kD(0, 7.000);
 
    motorIntake.SetInverted(false);
-   motorIndexer.SetInverted(true); // Second set of brushes
-   motorIndexerB.SetInverted(false); // Omni Rollers
-   motorIndexerC.SetInverted(false); // First set of brushes
+
+   motorIndexer.SetInverted(false);   // Omni Rollers
+   motorIndexerB.SetInverted(false); // First set of brushes (Rear)
+   motorIndexerC.SetInverted(true); // Second set of brushes (Front)
+
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
 
@@ -58,6 +60,8 @@ void Shooter::Stop()
    flywheelB.StopMotor();
    motorIntake.StopMotor();
    motorIndexer.StopMotor();
+   motorIndexerB.StopMotor();
+   motorIndexerC.StopMotor();
    motorFeeder.StopMotor();
    motorHood.StopMotor();
    shootSpeed = 0.0;
@@ -181,6 +185,7 @@ void Shooter::SetVelocity(double velocity)
 {
    shootSpeed = velocity;
    flywheel.Set(ControlMode::Velocity, ((velocity / kScaleFactorFly) / 600.0));
+   flywheelB.Follow(flywheel);
 }
 
 void Shooter::SetIntake(double speed)
@@ -213,10 +218,17 @@ void Shooter::SetFeeder(double speed)
 void Shooter::SetShooter(double speed)
 {
    flywheel.Set(speed);
+   flywheelB.Set(speed);
 }
 
 void Shooter::SetHood(double input)
 {
+   if(manualMode)
+   {      
+      motorHood.Set(input);
+      return;
+   }
+
    if ((GetHoodAngle() < 16.0) && (input < 0.0))
    {
       motorHood.Set(0.0);
@@ -241,6 +253,11 @@ void Shooter::SetHood(double input)
 
 void Shooter::SetHoodAngle(double angle)
 {
+   if(manualMode)
+   {      
+      return;
+   }
+
    if (angle < 15.0)
    {
       angle = 15.0;

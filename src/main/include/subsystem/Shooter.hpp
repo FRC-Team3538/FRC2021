@@ -18,9 +18,11 @@ private:
   WPI_TalonFX flywheel{6};
   WPI_TalonFX flywheelB{7};
   WPI_VictorSPX motorIntake{8};
+
   WPI_VictorSPX motorIndexer{9};
   WPI_VictorSPX motorIndexerB{15};
   WPI_VictorSPX motorIndexerC{16};
+  
   WPI_TalonSRX motorFeeder{10};
   WPI_VictorSPX motorHood{11};
 
