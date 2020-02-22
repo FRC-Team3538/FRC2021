@@ -26,7 +26,7 @@ private:
   WPI_TalonSRX motorFeeder{10};
   WPI_VictorSPX motorHood{11};
 
-  Solenoid solenoidIntake{1};
+  Solenoid solenoidIntake{0};
   Solenoid solenoidHood{3};
 
   Timer shootDelay;

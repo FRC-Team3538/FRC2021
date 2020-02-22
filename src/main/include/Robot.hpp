@@ -43,7 +43,7 @@ private:
 
   const double deadband = 0.1;
 
-  double kDriveTurnLimit = 0.3;
+  double kDriveTurnLimit = 0.6;
 
   double indexerSpeed = 1.0;
 
@@ -61,6 +61,12 @@ private:
   double PresetShooterRPM = 0.0;
   double PresetHoodAngle = -1.0;
   int PresetVisionPipeline = 0;
+
+  bool atSpeed = false;
+  bool atAngle = false;
+
+#define PRESET_RPM (SmartDashboard::GetNumber("PRESET_RPM", 2000))
+#define PRESET_HOOD (SmartDashboard::GetNumber("PRESET_HOOD", 40))
 
 
   // Test Mode

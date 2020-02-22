@@ -37,7 +37,7 @@ private:
   WPI_TalonFX motorRight1{motors::R1};
   WPI_TalonFX motorRight2{motors::R2};
 
-  Solenoid solenoidShifter{0};
+  Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
   const double kScaleFactor = 53.1875 / 52896;
