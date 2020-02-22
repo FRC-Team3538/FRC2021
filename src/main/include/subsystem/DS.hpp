@@ -19,8 +19,13 @@ class DS
     LiveWindow& m_lw = *frc::LiveWindow::GetInstance();
 
     SendableChooser<std::string> chooseController;
-		const std::string sPS4 = "PS4";
-		const std::string sXBX = "Xbox";
+		const std::string sPS4 = "Both PS4 Controllers";
+		const std::string sXBX = "Both Xbox Controllers";
+    const std::string sPS4Driver = "PS4 Driver Xbox Operator";
+    const std::string sPS4Operator = "PS4 Operator";
+    const std::string sXboxDriver = "Xbox Driver PS4 Operator";
+    const std::string sXboxOperator = "Xbox Operator";
+
 
     DS();
     void SmartDash();
