@@ -630,9 +630,9 @@ void Robot::UpdateSD()
     SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
 
 
-    SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutNumber("PRESET_HOOD", PRESET_HOOD);
     SmartDashboard::PutBoolean("AtSpeed", atSpeed);
+    SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutBoolean("AtAngle", atAngle);
 
     

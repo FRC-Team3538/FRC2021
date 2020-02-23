@@ -63,6 +63,8 @@ private:
 
   double omniSpeed = 0.5;
 
+  double omniSpeed = 0.5;
+
 public:
   // Default Constructor
 

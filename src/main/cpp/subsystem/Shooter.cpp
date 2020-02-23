@@ -32,8 +32,8 @@ Shooter::Shooter()
    flywheel.Config_kD(0, 7.000);
 
    motorIntake.SetInverted(false);
-   motorIndexer.SetInverted(false);   // Omni Rollers
    motorIndexerB.SetInverted(false); // First set of brushes (Rear)
+   motorIndexer.SetInverted(false);   // Omni Rollers
    motorIndexerC.SetInverted(true); // Second set of brushes (Front)
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
@@ -286,7 +286,6 @@ void Shooter::SetHoodAngle(double angle)
    }
       return;
    {      
-   if(manualMode)
    {
       angle = 10.0;
    }
