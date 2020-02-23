@@ -86,6 +86,8 @@ public:
 
   void SetHood(double input);
   void SetHoodAngle(double angle);
+  void SetHoodLock(bool lock);
+
   double GetHoodAngle();
   bool GetModeChooser();
   void ManualShoot(double inputFly, double inputKick);

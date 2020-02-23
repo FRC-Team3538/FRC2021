@@ -466,6 +466,10 @@ void Robot::TeleopPeriodic()
       IO.shooter.SetFeeder(0.0);
     }
 
+    // Hood Lock
+    //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
+
+
     if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
     {
       if (std::abs(PresetShooterRPM) <= 1.0)

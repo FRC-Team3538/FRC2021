@@ -33,9 +33,9 @@ Shooter::Shooter()
 
    motorIntake.SetInverted(false);
 
-   motorIndexer.SetInverted(false);   // Omni Rollers
+   motorIndexer.SetInverted(false);  // Omni Rollers
    motorIndexerB.SetInverted(false); // First set of brushes (Rear)
-   motorIndexerC.SetInverted(true); // Second set of brushes (Front)
+   motorIndexerC.SetInverted(true);  // Second set of brushes (Front)
 
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
@@ -100,7 +100,6 @@ void Shooter::SetShooterDistanceThree(double distance)
 
    if (dist < 0.0)
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 0.0);
       shootSpeed = 0.0;
       distOS = false;
    }
@@ -118,22 +117,22 @@ void Shooter::SetShooterDistanceThree(double distance)
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
    SetHoodAngle(shootAngle);
 
-   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 800.0)// && (shootSpeed > 100.0))
+   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 800.0) // && (shootSpeed > 100.0))
    {
       shootCounter++;
    }
-   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0)// || (shootSpeed < 100.0))
+   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0) // || (shootSpeed < 100.0))
    {
       shootCounter = 0;
    }
 
    if (shootCounter > 3)
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 100.0);
+      SetFeeder( 1.0);
    }
    else
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 0.0);
+      SetFeeder( 0.0);
    }
 }
 
@@ -148,7 +147,6 @@ void Shooter::SetShooterDistanceTwo(double distance)
 
    if (dist < 0.0)
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 0.0);
       shootSpeed = 0.0;
       distOS = false;
    }
@@ -165,22 +163,22 @@ void Shooter::SetShooterDistanceTwo(double distance)
    flywheel.Set(ControlMode::Velocity, -((shootSpeed / kScaleFactorFly) / 600.0));
    SetHoodAngle(shootAngle);
 
-   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 1000.0)// && (shootSpeed > 100.0))
+   if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) < 1000.0) // && (shootSpeed > 100.0))
    {
       shootCounter++;
    }
-   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0)// || (shootSpeed < 100.0))
+   else if (std::abs(std::abs(flywheel.GetSensorCollection().GetIntegratedSensorVelocity()) - std::abs(((shootSpeed / kScaleFactorFly) / 600.0))) > 2500.0) // || (shootSpeed < 100.0))
    {
       shootCounter = 0;
    }
 
    if (shootCounter > 3)
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 100.0);
+      SetFeeder(1.0);
    }
    else
    {
-      motorFeeder.Set(ControlMode::PercentOutput, 0.0);
+      SetFeeder(0.0);
    }
 }
 
@@ -215,7 +213,15 @@ void Shooter::SetIndexer(double speed)
 
 void Shooter::SetFeeder(double speed)
 {
+   //bool lockHood = (fabs(speed) > 0.05);
+   //solenoidHood.Set(lockHood);
+
    motorFeeder.Set(speed);
+}
+
+void Shooter::SetHoodLock(bool lock)
+{
+   //solenoidHood.Set(lock);
 }
 
 void Shooter::SetShooter(double speed)
@@ -227,6 +233,7 @@ void Shooter::SetShooter(double speed)
 void Shooter::SetHood(double input)
 {
    // Hood Lock
+   
    bool lockHood = (fabs(input) < 0.05);
    solenoidHood.Set(lockHood);
    if(lockHood)
@@ -234,9 +241,10 @@ void Shooter::SetHood(double input)
       motorHood.Set(0.0);
       return;
    }
+   
 
    // Manual Mode
-   if(manualMode)
+   if (manualMode)
    {
       motorHood.Set(input);
       return;
@@ -267,8 +275,8 @@ void Shooter::SetHood(double input)
 
 void Shooter::SetHoodAngle(double angle)
 {
-   if(manualMode)
-   {      
+   if (manualMode)
+   {
       return;
    }
 
@@ -297,7 +305,7 @@ void Shooter::SetHoodAngle(double angle)
    // PID Control
    if (std::fabs(error) > 0.3)
    {
-      SetHood( -((error * kPHood) + (iAcc * kIHood)) );
+      SetHood(-((error * kPHood) + (iAcc * kIHood)));
    }
    else
    {
@@ -310,10 +318,10 @@ double Shooter::GetHoodAngle()
 {
    auto pref = frc::Preferences::GetInstance();
    auto offset = pref->GetDouble("HoodOffset", 0.0);
-   pref->PutDouble("HoodOffset", offset );
+   pref->PutDouble("HoodOffset", offset);
 
    // Zero Switch
-   if(!hoodZeroSw.Get())
+   if (!hoodZeroSw.Get())
    {
       hoodEncQuad.Reset();
    }
@@ -330,7 +338,7 @@ bool Shooter::GetModeChooser()
 void Shooter::ManualShoot(double inputFly, double inputKick)
 {
    flywheel.Set(inputFly);
-   motorFeeder.Set(inputKick);
+   SetFeeder(inputKick);
 }
 
 void Shooter::UpdateSmartdash()
@@ -349,8 +357,8 @@ void Shooter::UpdateSmartdash()
    SmartDashboard::PutBoolean("Solenoid Intake", solenoidIntake.Get());
    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
 
-   SmartDashboard::PutBoolean("Hood Switch", !hoodZeroSw.Get());  
-   SmartDashboard::PutNumber("Hood Angle (Quad)", hoodEncQuad.GetDistance());  
-   
+   SmartDashboard::PutBoolean("Hood Switch", !hoodZeroSw.Get());
+   SmartDashboard::PutNumber("Hood Angle (Quad)", hoodEncQuad.GetDistance());
+
    SmartDashboard::PutNumber("Hood Angle", GetHoodAngle());
 }
