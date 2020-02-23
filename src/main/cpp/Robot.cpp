@@ -72,6 +72,8 @@ void Robot::DisabledInit()
 void Robot::DisabledPeriodic()
 {
   IO.RJV.Reset();
+  IO.shooter.Stop();
+  IO.shooter.IntakeRetract();
 }
 
 void Robot::TestInit()
@@ -302,17 +304,15 @@ void Robot::TeleopPeriodic()
   }
   // TODO Cubic Smoothing
 
- 
-
   //
   // Shooting Presets
   //
   if (IO.ds.Driver.GetDownButton() || IO.ds.Operator.GetDownButton())
   {
-    PresetShooterRPM = 2100;
-    PresetHoodAngle = 20;
+    PresetShooterRPM = 2450;
+    PresetHoodAngle = 18;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
-    
+
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetUpButton() || IO.ds.Operator.GetUpButton())
@@ -320,21 +320,21 @@ void Robot::TeleopPeriodic()
     PresetShooterRPM = 5000;
     PresetHoodAngle = 45;
     PresetVisionPipeline = IO.RJV.Pipe::LongShot;
-    
+
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetLeftButton() || IO.ds.Operator.GetLeftButton())
   {
     PresetShooterRPM = 3000;
-    PresetHoodAngle = 58;
+    PresetHoodAngle = 56;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
-    
+
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetRightButton() || IO.ds.Operator.GetRightButton())
   {
     PresetShooterRPM = 3000;
-    PresetHoodAngle = 54;
+    PresetHoodAngle = 55;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -423,19 +423,25 @@ void Robot::TeleopPeriodic()
       // Wait for good target
       IO.drivebase.Arcade(0.0, 0.0);
     }
-
   }
   else
   {
-    // Normal Driving 
-    IO.drivebase.Arcade(forward, rotate);
+    // Normal Driving
+    if (IO.ds.Driver.GetCrossButton())
+    {
+      data = IO.RJV.Run(PresetVisionPipeline);
+      IO.drivebase.VisionAim(forward, data.angle, 0.3);
+    }
+    else
+    {
+      IO.drivebase.Arcade(forward, rotate);
+      data.filled = false;
+      picCt = 0;
+      tpCt = 0;
+      IO.RJV.Reset();
+    }
 
     // Reset Vision
-    data.filled = false;
-    picCt = 0;
-    tpCt = 0;
-    IO.RJV.Reset();
-  
 
     //
     // Hood Control
@@ -456,11 +462,10 @@ void Robot::TeleopPeriodic()
       IO.shooter.SetHood(0.0);
     }
 
-
     //
     // Manual Shooting System
     //
-    atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 50);
+    atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0);
     atAngle = (IO.shooter.GetModeChooser()) || (abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0);
 
     if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed)
@@ -473,7 +478,7 @@ void Robot::TeleopPeriodic()
       IO.shooter.SetFeeder(0.0);
     }
 
-    if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+    if (IO.ds.Operator.GetCrossButton()) //|| IO.ds.Driver.GetCrossButton())
     {
       if (std::abs(PresetShooterRPM) <= 1.0)
       {
@@ -489,9 +494,7 @@ void Robot::TeleopPeriodic()
     {
       IO.shooter.SetShooter(0.0);
     }
-  
   }
-  
 
   //
   // Intake
@@ -513,29 +516,27 @@ void Robot::TeleopPeriodic()
     intakeSpeed = 0.0;
     indexer = -indexerSpeed;
   }
-  
+
   // Anti-jam
-  if(IO.ds.Operator.GetScreenShotButton() || IO.ds.Driver.GetScreenShotButton())
+  if (IO.ds.Operator.GetScreenShotButton() || IO.ds.Driver.GetScreenShotButton())
   {
     intakeSpeed = -0.8;
   }
 
   IO.shooter.SetIntake(intakeSpeed);
-  
-  
-  if(IO.ds.Operator.GetBumper(GenericHID::kLeftHand) || IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
+
+  if (IO.ds.Operator.GetBumper(GenericHID::kLeftHand) || IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
   {
     IO.shooter.IntakeRetract();
   }
 
-  if(IO.ds.Operator.GetBumper(GenericHID::kRightHand) || IO.ds.Driver.GetBumper(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetBumper(GenericHID::kRightHand) || IO.ds.Driver.GetBumper(GenericHID::kRightHand))
   {
     IO.shooter.IntakeDeploy();
     PresetHoodAngle = 0.0;
   }
-  
 
-  // 
+  //
   // Indexer
   //
   IO.shooter.SetIndexer(indexer);
@@ -546,7 +547,7 @@ void Robot::TeleopPeriodic()
   double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
   IO.climber.SetClimber(climbAnalog);
 
-  if(IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
+  if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
   {
     IO.climber.ClimberDeploy();
   }
@@ -565,8 +566,6 @@ void Robot::TeleopPeriodic()
   {
     IO.colorWheel.AutoColorWheel();
   }
-
-
 }
 
 double Robot::Deadband(double input, double deadband)
@@ -627,15 +626,12 @@ void Robot::UpdateSD()
   }
   case 25:
   {
-    SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
-
-
+    SmartDashboard::PutData("_TestDevice", &chooseTestDevice); 
+    //SmartDashboard::PutNumber("RPM TOLERANCE", RPM_TOLERANCE);
     SmartDashboard::PutNumber("PRESET_HOOD", PRESET_HOOD);
     SmartDashboard::PutBoolean("AtSpeed", atSpeed);
     SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutBoolean("AtAngle", atAngle);
-
-    
   }
   default:
   {

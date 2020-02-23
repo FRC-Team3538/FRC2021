@@ -28,9 +28,11 @@ Shooter::Shooter()
 
    flywheel.Config_kF(0, 0.056494409);
    flywheel.Config_kP(0, 0.25);
-   flywheel.Config_kI(0, 0.000);
+   flywheel.Config_kI(0, 0.0001);
    flywheel.Config_kD(0, 7.000);
 
+   flywheel.Config_IntegralZone(0, 200.0);
+   
    motorIntake.SetInverted(false);
    motorIndexerB.SetInverted(false); // First set of brushes (Rear)
    motorIndexer.SetInverted(false);   // Omni Rollers
@@ -256,7 +258,7 @@ void Shooter::SetHood(double input)
    }
 
    // Soft Limits
-   if ((GetHoodAngle() < 15.0) && (input < 0.0))
+   if(!hoodZeroSw.Get() && input < 0.0)
    {
       motorHood.Set(0.0);
    }

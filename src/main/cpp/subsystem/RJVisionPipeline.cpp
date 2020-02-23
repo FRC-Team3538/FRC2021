@@ -48,7 +48,7 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 		telemetry.distance = -1.0;
 		telemetry.filled = false;
 	}
-	else if ((pipeSwitch.Get() > 1.0 || !pipeSwitchOS) && (lightOn.Get() > 0.3))
+	else if ((pipeSwitch.Get() > 1.0 || !pipeSwitchOS) && (lightOn.Get() > 0.5))
 	{
 		if (tv == 1.0)
 		{

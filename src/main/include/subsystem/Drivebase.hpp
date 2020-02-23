@@ -68,7 +68,7 @@ private:
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
-#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.03))
+#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.015))
 #define KI_FORWARDGYRO (SmartDashboard::GetNumber("KI_FORWARDGYRO", 0.0))
 #define KD_FORWARDGYRO (SmartDashboard::GetNumber("KD_FORWARDGYRO", 0.0))
 
@@ -105,6 +105,7 @@ public:
 
   void UpdateSmartdash();
 
+  bool VisionAim(double forward, double degrees, double tolerance);
   void DriveForward(double distance, double maxoutput = 1.0);
   void TurnAbs(double degrees, double maxoutput = 1.0);
   bool TurnRel(double degrees, double tolerance);
