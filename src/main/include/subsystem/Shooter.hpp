@@ -59,11 +59,6 @@ private:
 
   DigitalInput hoodZeroSw{3};
   Encoder hoodEncQuad{1,2};
-  
-
-  double omniSpeed = 0.5;
-
-  double omniSpeed = 0.5;
 
 public:
   // Default Constructor

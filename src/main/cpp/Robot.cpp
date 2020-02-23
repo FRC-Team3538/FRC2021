@@ -463,7 +463,7 @@ void Robot::TeleopPeriodic()
     atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 50);
     atAngle = (IO.shooter.GetModeChooser()) || (abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0);
 
-    if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed && atAngle)
+    if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed)
     {
       indexer = indexerSpeed;
       IO.shooter.SetFeeder(1.0);

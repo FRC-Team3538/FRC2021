@@ -64,6 +64,7 @@ private:
   int PresetVisionPipeline = 0;
 
   bool atSpeed = false;
+  bool atAngle = false;
 
 #define PRESET_RPM (SmartDashboard::GetNumber("PRESET_RPM", 2000))
 #define PRESET_HOOD (SmartDashboard::GetNumber("PRESET_HOOD", 40))

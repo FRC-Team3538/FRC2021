@@ -222,7 +222,7 @@ void Shooter::IntakeRetract()
 void Shooter::SetIndexer(double speed)
 {
    motorIndexer.Set(ControlMode::PercentOutput, speed);
-   motorIndexerB.Set(ControlMode::PercentOutput, speed * omniSpeed);
+   motorIndexerB.Set(ControlMode::PercentOutput, speed * 0.75);
    motorIndexerC.Set(ControlMode::PercentOutput, speed);
 }
 
@@ -280,12 +280,13 @@ void Shooter::SetHood(double input)
 
 void Shooter::SetHoodAngle(double angle)
 {
-   if (angle < 10.0)
-   // Soft Limits
-
-   }
+   if(manualMode)
+   {
       return;
-   {      
+   }
+
+   // Soft Limits
+   if (angle < 10.0)
    {
       angle = 10.0;
    }
