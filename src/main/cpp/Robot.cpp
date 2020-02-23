@@ -49,6 +49,7 @@ void Robot::AutonomousInit()
 {
   IO.drivebase.ResetEncoders();
   IO.drivebase.ResetGyro();
+  IO.shooter.Init();
   autoPrograms.Init();
 }
 
@@ -60,11 +61,17 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit()
 {
   IO.drivebase.SetBrake();
+  IO.shooter.Init();
 }
 
 void Robot::DisabledInit()
 {
   IO.drivebase.SetCoast();
+}
+
+void Robot::DisabledPeriodic()
+{
+  IO.RJV.Reset();
 }
 
 void Robot::TestInit()
@@ -318,16 +325,16 @@ void Robot::TeleopPeriodic()
   }
   else if (IO.ds.Driver.GetLeftButton() || IO.ds.Operator.GetLeftButton())
   {
-    PresetShooterRPM = 4000;
-    PresetHoodAngle = 50;
+    PresetShooterRPM = 3000;
+    PresetHoodAngle = 58;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
     
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetRightButton() || IO.ds.Operator.GetRightButton())
   {
-    PresetShooterRPM = 3500;
-    PresetHoodAngle = 60;
+    PresetShooterRPM = 3000;
+    PresetHoodAngle = 54;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -371,7 +378,7 @@ void Robot::TeleopPeriodic()
     {
       if (tpCt < 5)
       {
-        IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+        IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
         picCt = 0;
       }
       else
@@ -623,12 +630,12 @@ void Robot::UpdateSD()
     SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
 
 
-    
     SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutNumber("PRESET_HOOD", PRESET_HOOD);
-
     SmartDashboard::PutBoolean("AtSpeed", atSpeed);
     SmartDashboard::PutBoolean("AtAngle", atAngle);
+
+    
   }
   default:
   {

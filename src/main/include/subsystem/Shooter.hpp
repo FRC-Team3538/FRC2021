@@ -61,6 +61,8 @@ private:
   Encoder hoodEncQuad{1,2};
   
 
+  double omniSpeed = 0.5;
+
 public:
   // Default Constructor
 
@@ -94,4 +96,6 @@ public:
   void ResetHood();
 
   void UpdateSmartdash();
+
+  void Init();
 };

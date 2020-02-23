@@ -105,7 +105,7 @@ void RJVisionPipeline::UpdateSmartDash()
 void RJVisionPipeline::Reset()
 {
 	table->PutNumber("ledMode", 1.0);
-	SetPipeline(0.0);
+	//SetPipeline(0.0);
 	pipeSwitchOS = false;
 	pipeSwitchCt = 0;
 }
