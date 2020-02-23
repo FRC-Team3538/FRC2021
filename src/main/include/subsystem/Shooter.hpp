@@ -7,6 +7,8 @@
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/DutyCycleEncoder.h>
+#include <frc/Encoder.h>
+#include <frc/DigitalInput.h>
 
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
@@ -27,7 +29,7 @@ private:
   WPI_VictorSPX motorHood{11};
 
   Solenoid solenoidIntake{0};
-  Solenoid solenoidHood{3};
+  Solenoid solenoidHood{1};
 
   Timer shootDelay;
   bool shootOS = false;
@@ -48,12 +50,16 @@ private:
   const double kScaleFactorFly = (1.0 / 2048);
   const double kScaleFactorHood = (2.0 / 5.0) * (360.0 / 8096.0);
 
-  DutyCycleEncoder hoodEnc{0};
+  DutyCycleEncoder hoodEncAbs{0};
 
   double iAcc = 0;
   double prevError_rel = 0;
   const double kPHood = 0.0250;
-  const double kIHood = 0.000016; //0.00015
+  const double kIHood = 0.000016;
+
+  DigitalInput hoodZeroSw{3};
+  Encoder hoodEncQuad{1,2};
+  
 
 public:
   // Default Constructor

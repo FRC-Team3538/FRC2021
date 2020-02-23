@@ -30,9 +30,6 @@ void Robot::RobotInit()
 
 void Robot::RobotPeriodic()
 {
-  // Reset Encoders
-  frc::SmartDashboard::PutNumber("Hood Angle", IO.shooter.GetHoodAngle());
-
   bool btnPSDr = IO.ds.Driver.GetPSButton();
   if (btnPSDr)
   {
@@ -227,7 +224,7 @@ void Robot::TestPeriodic()
     }
     if (O)
     {
-      IO.climber.ClimberDeploy();
+      IO.climber.ClimberRetract();
     }
   }
   else
@@ -305,8 +302,8 @@ void Robot::TeleopPeriodic()
   //
   if (IO.ds.Driver.GetDownButton() || IO.ds.Operator.GetDownButton())
   {
-    PresetShooterRPM = 4000;
-    PresetHoodAngle = 0;
+    PresetShooterRPM = 2100;
+    PresetHoodAngle = 20;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
     
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -437,7 +434,7 @@ void Robot::TeleopPeriodic()
     // Hood Control
     //
     double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
-    if (hoodAnalog != 0.0 || PresetHoodAngle < 0.0)
+    if (hoodAnalog != 0.0 || PresetHoodAngle < 0.0 || IO.shooter.GetModeChooser())
     {
       PresetHoodAngle = -1.0;
       IO.shooter.SetHood(hoodAnalog);
@@ -456,8 +453,8 @@ void Robot::TeleopPeriodic()
     //
     // Manual Shooting System
     //
-     atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150);
-     atAngle = (IO.shooter.GetModeChooser()) || (abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 2.0);
+    atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 50);
+    atAngle = (IO.shooter.GetModeChooser()) || (abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0);
 
     if ((IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton()) && atSpeed && atAngle)
     {
@@ -545,6 +542,10 @@ void Robot::TeleopPeriodic()
   if(IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
   {
     IO.climber.ClimberDeploy();
+  }
+  else
+  {
+    IO.climber.ClimberRetract();
   }
 
   //

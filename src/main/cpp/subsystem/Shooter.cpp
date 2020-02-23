@@ -1,6 +1,7 @@
 #include "subsystem/Shooter.hpp"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include "frc/Preferences.h"
 
 // Configure Hardware Settings
 Shooter::Shooter()
@@ -42,7 +43,6 @@ Shooter::Shooter()
    chooseShooterMode.SetDefaultOption(sAutoMode, sAutoMode);
    chooseShooterMode.AddOption(sManualMode, sManualMode);
 
-   hoodEnc.SetDistancePerRotation(360 / 2.5);
    flywheel.SetNeutralMode(NeutralMode::Coast);
    flywheelB.SetNeutralMode(NeutralMode::Coast);
    motorIntake.SetNeutralMode(NeutralMode::Brake);
@@ -51,6 +51,9 @@ Shooter::Shooter()
    motorIndexerC.SetNeutralMode(NeutralMode::Brake);
    motorFeeder.SetNeutralMode(NeutralMode::Brake);
    motorHood.SetNeutralMode(NeutralMode::Brake);
+
+   hoodEncAbs.SetDistancePerRotation(360.0 / 2.5);
+   hoodEncQuad.SetDistancePerPulse(45.0 / 630.0);
 }
 
 // Stop all motors
@@ -223,13 +226,24 @@ void Shooter::SetShooter(double speed)
 
 void Shooter::SetHood(double input)
 {
+   // Hood Lock
+   bool lockHood = (fabs(input) < 0.05);
+   solenoidHood.Set(lockHood);
+   if(lockHood)
+   {
+      motorHood.Set(0.0);
+      return;
+   }
+
+   // Manual Mode
    if(manualMode)
-   {      
+   {
       motorHood.Set(input);
       return;
    }
 
-   if ((GetHoodAngle() < 16.0) && (input < 0.0))
+   // Soft Limits
+   if ((GetHoodAngle() < 15.0) && (input < 0.0))
    {
       motorHood.Set(0.0);
    }
@@ -258,9 +272,10 @@ void Shooter::SetHoodAngle(double angle)
       return;
    }
 
-   if (angle < 15.0)
+   // Soft Limits
+   if (angle < 10.0)
    {
-      angle = 15.0;
+      angle = 10.0;
    }
    else if (angle > 90.0)
    {
@@ -269,7 +284,8 @@ void Shooter::SetHoodAngle(double angle)
 
    double error = GetHoodAngle() - angle;
 
-   if (std::abs(error) < 5.0)
+   // Accumulator
+   if (std::fabs(error) < 5.0)
    {
       iAcc += error / 0.02;
    }
@@ -277,20 +293,33 @@ void Shooter::SetHoodAngle(double angle)
    {
       iAcc = 0;
    }
-   if (std::abs(error) > 0.3)
+
+   // PID Control
+   if (std::fabs(error) > 0.3)
    {
-      motorHood.Set(ControlMode::PercentOutput, -((error * kPHood) + (iAcc * kIHood)));
+      SetHood( -((error * kPHood) + (iAcc * kIHood)) );
    }
    else
    {
       iAcc = 0;
-      motorHood.Set(ControlMode::PercentOutput, 0.0);
+      SetHood(0.0);
    }
 }
 
 double Shooter::GetHoodAngle()
 {
-   return (-hoodEnc.GetDistance() + 101.0);
+   auto pref = frc::Preferences::GetInstance();
+   auto offset = pref->GetDouble("HoodOffset", 0.0);
+   pref->PutDouble("HoodOffset", offset );
+
+   // Zero Switch
+   if(!hoodZeroSw.Get())
+   {
+      hoodEncQuad.Reset();
+   }
+
+   return (hoodEncQuad.GetDistance() + offset);
+   //return (-hoodEncAbs.GetDistance() + offset);
 }
 
 bool Shooter::GetModeChooser()
@@ -319,4 +348,9 @@ void Shooter::UpdateSmartdash()
 
    SmartDashboard::PutBoolean("Solenoid Intake", solenoidIntake.Get());
    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
+
+   SmartDashboard::PutBoolean("Hood Switch", !hoodZeroSw.Get());  
+   SmartDashboard::PutNumber("Hood Angle (Quad)", hoodEncQuad.GetDistance());  
+   
+   SmartDashboard::PutNumber("Hood Angle", GetHoodAngle());
 }
