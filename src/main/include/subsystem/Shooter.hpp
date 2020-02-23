@@ -53,6 +53,8 @@ private:
   const double kPHood = 0.0250;
   const double kIHood = 0.000016; //0.00015
 
+  double omniSpeed = 0.5;
+
 public:
   // Default Constructor
 
@@ -86,4 +88,6 @@ public:
   void ResetHood();
 
   void UpdateSmartdash();
+
+  void Init();
 };

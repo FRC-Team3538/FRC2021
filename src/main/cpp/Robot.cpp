@@ -52,6 +52,7 @@ void Robot::AutonomousInit()
 {
   IO.drivebase.ResetEncoders();
   IO.drivebase.ResetGyro();
+  IO.shooter.Init();
   autoPrograms.Init();
 }
 
@@ -63,11 +64,17 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit()
 {
   IO.drivebase.SetBrake();
+  IO.shooter.Init();
 }
 
 void Robot::DisabledInit()
 {
   IO.drivebase.SetCoast();
+}
+
+void Robot::DisabledPeriodic()
+{
+  IO.RJV.Reset();
 }
 
 void Robot::TestInit()
@@ -315,8 +322,8 @@ void Robot::TeleopPeriodic()
   //
   if (IO.ds.Driver.GetDownButton() || IO.ds.Operator.GetDownButton())
   {
-    PresetShooterRPM = 2000;
-    PresetHoodAngle = 40;
+    PresetShooterRPM = 3000; //3000
+    PresetHoodAngle = 18;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
     
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -331,16 +338,24 @@ void Robot::TeleopPeriodic()
   }
   else if (IO.ds.Driver.GetLeftButton() || IO.ds.Operator.GetLeftButton())
   {
-    PresetShooterRPM = 4000;
-    PresetHoodAngle = 50;
+    PresetShooterRPM = 3000;
+    PresetHoodAngle = 58;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
     
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Driver.GetRightButton() || IO.ds.Operator.GetRightButton())
   {
-    PresetShooterRPM = 3500;
-    PresetHoodAngle = 60;
+    PresetShooterRPM = 3000;
+    PresetHoodAngle = 54;
+    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+
+    IO.RJV.SetPipeline(PresetVisionPipeline);
+  }
+  else if (IO.ds.Operator.GetStickButton(GenericHID::kLeftHand))
+  {
+    PresetShooterRPM = a;
+    PresetHoodAngle = b;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -376,7 +391,7 @@ void Robot::TeleopPeriodic()
     {
       if (tpCt < 5)
       {
-        IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+        IO.drivebase.TurnRel(data.angle, 0.4) ? tpCt++ : tpCt = 0;
         picCt = 0;
       }
       else
@@ -624,12 +639,12 @@ void Robot::UpdateSD()
     SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
 
     std::string sDF = "ShootManual";
-    //PresetShooterRPM = frc::SmartDashboard::GetNumber(sDF, PresetShooterRPM);
-    frc::SmartDashboard::PutNumber(sDF, PresetShooterRPM);
+    a = frc::SmartDashboard::GetNumber(sDF, 3000.0);
+    frc::SmartDashboard::PutNumber(sDF, a);
 
     std::string sDFe = "Hood Target";
-    //PresetHoodAngle = frc::SmartDashboard::GetNumber(sDFe, PresetHoodAngle);
-    frc::SmartDashboard::PutNumber(sDFe, PresetHoodAngle);
+    b = frc::SmartDashboard::GetNumber(sDFe, 45.0);
+    frc::SmartDashboard::PutNumber(sDFe, b);
   }
   default:
   {

@@ -26,7 +26,7 @@ void AutoCenterShootBack::NextState()
     m_autoTimer.Start();
     data.filled = false;
     tpCt = 0;
-    IO.shooter.StopShooter();
+    IO.shooter.Stop();
     IO.RJV.Reset();
 }
 
@@ -38,30 +38,41 @@ void AutoCenterShootBack::Run()
     case 0:
     {
         IO.drivebase.Stop();
-
-        data = IO.RJV.Run(IO.RJV.ShotType::Three);
-        if (data.filled)
+        IO.shooter.IntakeDeploy();
+        IO.shooter.SetVelocity(3000.0);
+        IO.shooter.SetHoodAngle(58.0);
+        // data = IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
+        // if (data.filled)
+        // {
+        //     if (tpCt > 4)
+        //     {
+        //         IO.shooter.SetShooterDistanceTwo(data.distance);
+        //         IO.shooter.SetIndexer(1.0);
+        //         IO.drivebase.Arcade(0.0, 0.0);
+        //     }
+        //     else
+        //     {
+        //         IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+        //         IO.shooter.SetVelocity(3000.0);
+        //     }
+        // }
+        if (m_autoTimer.Get() > 1.0)
         {
-            if (tpCt > 7)
-            {
-                IO.shooter.SetShooterDistanceThree(data.distance);
-                IO.drivebase.Arcade(0.0, 0.0);
-            }
-            else
-            {
-                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-                IO.shooter.SetVelocity(1000.0);
-            }
+            IO.shooter.SetIndexer(100.0);
+            IO.shooter.SetFeeder(100.0);
         }
-
-        if (m_autoTimer.Get() > 2.0)
+        
+        if (m_autoTimer.Get() > 4.0)
         {
-            // NextState();
+            NextState();
         }
         break;
     }
     case 1:
     {
+        IO.shooter.Stop();
+        IO.shooter.SetIndexer(0.0);
+        IO.shooter.SetFeeder(0.0);
         double fwd = -0.15;
         double rot = 0.00;
         IO.drivebase.Arcade(fwd, rot);

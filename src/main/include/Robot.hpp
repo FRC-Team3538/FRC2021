@@ -30,6 +30,7 @@ public:
   void TeleopInit() override;
   void TeleopPeriodic() override;
   void DisabledInit() override;
+  void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
 
@@ -61,6 +62,9 @@ private:
   double PresetShooterRPM = 0.0;
   double PresetHoodAngle = -1.0;
   int PresetVisionPipeline = 0;
+
+  double a;
+  double b;
 
 
   // Test Mode
