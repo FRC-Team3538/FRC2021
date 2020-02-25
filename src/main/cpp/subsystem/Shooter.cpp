@@ -42,9 +42,6 @@ Shooter::Shooter()
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
 
-   chooseShooterMode.SetDefaultOption(sAutoMode, sAutoMode);
-   chooseShooterMode.AddOption(sManualMode, sManualMode);
-
    flywheel.SetNeutralMode(NeutralMode::Coast);
    flywheelB.SetNeutralMode(NeutralMode::Coast);
    motorIntake.SetNeutralMode(NeutralMode::Brake);
@@ -223,9 +220,9 @@ void Shooter::IntakeRetract()
 
 void Shooter::SetIndexer(double speed)
 {
-   motorIndexerB.Set(ControlMode::PercentOutput, speed);
-   motorIndexer.Set(ControlMode::PercentOutput, speed * 0.75);
-   motorIndexerC.Set(ControlMode::PercentOutput, speed);
+   motorIndexerB.Set(ControlMode::PercentOutput, speed * FIRSTBRUSH);
+   motorIndexer.Set(ControlMode::PercentOutput, speed * OMNISPEED);
+   motorIndexerC.Set(ControlMode::PercentOutput, speed * SECONDBRUSH);
 }
 
 void Shooter::SetFeeder(double speed)
@@ -249,6 +246,7 @@ void Shooter::SetShooter(double speed)
 
 void Shooter::SetHood(double input)
 {
+   shootAngle = GetHoodAngle();
    // Hood Lock
 
    bool lockHood = (fabs(input) < 0.05);
@@ -260,11 +258,6 @@ void Shooter::SetHood(double input)
    }
 
    // Manual Mode
-   if (manualMode)
-   {
-      motorHood.Set(input);
-      return;
-   }
 
    // Soft Limits
    if (!hoodZeroSw.Get() && input < 0.0)
@@ -291,10 +284,7 @@ void Shooter::SetHood(double input)
 
 void Shooter::SetHoodAngle(double angle)
 {
-   if (manualMode)
-   {
-      return;
-   }
+   shootAngle = angle;
 
    // Soft Limits
    if (angle < 10.0)
@@ -346,11 +336,6 @@ double Shooter::GetHoodAngle()
    //return (-hoodEncAbs.GetDistance() + offset);
 }
 
-bool Shooter::GetModeChooser()
-{
-   return manualMode;
-}
-
 void Shooter::ManualShoot(double inputFly, double inputKick)
 {
    flywheel.Set(inputFly);
@@ -359,10 +344,9 @@ void Shooter::ManualShoot(double inputFly, double inputKick)
 
 void Shooter::UpdateSmartdash()
 {
-   SmartDashboard::PutData("_ShooterMode", &chooseShooterMode);
-   manualMode = (chooseShooterMode.GetSelected() == sManualMode);
 
    SmartDashboard::PutNumber("Shoot RPM Cmd", shootSpeed);
+   SmartDashboard::PutNumber("Shoot Angle Cmd", shootAngle);
    SmartDashboard::PutNumber("Shoot RPM Act", GetVelocity());
 
    SmartDashboard::PutNumber("Intake", motorIntake.Get());
@@ -374,7 +358,10 @@ void Shooter::UpdateSmartdash()
    SmartDashboard::PutBoolean("Solenoid Hood", solenoidHood.Get());
 
    SmartDashboard::PutBoolean("Hood Switch", !hoodZeroSw.Get());
-   SmartDashboard::PutNumber("Hood Angle (Quad)", hoodEncQuad.GetDistance());
 
    SmartDashboard::PutNumber("Hood Angle", GetHoodAngle());
+
+   SmartDashboard::PutNumber("Omni Speed", OMNISPEED);
+   SmartDashboard::PutNumber("First Brush Speed", FIRSTBRUSH);
+   SmartDashboard::PutNumber("Second Brush Speed", SECONDBRUSH);
 }

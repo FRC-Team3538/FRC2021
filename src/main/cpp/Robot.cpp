@@ -383,7 +383,7 @@ void Robot::TeleopPeriodic()
   // Hood Control
   //
   double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
-  if (hoodAnalog != 0.0 || PresetHoodAngle < 0.0 || IO.shooter.GetModeChooser())
+  if (hoodAnalog != 0.0 || PresetHoodAngle < 0.0)
   {
     PresetHoodAngle = -1.0;
     IO.shooter.SetHood(hoodAnalog);
@@ -401,8 +401,8 @@ void Robot::TeleopPeriodic()
   //
   // Manual Shooting System
   //
-  atSpeed = (IO.shooter.GetModeChooser()) || (abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0);
-  atAngle = (IO.shooter.GetModeChooser()) || (abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0);
+  atSpeed = ((abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0));
+  atAngle = ((abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0));
 
   if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton() && atSpeed && atAngle)) && abs(leftTrigOp >= 0.0))
   {

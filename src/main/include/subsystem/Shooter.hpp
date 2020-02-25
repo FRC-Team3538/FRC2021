@@ -24,7 +24,7 @@ private:
   WPI_VictorSPX motorIndexer{9};
   WPI_VictorSPX motorIndexerB{15};
   WPI_VictorSPX motorIndexerC{16};
-  
+
   WPI_TalonSRX motorFeeder{10};
   WPI_VictorSPX motorHood{11};
 
@@ -36,14 +36,13 @@ private:
   double dist = 0.0;
   bool distOS = false;
 
-  SendableChooser<std::string> chooseShooterMode;
-  const std::string sManualMode = "Manual";
-  const std::string sAutoMode = "Auto";
-
-  bool manualMode = false;
   double shootSpeed = 0.0;
   double shootAngle = 0.0;
   int shootCounter = 0;
+
+#define OMNISPEED (SmartDashboard::GetNumber("Omni Speed", 0.75))
+#define FIRSTBRUSH (SmartDashboard::GetNumber("First Brush Speed", 1.0))
+#define SECONDBRUSH (SmartDashboard::GetNumber("Second Brush Speed", 1.0))
 
   // Degrees / Pulses
   const double kScaleFactor = 360.0 / 8056.0;
@@ -58,7 +57,7 @@ private:
   const double kIHood = 0.000016;
 
   DigitalInput hoodZeroSw{3};
-  Encoder hoodEncQuad{1,2};
+  Encoder hoodEncQuad{1, 2};
 
 public:
   // Default Constructor
