@@ -30,6 +30,7 @@ public:
   void TeleopInit() override;
   void TeleopPeriodic() override;
   void DisabledInit() override;
+  void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
 
@@ -41,9 +42,11 @@ private:
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
-  const double deadband = 0.1;
+  const double deadband = 0.05;
+  const double cubicA = 0.566;
+  const double cubicB = 0.366;
 
-  double kDriveTurnLimit = 0.6;
+  double kDriveTurnLimit = 1.0;
 
   double indexerSpeed = 1.0;
 
@@ -61,13 +64,14 @@ private:
   double PresetShooterRPM = 0.0;
   double PresetHoodAngle = -1.0;
   int PresetVisionPipeline = 0;
+  //const double rpmTolerance = 60.0;
 
   bool atSpeed = false;
   bool atAngle = false;
 
 #define PRESET_RPM (SmartDashboard::GetNumber("PRESET_RPM", 2000))
 #define PRESET_HOOD (SmartDashboard::GetNumber("PRESET_HOOD", 40))
-
+//#define RPM_TOLERANCE (SmartDashboard::GetNumber("RPM TOLERANCE", 40.0))
 
   // Test Mode
   SendableChooser<std::string> chooseTestDevice;

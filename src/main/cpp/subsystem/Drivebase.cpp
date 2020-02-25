@@ -187,6 +187,41 @@ double Drivebase::GetGyroHeading()
     return yaw;
 }
 
+bool Drivebase::VisionAim(double forward, double degrees, double tolerance)
+{
+    forwardHeading = GetGyroHeading() + degrees;
+
+    double error = degrees;
+
+    if (std::abs(error) < tolerance)
+    {
+        Arcade(forward, 0.0);
+        return true;
+    }
+
+    if (std::abs(error) < 6.0)
+    {
+        iAcc += error / 0.02;
+    }
+    else
+    {
+        iAcc = 0;
+    }
+
+    double dError = (error - prevError_rel) / 0.02; // [Inches/second]
+    prevError_rel = error;
+    if (std::abs(forward) > 0.1)
+    {
+        Arcade(forward, ((error * KP_FORWARDGYRO) + (iAcc * KI_FORWARDGYRO) + (dError * KD_FORWARDGYRO)));
+    }
+    else
+    {
+        Arcade(forward, ((error * KP_ROTATION) + (iAcc * KI_ROTATION) + (dError * KD_ROTATION)));
+    }
+
+    return false;
+}
+
 void Drivebase::DriveForward(double distance, double maxOutput)
 {
 
@@ -293,7 +328,6 @@ bool Drivebase::TurnRel(double degrees, double tolerance)
     // Save heading for other fuctions
     forwardHeading = GetGyroHeading() + degrees;
 
-
     double error = degrees;
 
     if (std::abs(error) < tolerance)
@@ -366,6 +400,7 @@ void Drivebase::SensorOverride(bool active)
 // SmartDash updater
 void Drivebase::UpdateSmartdash()
 {
+
     SmartDashboard::PutNumber("Drive L1", motorLeft1.Get());
     //SmartDashboard::PutNumber("Drive L2", motorLeft2.Get());
     //SmartDashboard::PutNumber("Drive L3", motorLeft3.Get());

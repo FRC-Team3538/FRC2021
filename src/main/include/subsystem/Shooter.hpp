@@ -59,7 +59,6 @@ private:
 
   DigitalInput hoodZeroSw{3};
   Encoder hoodEncQuad{1,2};
-  
 
 public:
   // Default Constructor
@@ -96,4 +95,6 @@ public:
   void ResetHood();
 
   void UpdateSmartdash();
+
+  void Init();
 };

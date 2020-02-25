@@ -48,7 +48,7 @@ RJVisionPipeline::visionData RJVisionPipeline::Run(int shotType) //Returns telem
 		telemetry.distance = -1.0;
 		telemetry.filled = false;
 	}
-	else if ((pipeSwitch.Get() > 1.0 || !pipeSwitchOS) && (lightOn.Get() > 0.3))
+	else if ((pipeSwitch.Get() > 1.0 || !pipeSwitchOS) && (lightOn.Get() > 0.5))
 	{
 		if (tv == 1.0)
 		{
@@ -105,7 +105,7 @@ void RJVisionPipeline::UpdateSmartDash()
 void RJVisionPipeline::Reset()
 {
 	table->PutNumber("ledMode", 1.0);
-	SetPipeline(0.0);
+	//SetPipeline(0.0);
 	pipeSwitchOS = false;
 	pipeSwitchCt = 0;
 }

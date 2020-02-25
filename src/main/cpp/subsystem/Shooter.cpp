@@ -20,17 +20,19 @@ Shooter::Shooter()
    flywheel.ConfigVoltageCompSaturation(10.0);
    flywheelB.ConfigVoltageCompSaturation(10.0);
 
-   flywheel.ConfigClosedloopRamp(0.3);
-   flywheelB.ConfigClosedloopRamp(0.3);
+   flywheel.ConfigClosedloopRamp(0.4);
+   flywheelB.ConfigClosedloopRamp(0.4);
 
    flywheel.SetInverted(true);
    flywheelB.SetInverted(false);
 
    flywheel.Config_kF(0, 0.056494409);
    flywheel.Config_kP(0, 0.25);
-   flywheel.Config_kI(0, 0.000);
+   flywheel.Config_kI(0, 0.0001);
    flywheel.Config_kD(0, 7.000);
 
+   flywheel.Config_IntegralZone(0, 200.0);
+   
    motorIntake.SetInverted(false);
 
    motorIndexer.SetInverted(false);  // Omni Rollers
@@ -54,6 +56,20 @@ Shooter::Shooter()
 
    hoodEncAbs.SetDistancePerRotation(360.0 / 2.5);
    hoodEncQuad.SetDistancePerPulse(45.0 / 630.0);
+}
+
+void Shooter::Init()
+{
+   flywheelB.Follow(flywheel);
+
+   flywheel.ConfigVoltageCompSaturation(10.0);
+   flywheelB.ConfigVoltageCompSaturation(10.0);
+
+   flywheel.ConfigClosedloopRamp(0.4);
+   flywheelB.ConfigClosedloopRamp(0.4);
+
+   flywheel.SetInverted(true);
+   flywheelB.SetInverted(false);
 }
 
 // Stop all motors
@@ -153,7 +169,8 @@ void Shooter::SetShooterDistanceTwo(double distance)
    else if (dist < 240.0)
    {
       shootSpeed = -3000;
-      shootAngle = -(0.0011 * pow(dist, 2)) + (0.3637 * dist) + 20.901;
+      shootAngle = -(0.0017 * pow(dist, 2)) + (0.6213 * dist) + 4.4679;
+      //shootAngle = -(0.0007 * pow(dist, 2)) + (0.3637 * dist) + 20.901; //0.0011
    }
    else
    {
@@ -172,7 +189,7 @@ void Shooter::SetShooterDistanceTwo(double distance)
       shootCounter = 0;
    }
 
-   if (shootCounter > 3)
+   if (shootCounter > 3 && (abs(GetHoodAngle() - shootAngle) < 3.0))
    {
       SetFeeder(1.0);
    }
@@ -206,8 +223,8 @@ void Shooter::IntakeRetract()
 
 void Shooter::SetIndexer(double speed)
 {
-   motorIndexer.Set(ControlMode::PercentOutput, speed * 0.75);
    motorIndexerB.Set(ControlMode::PercentOutput, speed);
+   motorIndexer.Set(ControlMode::PercentOutput, speed * 0.75);
    motorIndexerC.Set(ControlMode::PercentOutput, speed);
 }
 
@@ -251,7 +268,7 @@ void Shooter::SetHood(double input)
    }
 
    // Soft Limits
-   if ((GetHoodAngle() < 15.0) && (input < 0.0))
+   if(!hoodZeroSw.Get() && input < 0.0)
    {
       motorHood.Set(0.0);
    }
