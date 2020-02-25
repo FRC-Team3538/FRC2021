@@ -292,7 +292,7 @@ void Robot::TeleopPeriodic()
   double indexer = 0.0;
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
-  double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
+  //double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
   double intakeSpeed = leftTrigOp - rightTrigOp - rightTrigDr;
   intakeSpeed = Deadband(-intakeSpeed, deadband);
@@ -414,27 +414,24 @@ void Robot::TeleopPeriodic()
     IO.shooter.SetFeeder(0.0);
   }
 
-    // Hood Lock
-    //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
+  // Hood Lock
+  //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
 
-
-    if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+  if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
+  {
+    if (std::abs(PresetShooterRPM) <= 1.0)
     {
-      if (std::abs(PresetShooterRPM) <= 1.0)
-      {
-        IO.shooter.SetShooter(PresetShooterRPM);
-      }
-      else
-      {
-        IO.shooter.SetVelocity(PresetShooterRPM);
-      }
+      IO.shooter.SetShooter(PresetShooterRPM);
     }
-
-    if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+    else
     {
-      IO.shooter.SetShooter(0.0);
+      IO.shooter.SetVelocity(PresetShooterRPM);
     }
-  
+  }
+
+  if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+  {
+    IO.shooter.SetShooter(0.0);
   }
 
   //

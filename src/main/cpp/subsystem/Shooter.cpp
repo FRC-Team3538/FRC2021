@@ -32,7 +32,7 @@ Shooter::Shooter()
    flywheel.Config_kD(0, 7.000);
 
    flywheel.Config_IntegralZone(0, 200.0);
-   
+
    motorIntake.SetInverted(false);
 
    motorIndexer.SetInverted(false);  // Omni Rollers
@@ -144,11 +144,11 @@ void Shooter::SetShooterDistanceThree(double distance)
 
    if (shootCounter > 3)
    {
-      SetFeeder( 1.0);
+      SetFeeder(1.0);
    }
    else
    {
-      SetFeeder( 0.0);
+      SetFeeder(0.0);
    }
 }
 
@@ -250,15 +250,14 @@ void Shooter::SetShooter(double speed)
 void Shooter::SetHood(double input)
 {
    // Hood Lock
-   
+
    bool lockHood = (fabs(input) < 0.05);
    solenoidHood.Set(lockHood);
-   if(lockHood)
+   if (lockHood)
    {
       motorHood.Set(0.0);
       return;
    }
-   
 
    // Manual Mode
    if (manualMode)
@@ -268,7 +267,7 @@ void Shooter::SetHood(double input)
    }
 
    // Soft Limits
-   if(!hoodZeroSw.Get() && input < 0.0)
+   if (!hoodZeroSw.Get() && input < 0.0)
    {
       motorHood.Set(0.0);
    }
