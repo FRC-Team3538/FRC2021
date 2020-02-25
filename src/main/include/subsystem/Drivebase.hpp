@@ -68,7 +68,7 @@ private:
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
-#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.015))
+#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.0075))
 #define KI_FORWARDGYRO (SmartDashboard::GetNumber("KI_FORWARDGYRO", 0.0))
 #define KD_FORWARDGYRO (SmartDashboard::GetNumber("KD_FORWARDGYRO", 0.0))
 

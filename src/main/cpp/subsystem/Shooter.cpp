@@ -20,8 +20,8 @@ Shooter::Shooter()
    flywheel.ConfigVoltageCompSaturation(10.0);
    flywheelB.ConfigVoltageCompSaturation(10.0);
 
-   flywheel.ConfigClosedloopRamp(0.2);
-   flywheelB.ConfigClosedloopRamp(0.2);
+   flywheel.ConfigClosedloopRamp(0.4);
+   flywheelB.ConfigClosedloopRamp(0.4);
 
    flywheel.SetInverted(true);
    flywheelB.SetInverted(false);
@@ -223,8 +223,8 @@ void Shooter::IntakeRetract()
 
 void Shooter::SetIndexer(double speed)
 {
-   motorIndexer.Set(ControlMode::PercentOutput, speed);
-   motorIndexerB.Set(ControlMode::PercentOutput, speed * 0.75);
+   motorIndexerB.Set(ControlMode::PercentOutput, speed);
+   motorIndexer.Set(ControlMode::PercentOutput, speed * 0.75);
    motorIndexerC.Set(ControlMode::PercentOutput, speed);
 }
 
@@ -324,7 +324,7 @@ void Shooter::SetHoodAngle(double angle)
 double Shooter::GetHoodAngle()
 {
    auto pref = frc::Preferences::GetInstance();
-   auto offset = pref->GetDouble("HoodOffset", 0.0);
+   auto offset = pref->GetDouble("HoodOffset", 15.0);
    pref->PutDouble("HoodOffset", offset );
 
    // Zero Switch

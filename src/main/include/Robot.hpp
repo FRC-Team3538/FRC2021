@@ -42,9 +42,11 @@ private:
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
-  const double deadband = 0.1;
+  const double deadband = 0.05;
+  const double cubicA = 0.566;
+  const double cubicB = 0.366;
 
-  double kDriveTurnLimit = 0.6;
+  double kDriveTurnLimit = 1.0;
 
   double indexerSpeed = 1.0;
 
