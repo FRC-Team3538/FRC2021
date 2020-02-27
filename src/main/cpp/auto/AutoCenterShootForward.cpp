@@ -58,7 +58,7 @@ void AutoCenterShootForward::Run()
     }
     case 1:
     {
-        double fwd = 0.15;
+        double fwd = 0.20;
         double rot = 0.00;
         IO.drivebase.Arcade(fwd, rot);
         if (m_autoTimer.Get() > 2.0)

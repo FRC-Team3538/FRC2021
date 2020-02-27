@@ -7,6 +7,7 @@ Climber::Climber()
 {
    motorClimber0.ConfigFactoryDefault();
    motorClimber1.ConfigFactoryDefault();
+   motorClimber0.SetNeutralMode(NeutralMode::Brake);
 }
 
 // Stop all motors
@@ -18,6 +19,15 @@ void Climber::Stop()
 
 void Climber::SetClimber(double speed)
 {
+   if(speed == 0.0)
+   {
+      climbBrake.Set(true);
+   }
+   else
+   {
+      climbBrake.Set(false);
+   }
+   
    motorClimber0.Set(speed);
    motorClimber1.Set(speed);
 }

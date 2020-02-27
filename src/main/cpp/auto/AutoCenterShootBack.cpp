@@ -40,7 +40,7 @@ void AutoCenterShootBack::Run()
         IO.drivebase.Stop();
         IO.shooter.IntakeDeploy();
         IO.shooter.SetVelocity(3000.0);
-        IO.shooter.SetHoodAngle(58.0);
+        IO.shooter.SetHoodAngle(60.5);
         // data = IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
         // if (data.filled)
         // {
@@ -56,7 +56,7 @@ void AutoCenterShootBack::Run()
         //         IO.shooter.SetVelocity(3000.0);
         //     }
         // }
-        if (m_autoTimer.Get() > 1.0)
+        if ((m_autoTimer.Get() > 1.8) && (abs(3000.0 - IO.shooter.GetVelocity()) < 100.0)) 
         {
             IO.shooter.SetIndexer(100.0);
             IO.shooter.SetFeeder(100.0);

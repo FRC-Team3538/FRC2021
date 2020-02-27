@@ -20,7 +20,8 @@ AutoTrenchRun::AutoTrenchRun(robotmap &IO) : IO(IO)
 AutoTrenchRun::~AutoTrenchRun() {}
 
 //State Machine
-void AutoTrenchRun::NextState(){
+void AutoTrenchRun::NextState()
+{
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
@@ -37,31 +38,48 @@ void AutoTrenchRun::Run()
     {
     case 0:
     {
-        IO.shooter.IntakeDeploy();
+        const double shootSpeedz = 3000.0;
+
         IO.drivebase.Stop();
-        data = IO.RJV.Run(IO.RJV.ShotType::Two);
-        if (data.filled)
+        IO.shooter.IntakeDeploy();
+        IO.shooter.SetVelocity(shootSpeedz);
+        IO.shooter.SetHoodAngle(60.5);
+        if (abs(shootSpeedz - IO.shooter.GetVelocity()) < 100.0)
         {
-            if (tpCt > 5)
-            {
-                IO.shooter.SetShooterDistanceTwo(data.distance);
-                IO.drivebase.Arcade(0.0, 0.0);
-            }
-            else
-            {
-                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-                IO.shooter.SetVelocity(1000.0);
-            }
+            IO.shooter.SetIndexer(100.0);
+            IO.shooter.SetFeeder(100.0);
         }
 
-        if (m_autoTimer.Get() > 3.0)
+        if (m_autoTimer.Get() > 3.5)
         {
             NextState();
         }
+
+        // IO.shooter.IntakeDeploy();
+        // IO.drivebase.Stop();
+        // data = IO.RJV.Run(IO.RJV.ShotType::Two);
+        // if (data.filled)
+        // {
+        //     if (tpCt > 5)
+        //     {
+        //         IO.shooter.SetShooterDistanceTwo(data.distance);
+        //         IO.drivebase.Arcade(0.0, 0.0);
+        //     }
+        //     else
+        //     {
+        //         IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
+        //         IO.shooter.SetVelocity(1000.0);
+        //     }
+        // }
+
         break;
     }
     case 1:
     {
+        IO.shooter.Stop();
+        IO.shooter.SetIndexer(0.0);
+        IO.shooter.SetFeeder(0.0);
+
         IO.drivebase.TurnAbs(-15.0, 0.20);
         IO.shooter.IntakeDeploy();
         if (IO.drivebase.GetGyroHeading() < -10)
@@ -72,7 +90,7 @@ void AutoTrenchRun::Run()
     }
     case 2:
     {
-        IO.drivebase.DriveForward(-155.0, 0.20);
+        IO.drivebase.DriveForward(-155.0, 0.2);
         IO.shooter.SetIntake(0.5);
         IO.shooter.SetIndexer(0.5);
         if (IO.drivebase.GetEncoderPosition() < -150.0)
@@ -81,8 +99,8 @@ void AutoTrenchRun::Run()
         }
         break;
     }
-     case 3:
-     {
+    case 3:
+    {
         IO.drivebase.DriveForward(-108.0, 0.20);
         if (IO.drivebase.GetEncoderPosition() > -113.0)
         {
@@ -90,9 +108,9 @@ void AutoTrenchRun::Run()
         }
         break;
     }
-    
-    
-    case 4: {
+
+    case 4:
+    {
         IO.drivebase.TurnAbs(-5.0, 0.20);
         if (IO.drivebase.GetGyroHeading() > -10.0)
         {
@@ -103,22 +121,17 @@ void AutoTrenchRun::Run()
     case 5:
     {
 
-        data = IO.RJV.Run(IO.RJV.ShotType::Two);
-        if (data.filled)
+        IO.drivebase.Stop();
+        IO.shooter.IntakeDeploy();
+        IO.shooter.SetVelocity(3500.0);
+        IO.shooter.SetHoodAngle(64.5);
+        if ((abs(3500.0 - IO.shooter.GetVelocity()) < 150.0))
         {
-            if (tpCt > 5)
-            {
-                IO.shooter.SetShooterDistanceTwo(data.distance);
-                IO.drivebase.Arcade(0.0, 0.0);
-            }
-            else
-            {
-                IO.drivebase.TurnRel(data.angle, 0.5) ? tpCt++ : tpCt = 0;
-                IO.shooter.SetVelocity(1000.0);
-            }
+            IO.shooter.SetIndexer(100.0);
+            IO.shooter.SetFeeder(100.0);
         }
 
-        if (m_autoTimer.Get() > 3.0)
+        if (m_autoTimer.Get() > 3.5)
         {
             NextState();
         }
@@ -128,6 +141,8 @@ void AutoTrenchRun::Run()
     default:
         IO.drivebase.Stop();
         IO.shooter.Stop();
+        IO.shooter.SetIndexer(0.0);
+        IO.shooter.SetFeeder(0.0);
     }
 
     UpdateSmartDash();

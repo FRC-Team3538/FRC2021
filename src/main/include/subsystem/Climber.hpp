@@ -18,6 +18,7 @@ class Climber
 
     // Solenoids
     Solenoid solenoidClimber{2};
+    Solenoid climbBrake{3};
 
   public:
     // Default Constructor

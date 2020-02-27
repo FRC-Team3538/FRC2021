@@ -319,7 +319,14 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
     {
         driveCommandRotation = -maxoutput;
     }
-
+    if((abs(errorRot) > 0.4) && (driveCommandRotation < 0.1 && driveCommandRotation > 0.0))
+    {
+        driveCommandRotation = 0.1;
+    }
+    else if((abs(errorRot) > 0.4) && (driveCommandRotation > -0.05 && driveCommandRotation < 0.0))
+    {
+        driveCommandRotation = -0.05;
+    }
     Arcade(0, driveCommandRotation);
 }
 

@@ -51,6 +51,7 @@ void Robot::AutonomousInit()
   IO.drivebase.ResetGyro();
   IO.shooter.Init();
   autoPrograms.Init();
+  IO.drivebase.SetBrake();
 }
 
 void Robot::AutonomousPeriodic()
@@ -66,11 +67,16 @@ void Robot::TeleopInit()
 
 void Robot::DisabledInit()
 {
-  IO.drivebase.SetCoast();
+  disableTimer.Reset();
+  disableTimer.Start();
 }
 
 void Robot::DisabledPeriodic()
 {
+  if (disableTimer.Get() > 2.0)
+  {
+    IO.drivebase.SetCoast();
+  }
   IO.RJV.Reset();
   IO.shooter.Stop();
   IO.shooter.IntakeRetract();
@@ -317,15 +323,17 @@ void Robot::TeleopPeriodic()
   if (IO.ds.Operator.GetDownButton())
   {
     IO.shooter.SetVelocity(2450.0);
-    PresetHoodAngle = 18;
+    PresetShooterRPM = 2450.0;
+    PresetHoodAngle = 23;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Operator.GetUpButton())
   {
-    IO.shooter.SetVelocity(5000.0);
-    PresetHoodAngle = 45;
+    IO.shooter.SetVelocity(4370.0);
+    PresetShooterRPM = 4370.0;
+    PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
     PresetVisionPipeline = IO.RJV.Pipe::LongShot;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -333,15 +341,17 @@ void Robot::TeleopPeriodic()
   else if (IO.ds.Operator.GetLeftButton())
   {
     IO.shooter.SetVelocity(3000.0);
-    PresetHoodAngle = 56;
+    PresetShooterRPM = 3000.0;
+    PresetHoodAngle = 60.5;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
   else if (IO.ds.Operator.GetRightButton())
   {
-    IO.shooter.SetVelocity(3000.0);
-    PresetHoodAngle = 55;
+    IO.shooter.SetVelocity(3500.0);
+    PresetShooterRPM = 3500.0;
+    PresetHoodAngle = 64.5;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -349,7 +359,8 @@ void Robot::TeleopPeriodic()
   else if (IO.ds.Operator.GetScreenShotButton())
   {
     PresetShooterRPM = PRESET_RPM;
-    IO.shooter.SetVelocity(PRESET_HOOD);
+    IO.shooter.SetVelocity(PresetShooterRPM);
+    PresetHoodAngle = PRESET_HOOD;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
@@ -404,7 +415,7 @@ void Robot::TeleopPeriodic()
   atSpeed = ((abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0));
   atAngle = ((abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0));
 
-  if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton() && atSpeed && atAngle)) && abs(leftTrigOp >= 0.0))
+  if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton() && atSpeed && atAngle)) && abs(leftTrigOp == 0.0))
   {
     indexer = indexerSpeed;
     IO.shooter.SetFeeder(1.0);
@@ -417,19 +428,7 @@ void Robot::TeleopPeriodic()
   // Hood Lock
   //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
 
-  if (IO.ds.Operator.GetCrossButton() || IO.ds.Driver.GetCrossButton())
-  {
-    if (std::abs(PresetShooterRPM) <= 1.0)
-    {
-      IO.shooter.SetShooter(PresetShooterRPM);
-    }
-    else
-    {
-      IO.shooter.SetVelocity(PresetShooterRPM);
-    }
-  }
-
-  if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
+  if (IO.ds.Operator.GetCircleButton())
   {
     IO.shooter.SetShooter(0.0);
   }

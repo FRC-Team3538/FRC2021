@@ -79,7 +79,6 @@ void Shooter::Stop()
    motorIndexerB.StopMotor();
    motorIndexerC.StopMotor();
    motorFeeder.StopMotor();
-   motorHood.StopMotor();
    shootSpeed = 0.0;
 }
 

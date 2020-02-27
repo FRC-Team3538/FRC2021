@@ -7,6 +7,7 @@
 #include "auto/AutoTrenchRun.hpp"
 #include "auto/AutoBackTrench.hpp"
 #include "auto/AutoStealTrenchRun.hpp"
+#include "auto/AutoShootTrenchYolo.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -19,9 +20,7 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(AutoTrenchRun::GetName(), AutoTrenchRun::GetName());
     m_chooser.AddOption(AutoBackTrench::GetName(), AutoBackTrench::GetName());
     m_chooser.AddOption(AutoStealTrenchRun::GetName(), AutoStealTrenchRun::GetName());
-
-
-
+    m_chooser.AddOption(AutoShootTrenchYolo::GetName(), AutoShootTrenchYolo::GetName());
 }
 
 // Initialize the selected auto program
@@ -55,9 +54,13 @@ void AutoPrograms::Init()
     {
         m_autoProgram = new AutoTrenchRun(IO);
     }
-     if (name == AutoStealTrenchRun::GetName())
+    if (name == AutoStealTrenchRun::GetName())
     {
         m_autoProgram = new AutoStealTrenchRun(IO);
+    }
+    if (name == AutoShootTrenchYolo::GetName())
+    {
+        m_autoProgram = new AutoShootTrenchYolo(IO);
     }
 }
 
@@ -75,5 +78,4 @@ void AutoPrograms::SmartDash()
     SmartDashboard::PutData("Choose Auto", &m_chooser);
     std::string name = m_chooser.GetSelected();
     SmartDashboard::PutString("Selected Auto", name);
-
 }
