@@ -60,15 +60,19 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.016))
-#define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.000045)) //275
-#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.002)) //15
+#define KP_ROTATIONV (SmartDashboard::GetNumber("KP_ROTATIONV", 0.013))
+#define KI_ROTATIONV (SmartDashboard::GetNumber("KI_ROTATIONV", 0.0000325)) //275
+#define KD_ROTATIONV (SmartDashboard::GetNumber("KD_ROTATIONV", 0.0024))    //15
 
-#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021)) 
-#define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050)) 
+#define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.022))
+#define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))    //15
+
+#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
+#define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 
-#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.005)) //75
+#define KP_FORWARDGYRO (SmartDashboard::GetNumber("KP_FORWARDGYRO", 0.008)) //75
 #define KI_FORWARDGYRO (SmartDashboard::GetNumber("KI_FORWARDGYRO", 0.0))
 #define KD_FORWARDGYRO (SmartDashboard::GetNumber("KD_FORWARDGYRO", 0.0))
 

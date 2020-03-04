@@ -216,7 +216,7 @@ bool Drivebase::VisionAim(double forward, double degrees, double tolerance)
     }
     else
     {
-        Arcade(forward, ((error * KP_ROTATION) + (iAcc * KI_ROTATION) + (dError * KD_ROTATION)));
+        Arcade(forward, ((error * KP_ROTATIONV) + (iAcc * KI_ROTATIONV) + (dError * KD_ROTATIONV)));
     }
 
     return false;
@@ -319,13 +319,13 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
     {
         driveCommandRotation = -maxoutput;
     }
-    if((abs(errorRot) > 0.4) && (driveCommandRotation < 0.1 && driveCommandRotation > 0.0))
+    if((abs(errorRot) > 0.4) && (driveCommandRotation < 0.085 && driveCommandRotation > 0.0))
     {
-        driveCommandRotation = 0.1;
+        driveCommandRotation = 0.09; //Minimum drive gain was 0.1
     }
-    else if((abs(errorRot) > 0.4) && (driveCommandRotation > -0.05 && driveCommandRotation < 0.0))
+    else if((abs(errorRot) > 0.4) && (driveCommandRotation > -0.085 && driveCommandRotation < 0.0))
     {
-        driveCommandRotation = -0.05;
+        driveCommandRotation = -0.09;
     }
     Arcade(0, driveCommandRotation);
 }
@@ -435,6 +435,10 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("KP_ROTATION", KP_ROTATION);
     SmartDashboard::PutNumber("KI_ROTATION", KI_ROTATION);
     SmartDashboard::PutNumber("KD_ROTATION", KD_ROTATION);
+
+    SmartDashboard::PutNumber("KP_ROTATIONV", KP_ROTATIONV);
+    SmartDashboard::PutNumber("KI_ROTATIONV", KI_ROTATIONV);
+    SmartDashboard::PutNumber("KD_ROTATIONV", KD_ROTATIONV);
 
     SmartDashboard::PutNumber("KP_FORWARDGYRO", KP_FORWARDGYRO);
     SmartDashboard::PutNumber("KI_FORWARDGYRO", KI_FORWARDGYRO);

@@ -123,6 +123,8 @@ void AutoShootTrenchYolo::Run()
         IO.drivebase.DriveForward(-92.0, 0.8);
         IO.shooter.SetIntake(0.0);
         IO.shooter.SetIndexer(0.0);
+        IO.shooter.SetVelocity(3000.0);
+        IO.shooter.SetHoodAngle(60.5);
         if (IO.drivebase.GetEncoderPositionLeft() > -92.0)
         {
             NextState();
@@ -131,6 +133,8 @@ void AutoShootTrenchYolo::Run()
     }
     case 6:
     {
+        IO.shooter.SetVelocity(3000.0);
+        IO.shooter.SetHoodAngle(60.5);
         data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
         if (data.filled)
         {
@@ -146,7 +150,7 @@ void AutoShootTrenchYolo::Run()
     {
         IO.shooter.SetVelocity(3000.0);
         IO.shooter.SetHoodAngle(60.5);
-        if ((abs(3000.0 - IO.shooter.GetVelocity()) < 200.0))
+        if ((abs(3000.0 - IO.shooter.GetVelocity()) < 100.0))
         {
             IO.shooter.SetIntake(100.0);
             IO.shooter.SetIndexer(100.0);

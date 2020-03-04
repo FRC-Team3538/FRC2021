@@ -326,6 +326,7 @@ void Robot::TeleopPeriodic()
     PresetShooterRPM = 2450.0;
     PresetHoodAngle = 23;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
+    liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
@@ -335,6 +336,7 @@ void Robot::TeleopPeriodic()
     PresetShooterRPM = 4370.0;
     PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
     PresetVisionPipeline = IO.RJV.Pipe::LongShot;
+    liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
@@ -344,6 +346,7 @@ void Robot::TeleopPeriodic()
     PresetShooterRPM = 3000.0;
     PresetHoodAngle = 60.5;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
+    liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
@@ -353,6 +356,7 @@ void Robot::TeleopPeriodic()
     PresetShooterRPM = 3500.0;
     PresetHoodAngle = 64.5;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+    liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
@@ -362,6 +366,7 @@ void Robot::TeleopPeriodic()
     IO.shooter.SetVelocity(PresetShooterRPM);
     PresetHoodAngle = PRESET_HOOD;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+    liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
   }
@@ -378,6 +383,14 @@ void Robot::TeleopPeriodic()
       IO.drivebase.VisionAim(forward, data.angle, 0.3);
     else
       IO.drivebase.Arcade(forward, rotate);
+  }
+  else if(liteOn)
+  {
+    data = IO.RJV.Run(PresetVisionPipeline);
+    IO.drivebase.Arcade(forward, rotate);
+    data.filled = false;
+    picCt = 0;
+    tpCt = 0;
   }
   else
   {
@@ -431,6 +444,7 @@ void Robot::TeleopPeriodic()
   if (IO.ds.Operator.GetCircleButton())
   {
     IO.shooter.SetShooter(0.0);
+    liteOn = false;
   }
 
   //
@@ -468,6 +482,7 @@ void Robot::TeleopPeriodic()
 
   if (IO.ds.Operator.GetBumper(GenericHID::kRightHand))
   {
+    liteOn = false;
     IO.shooter.IntakeDeploy();
     PresetHoodAngle = 0.0;
   }

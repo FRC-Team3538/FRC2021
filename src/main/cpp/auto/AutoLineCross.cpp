@@ -16,11 +16,11 @@ AutoLineCross::AutoLineCross(robotmap &IO) : IO(IO)
     IO.drivebase.Stop();
 }
 
-AutoLineCross::~AutoLineCross() { }
-
+AutoLineCross::~AutoLineCross() {}
 
 //State Machine
-void AutoLineCross::NextState(){
+void AutoLineCross::NextState()
+{
     m_state++;
     m_autoTimer.Reset();
     m_autoTimer.Start();
@@ -33,24 +33,40 @@ void AutoLineCross::Run()
     {
     case 0:
     {
-        double fwd = 0.20;
-        double rot = 0.00;
-        IO.drivebase.Arcade(fwd, rot);
-        if (m_autoTimer.Get() > 2.0)
+        IO.drivebase.TurnAbs(3.2, 0.5);
+        IO.shooter.SetHoodAngle(0.0);
+
+        if (abs(IO.drivebase.GetGyroHeading() - (3.2)) > 1.0)
+        {
+            m_autoTimer.Reset();
+        }
+
+        if (m_autoTimer.Get() > 0.3)
         {
             NextState();
         }
         break;
     }
-    case 1:
-    {
-        IO.drivebase.Stop();
-        if (m_autoTimer.Get() > 2.0)
-        {
-            NextState();
-        }
-        break;
-    }
+    // case 0:
+    // {
+    //     double fwd = 0.20;
+    //     double rot = 0.00;
+    //     IO.drivebase.Arcade(fwd, rot);
+    //     if (m_autoTimer.Get() > 2.0)
+    //     {
+    //         NextState();
+    //     }
+    //     break;
+    // }
+    // case 1:
+    // {
+    //     IO.drivebase.Stop();
+    //     if (m_autoTimer.Get() > 2.0)
+    //     {
+    //         NextState();
+    //     }
+    //     break;
+    // }
     default:
         IO.drivebase.Stop();
     }

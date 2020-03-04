@@ -59,6 +59,7 @@ private:
   vision::RJVisionPipeline::visionData data;
   int tpCt = 0;
   int picCt = 0;
+  bool liteOn = false;
   
   // Presets
   double PresetShooterRPM = 0.0;
