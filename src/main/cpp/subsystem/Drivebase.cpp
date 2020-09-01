@@ -420,6 +420,11 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("DriveEncL", GetEncoderPositionLeft());
     SmartDashboard::PutNumber("DriveEncR", GetEncoderPositionRight());
 
+    SmartDashboard::PutNumber("L1Tmp", motorLeft1.GetTemperature());
+    SmartDashboard::PutNumber("L2Tmp", motorLeft2.GetTemperature());
+    SmartDashboard::PutNumber("R1Tmp", motorRight1.GetTemperature());
+    SmartDashboard::PutNumber("R2Tmp", motorRight2.GetTemperature());
+
     SmartDashboard::PutBoolean("DriveOverride", sensorOverride);
 
     SmartDashboard::PutNumber("Gyro Heading", GetGyroHeading());

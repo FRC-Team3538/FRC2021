@@ -308,7 +308,14 @@ void Robot::TeleopPeriodic()
   //
   double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, deadband);
   double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, deadband);
-  rotate = (cubicA * pow(rotate, 3)) + (cubicB * rotate);
+  if (abs(forward) < 0.05)
+  {
+    rotate = (CABICA * pow(rotate, 3)) + (CABICB * rotate);
+  }
+  else
+  {
+    rotate = (cubicA * pow(rotate, 3)) + (cubicB * rotate);
+  }
 
   // Limit turning rate normally
   if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
@@ -384,7 +391,7 @@ void Robot::TeleopPeriodic()
     else
       IO.drivebase.Arcade(forward, rotate);
   }
-  else if(liteOn)
+  else if (liteOn)
   {
     data = IO.RJV.Run(PresetVisionPipeline);
     IO.drivebase.Arcade(forward, rotate);
@@ -545,6 +552,8 @@ void Robot::UpdateSD()
   // it causes watchdog warnings
   smartDashSkip %= 30;
   IO.shooter.UpdateSmartdash();
+  SmartDashboard::PutNumber("Cubic A", CABICA);
+  SmartDashboard::PutNumber("Cubic B", CABICB);
   switch (smartDashSkip)
   {
   case 0:

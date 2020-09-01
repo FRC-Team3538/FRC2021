@@ -43,8 +43,8 @@ private:
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 
   const double deadband = 0.05;
-  const double cubicA = 0.566;
-  const double cubicB = 0.366;
+  const double cubicA = 0.516;
+  const double cubicB = 0.316;
 
   double kDriveTurnLimit = 1.0;
 
@@ -74,6 +74,9 @@ private:
 
 #define PRESET_RPM (SmartDashboard::GetNumber("PRESET_RPM", 2000))
 #define PRESET_HOOD (SmartDashboard::GetNumber("PRESET_HOOD", 40))
+
+#define CABICA (SmartDashboard::GetNumber("Cubic A", 0.2244))
+#define CABICB (SmartDashboard::GetNumber("Cubic B", 0.2131))
 //#define RPM_TOLERANCE (SmartDashboard::GetNumber("RPM TOLERANCE", 40.0))
 
   // Test Mode

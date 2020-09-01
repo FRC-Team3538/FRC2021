@@ -15,6 +15,12 @@ Shooter::Shooter()
    motorFeeder.ConfigFactoryDefault();
    motorHood.ConfigFactoryDefault();
 
+   sparkIndexerB.RestoreFactoryDefaults();
+   sparkIndexerC.RestoreFactoryDefaults();
+
+   sparkIndexerB.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+   sparkIndexerC.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+
    flywheelB.Follow(flywheel);
 
    flywheel.ConfigVoltageCompSaturation(10.0);
@@ -79,6 +85,8 @@ void Shooter::Stop()
    motorIndexerB.StopMotor();
    motorIndexerC.StopMotor();
    motorFeeder.StopMotor();
+   sparkIndexerB.Set(0.0);
+   sparkIndexerC.Set(0.0);
    shootSpeed = 0.0;
 }
 
@@ -222,6 +230,9 @@ void Shooter::SetIndexer(double speed)
    motorIndexerB.Set(ControlMode::PercentOutput, speed * FIRSTBRUSH);
    motorIndexer.Set(ControlMode::PercentOutput, speed * OMNISPEED);
    motorIndexerC.Set(ControlMode::PercentOutput, speed * SECONDBRUSH);
+   sparkIndexerB.Set(speed * FIRSTBRUSH);
+   sparkIndexerC.Set(speed * SECONDBRUSH);
+
 }
 
 void Shooter::SetFeeder(double speed)

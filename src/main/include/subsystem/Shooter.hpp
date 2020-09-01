@@ -9,6 +9,7 @@
 #include <frc/DutyCycleEncoder.h>
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
+#include "rev/CANSparkMax.h"
 
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
@@ -24,6 +25,9 @@ private:
   WPI_VictorSPX motorIndexer{9};
   WPI_VictorSPX motorIndexerB{15};
   WPI_VictorSPX motorIndexerC{16};
+
+  rev::CANSparkMax sparkIndexerB{15, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax sparkIndexerC{16, rev::CANSparkMax::MotorType::kBrushless};
 
   WPI_TalonSRX motorFeeder{10};
   WPI_VictorSPX motorHood{11};
