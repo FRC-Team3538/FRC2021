@@ -20,10 +20,10 @@ private:
   //CTRE CAN
   WPI_TalonFX flywheel{6};
   WPI_TalonFX flywheelB{7};
-  WPI_VictorSPX motorIntake{8};
+  WPI_TalonFX motorIntake{8};
 
   WPI_VictorSPX motorIndexer{9};
-  WPI_VictorSPX motorIndexerB{15};
+  WPI_TalonFX motorIndexerB{15};
   WPI_VictorSPX motorIndexerC{16};
 
   rev::CANSparkMax sparkIndexerB{15, rev::CANSparkMax::MotorType::kBrushless};
