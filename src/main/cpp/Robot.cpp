@@ -383,11 +383,52 @@ void Robot::TeleopPeriodic()
   //
 
   // Normal Driving
-  if (IO.ds.Driver.GetCrossButton())
+  if (IO.ds.Driver.GetSquareButton())
   {
-    data = IO.RJV.Run(PresetVisionPipeline);
+    if (!visionTestOS)
+    {
+      visionTest.Reset();
+      visionTest.Start();
+      visionTestOS = true;
+    }
+    data = IO.RJV.Run(0);
+    //data = IO.RJV.Run(PresetVisionPipeline);
     if (data.filled)
-      IO.drivebase.VisionAim(forward, data.angle, 0.3);
+    {
+      double visionTime = visionTest.Get();
+      SmartDashboard::PutNumber("Vision Time", visionTime);
+      if (IO.drivebase.VisionAim(forward, data.angle, 0.3))
+      {
+        PresetShooterRPM = PRESET_RPM;
+        IO.shooter.SetVelocity(PresetShooterRPM);
+        PresetHoodAngle = PRESET_HOOD;
+        SmartDashboard::PutNumber("Vision Time", visionTime);
+        visionTest.Stop();
+      }
+    }
+    else
+      IO.drivebase.Arcade(forward, rotate);
+  }
+  else if (IO.ds.Driver.GetCrossButton())
+  {
+    if (!visionTestOS)
+    {
+      visionTest.Reset();
+      visionTest.Start();
+      visionTestOS = true;
+    }
+    data = IO.RJV.Run(0);
+    //data = IO.RJV.Run(PresetVisionPipeline);
+    if (data.filled)
+    {
+      double visionTime = visionTest.Get();
+      SmartDashboard::PutNumber("Vision Time", visionTime);
+      if (IO.drivebase.VisionAim(forward, data.angle, 0.3))
+      {
+        SmartDashboard::PutNumber("Vision Time", visionTime);
+        visionTest.Stop();
+      }
+    }
     else
       IO.drivebase.Arcade(forward, rotate);
   }
@@ -398,6 +439,7 @@ void Robot::TeleopPeriodic()
     data.filled = false;
     picCt = 0;
     tpCt = 0;
+    visionTestOS = false;
   }
   else
   {
@@ -406,6 +448,7 @@ void Robot::TeleopPeriodic()
     picCt = 0;
     tpCt = 0;
     IO.RJV.Reset();
+    visionTestOS = false;
   }
 
   // Reset Vision

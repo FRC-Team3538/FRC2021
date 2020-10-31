@@ -60,9 +60,9 @@ private:
 
   bool oneShotAngle = false;
 
-#define KP_ROTATIONV (SmartDashboard::GetNumber("KP_ROTATIONV", 0.013))
-#define KI_ROTATIONV (SmartDashboard::GetNumber("KI_ROTATIONV", 0.0000325)) //275
-#define KD_ROTATIONV (SmartDashboard::GetNumber("KD_ROTATIONV", 0.0024))    //15
+#define KP_ROTATIONV (SmartDashboard::GetNumber("KP_ROTATIONV", 0.018))
+#define KI_ROTATIONV (SmartDashboard::GetNumber("KI_ROTATIONV", 0.000045)) //275
+#define KD_ROTATIONV (SmartDashboard::GetNumber("KD_ROTATIONV", 0.001))    //15
 
 #define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.022))
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
