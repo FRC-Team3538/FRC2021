@@ -2,6 +2,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2021.1.2"
+//    id "com.diffplug.spotless" version "5.7.0"
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -103,3 +104,17 @@ model {
         }
     }
 }
+
+/* NOTE: used to standardize Code Format
+    This requires installing clang-format from LLVM so it's commented out by default.
+    If you want to format your code, run `clang-format` version and replace the current version with yours.
+*/
+/*
+spotless {
+    cpp {
+        target 'src/main/cpp/**', 'src/main/include/**'
+
+        clangFormat('12.0.0').pathToExe('C:\\Program Files\\LLVM\\bin\\clang-format.exe').style('Mozilla')
+    }
+}
+*/

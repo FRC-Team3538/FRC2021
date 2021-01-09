@@ -17,6 +17,8 @@
 #include <opencv2/videoio.hpp>
 #include <frc/PowerDistributionPanel.h>
 #include <frc/Timer.h>
+#include <thread>
+
 
 using namespace cv;
 
@@ -38,6 +40,7 @@ private:
   double Deadband(double input, double deadband);
   void UpdateSD();
 
+  std::thread logger;
   robotmap IO;
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();

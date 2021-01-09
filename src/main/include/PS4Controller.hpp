@@ -19,8 +19,9 @@ namespace frc {
  * instance for each controller and the mapping of ports to hardware buttons
  * depends on the code in the Driver Station.
  */
-class PS4Controller : public GenericHID {
- public:
+class PS4Controller : public GenericHID
+{
+public:
   explicit PS4Controller(int port);
   virtual ~PS4Controller() = default;
 
@@ -79,8 +80,9 @@ class PS4Controller : public GenericHID {
 
   bool GetLeftButton() const;
 
- private:
-  enum class Button {
+private:
+  enum class Button
+  {
     kBumperLeft = 5,
     kBumperRight = 6,
     kStickLeft = 11,
@@ -95,13 +97,13 @@ class PS4Controller : public GenericHID {
     kTouchPad = 14
   };
 
-  enum class POV {
+  enum class POV
+  {
     kUP = 0,
     kRight = 90,
     kDown = 180,
     kLeft = 270
   };
-
 };
 
-}  // namespace frc
+} // namespace frc

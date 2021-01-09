@@ -1,0 +1,66 @@
+// Generated from StatusFrame.proto
+
+namespace rj;
+
+table InitializeStatusFrame {
+  title:string;
+}
+
+table CTREMotorStatusFrame {
+  firmwareVersion:int;
+  baseID:int;
+  deviceID:int;
+  outputCurrent:double;
+  busVoltage:double;
+  outputPercent:double;
+  outputVoltage:double;
+  temperature:double;
+  selectedSensorPosition:int;
+  selectedSensorVelocity:int;
+  closedLoopError:int;
+  integralAccumulator:double;
+  errorDerivative:double;
+  closedLoopTarget:double;
+  activeTrajectoryPosition:int;
+  activeTrajectoryVelocity:int;
+  activeTrajectoryArbFeedFwd:double;
+  faults:int;
+  resetOccured:bool;
+  lastError:int;
+  controlMode:int;
+  statorCurrent:double;
+  supplyCurrent:double;
+  fwdLimitSwitchClosed:int;
+  revLimitSwitchClosed:int;
+}
+
+table PDPStatusFrame {
+  module:int;
+  voltage:double;
+  temperature:double;
+  channelCurrent: [double];
+  totalCurrent:double;
+  totalPower:double;
+  totalEnergy:double;
+}
+
+table PCMStatusFrame {
+  module:int;
+  enabled:bool;
+  pressureSwitchValve:bool;
+  compressorCurrent:double;
+  closedLoopControl:bool;
+  compressorCurrentTooHighFault:bool;
+  compressorShortedFault:bool;
+  compressorNotConnectedFault:bool;
+}
+
+union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame }
+
+table StatusFrameHolder {
+  unixTime:double;
+  monotonicTime:double;
+  statusFrame:StatusFrame;
+}
+
+root_type StatusFrameHolder;
