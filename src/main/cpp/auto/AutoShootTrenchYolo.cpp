@@ -160,8 +160,8 @@ void AutoShootTrenchYolo::Run()
         {
             NextState();
         }
+        break;
     }
-
     default:
         IO.drivebase.Stop();
     }

@@ -160,6 +160,7 @@ void AutoEightBall::Run()
         {
             NextState();
         }
+        break;
     }
 
     default:

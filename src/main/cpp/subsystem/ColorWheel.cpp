@@ -1,5 +1,5 @@
 #include "subsystem/ColorWheel.hpp"
-#include <frc/util/color.h>
+#include <frc/util/Color.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
