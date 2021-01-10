@@ -153,6 +153,21 @@ table NavXStatusFrame {
   accelFullScaleRangeG:int16;
 }
 
+table ADIS16470StatusFrame {
+  angle:double;
+  rate:double;
+  gyroInstantX:double;
+  gyroInstantY:double;
+  gyroInstantZ:double;
+  accelInstantX:double;
+  accelInstantY:double;
+  accelInstantZ:double;
+  xComplimentaryAngle:double;
+  yComplimentaryAngle:double;
+  xFilteredAccelAngle:double;
+  yFilteredAccelAngle:double;
+  yawAxis:uint8;
+}
 
 table CTREMotorStatusFrame {
   firmwareVersion:int;
@@ -203,7 +218,7 @@ table PCMStatusFrame {
   compressorNotConnectedFault:bool;
 }
 
-union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame, REVMotorStatusFrame, REVColorSensorStatusFrame, NavXStatusFrame }
+union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame, REVMotorStatusFrame, REVColorSensorStatusFrame, NavXStatusFrame, ADIS16470StatusFrame }
 
 table StatusFrameHolder {
   unixTime:double;

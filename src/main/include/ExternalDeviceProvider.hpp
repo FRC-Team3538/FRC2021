@@ -13,6 +13,7 @@
 #include "lib/Configuration.hpp"
 #include "lib/ctreJsonSerde.hpp"
 #include "proto/StatusFrame_generated.h"
+#include <adi/ADIS16470_IMU.h>
 
 using namespace std;
 using namespace ctre::phoenix::motorcontrol::can;
@@ -68,4 +69,7 @@ public:
 
   TalonSRX motorFeeder{ 10 };
   VictorSPX motorHood{ 11 };
+
+  // doesn't exist
+  // frc::ADIS16470_IMU imu{};
 };

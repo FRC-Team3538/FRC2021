@@ -296,6 +296,26 @@ GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
   );
 }
 
+flatbuffers::Offset<rj::ADIS16470StatusFrame>
+GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
+  return rj::CreateADIS16470StatusFrame(
+      fbb,
+      imu.GetAngle(),
+      imu.GetRate(),
+      imu.GetGyroInstantX(),
+      imu.GetGyroInstantY(),
+      imu.GetGyroInstantZ(),
+      imu.GetAccelInstantX(),
+      imu.GetAccelInstantY(),
+      imu.GetAccelInstantZ(),
+      imu.GetXComplementaryAngle(),
+      imu.GetYComplementaryAngle(),
+      imu.GetXFilteredAccelAngle(),
+      imu.GetYFilteredAccelAngle(),
+      imu.GetYawAxis()
+  );
+}
+
 void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
                               TalonFX &motor) {
   auto unixTime = frc::GetTime();
@@ -400,6 +420,18 @@ void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
   auto statusFrameHolder = rj::CreateStatusFrameHolder(
       fbb, unixTime, monotonicTime,
       rj::StatusFrame::StatusFrame_NavXStatusFrame, statusFrameOffset.Union());
+
+  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
+}
+
+void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
+  auto unixTime = frc::GetTime();
+  auto monotonicTime = frc::Timer::GetFPGATimestamp();
+  auto statusFrameOffset = GetStatusFrame(fbb, imu);
+
+  auto statusFrameHolder = rj::CreateStatusFrameHolder(
+      fbb, unixTime, monotonicTime,
+      rj::StatusFrame::StatusFrame_ADIS16470StatusFrame, statusFrameOffset.Union());
 
   rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
 }

@@ -32,6 +32,9 @@ struct BoardYawAxis;
 struct NavXStatusFrame;
 struct NavXStatusFrameBuilder;
 
+struct ADIS16470StatusFrame;
+struct ADIS16470StatusFrameBuilder;
+
 struct CTREMotorStatusFrame;
 struct CTREMotorStatusFrameBuilder;
 
@@ -53,11 +56,12 @@ enum StatusFrame : uint8_t {
   StatusFrame_REVMotorStatusFrame = 5,
   StatusFrame_REVColorSensorStatusFrame = 6,
   StatusFrame_NavXStatusFrame = 7,
+  StatusFrame_ADIS16470StatusFrame = 8,
   StatusFrame_MIN = StatusFrame_NONE,
-  StatusFrame_MAX = StatusFrame_NavXStatusFrame
+  StatusFrame_MAX = StatusFrame_ADIS16470StatusFrame
 };
 
-inline const StatusFrame (&EnumValuesStatusFrame())[8] {
+inline const StatusFrame (&EnumValuesStatusFrame())[9] {
   static const StatusFrame values[] = {
     StatusFrame_NONE,
     StatusFrame_CTREMotorStatusFrame,
@@ -66,13 +70,14 @@ inline const StatusFrame (&EnumValuesStatusFrame())[8] {
     StatusFrame_InitializeStatusFrame,
     StatusFrame_REVMotorStatusFrame,
     StatusFrame_REVColorSensorStatusFrame,
-    StatusFrame_NavXStatusFrame
+    StatusFrame_NavXStatusFrame,
+    StatusFrame_ADIS16470StatusFrame
   };
   return values;
 }
 
 inline const char * const *EnumNamesStatusFrame() {
-  static const char * const names[9] = {
+  static const char * const names[10] = {
     "NONE",
     "CTREMotorStatusFrame",
     "PDPStatusFrame",
@@ -81,13 +86,14 @@ inline const char * const *EnumNamesStatusFrame() {
     "REVMotorStatusFrame",
     "REVColorSensorStatusFrame",
     "NavXStatusFrame",
+    "ADIS16470StatusFrame",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameStatusFrame(StatusFrame e) {
-  if (flatbuffers::IsOutRange(e, StatusFrame_NONE, StatusFrame_NavXStatusFrame)) return "";
+  if (flatbuffers::IsOutRange(e, StatusFrame_NONE, StatusFrame_ADIS16470StatusFrame)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStatusFrame()[index];
 }
@@ -122,6 +128,10 @@ template<> struct StatusFrameTraits<rj::REVColorSensorStatusFrame> {
 
 template<> struct StatusFrameTraits<rj::NavXStatusFrame> {
   static const StatusFrame enum_value = StatusFrame_NavXStatusFrame;
+};
+
+template<> struct StatusFrameTraits<rj::ADIS16470StatusFrame> {
+  static const StatusFrame enum_value = StatusFrame_ADIS16470StatusFrame;
 };
 
 bool VerifyStatusFrame(flatbuffers::Verifier &verifier, const void *obj, StatusFrame type);
@@ -1561,6 +1571,167 @@ inline flatbuffers::Offset<NavXStatusFrame> CreateNavXStatusFrameDirect(
       accelFullScaleRangeG);
 }
 
+struct ADIS16470StatusFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ADIS16470StatusFrameBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ANGLE = 4,
+    VT_RATE = 6,
+    VT_GYROINSTANTX = 8,
+    VT_GYROINSTANTY = 10,
+    VT_GYROINSTANTZ = 12,
+    VT_ACCELINSTANTX = 14,
+    VT_ACCELINSTANTY = 16,
+    VT_ACCELINSTANTZ = 18,
+    VT_XCOMPLIMENTARYANGLE = 20,
+    VT_YCOMPLIMENTARYANGLE = 22,
+    VT_XFILTEREDACCELANGLE = 24,
+    VT_YFILTEREDACCELANGLE = 26,
+    VT_YAWAXIS = 28
+  };
+  double angle() const {
+    return GetField<double>(VT_ANGLE, 0.0);
+  }
+  double rate() const {
+    return GetField<double>(VT_RATE, 0.0);
+  }
+  double gyroInstantX() const {
+    return GetField<double>(VT_GYROINSTANTX, 0.0);
+  }
+  double gyroInstantY() const {
+    return GetField<double>(VT_GYROINSTANTY, 0.0);
+  }
+  double gyroInstantZ() const {
+    return GetField<double>(VT_GYROINSTANTZ, 0.0);
+  }
+  double accelInstantX() const {
+    return GetField<double>(VT_ACCELINSTANTX, 0.0);
+  }
+  double accelInstantY() const {
+    return GetField<double>(VT_ACCELINSTANTY, 0.0);
+  }
+  double accelInstantZ() const {
+    return GetField<double>(VT_ACCELINSTANTZ, 0.0);
+  }
+  double xComplimentaryAngle() const {
+    return GetField<double>(VT_XCOMPLIMENTARYANGLE, 0.0);
+  }
+  double yComplimentaryAngle() const {
+    return GetField<double>(VT_YCOMPLIMENTARYANGLE, 0.0);
+  }
+  double xFilteredAccelAngle() const {
+    return GetField<double>(VT_XFILTEREDACCELANGLE, 0.0);
+  }
+  double yFilteredAccelAngle() const {
+    return GetField<double>(VT_YFILTEREDACCELANGLE, 0.0);
+  }
+  uint8_t yawAxis() const {
+    return GetField<uint8_t>(VT_YAWAXIS, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_ANGLE) &&
+           VerifyField<double>(verifier, VT_RATE) &&
+           VerifyField<double>(verifier, VT_GYROINSTANTX) &&
+           VerifyField<double>(verifier, VT_GYROINSTANTY) &&
+           VerifyField<double>(verifier, VT_GYROINSTANTZ) &&
+           VerifyField<double>(verifier, VT_ACCELINSTANTX) &&
+           VerifyField<double>(verifier, VT_ACCELINSTANTY) &&
+           VerifyField<double>(verifier, VT_ACCELINSTANTZ) &&
+           VerifyField<double>(verifier, VT_XCOMPLIMENTARYANGLE) &&
+           VerifyField<double>(verifier, VT_YCOMPLIMENTARYANGLE) &&
+           VerifyField<double>(verifier, VT_XFILTEREDACCELANGLE) &&
+           VerifyField<double>(verifier, VT_YFILTEREDACCELANGLE) &&
+           VerifyField<uint8_t>(verifier, VT_YAWAXIS) &&
+           verifier.EndTable();
+  }
+};
+
+struct ADIS16470StatusFrameBuilder {
+  typedef ADIS16470StatusFrame Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_angle(double angle) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_ANGLE, angle, 0.0);
+  }
+  void add_rate(double rate) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_RATE, rate, 0.0);
+  }
+  void add_gyroInstantX(double gyroInstantX) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_GYROINSTANTX, gyroInstantX, 0.0);
+  }
+  void add_gyroInstantY(double gyroInstantY) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_GYROINSTANTY, gyroInstantY, 0.0);
+  }
+  void add_gyroInstantZ(double gyroInstantZ) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_GYROINSTANTZ, gyroInstantZ, 0.0);
+  }
+  void add_accelInstantX(double accelInstantX) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_ACCELINSTANTX, accelInstantX, 0.0);
+  }
+  void add_accelInstantY(double accelInstantY) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_ACCELINSTANTY, accelInstantY, 0.0);
+  }
+  void add_accelInstantZ(double accelInstantZ) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_ACCELINSTANTZ, accelInstantZ, 0.0);
+  }
+  void add_xComplimentaryAngle(double xComplimentaryAngle) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_XCOMPLIMENTARYANGLE, xComplimentaryAngle, 0.0);
+  }
+  void add_yComplimentaryAngle(double yComplimentaryAngle) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_YCOMPLIMENTARYANGLE, yComplimentaryAngle, 0.0);
+  }
+  void add_xFilteredAccelAngle(double xFilteredAccelAngle) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_XFILTEREDACCELANGLE, xFilteredAccelAngle, 0.0);
+  }
+  void add_yFilteredAccelAngle(double yFilteredAccelAngle) {
+    fbb_.AddElement<double>(ADIS16470StatusFrame::VT_YFILTEREDACCELANGLE, yFilteredAccelAngle, 0.0);
+  }
+  void add_yawAxis(uint8_t yawAxis) {
+    fbb_.AddElement<uint8_t>(ADIS16470StatusFrame::VT_YAWAXIS, yawAxis, 0);
+  }
+  explicit ADIS16470StatusFrameBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<ADIS16470StatusFrame> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<ADIS16470StatusFrame>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<ADIS16470StatusFrame> CreateADIS16470StatusFrame(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    double angle = 0.0,
+    double rate = 0.0,
+    double gyroInstantX = 0.0,
+    double gyroInstantY = 0.0,
+    double gyroInstantZ = 0.0,
+    double accelInstantX = 0.0,
+    double accelInstantY = 0.0,
+    double accelInstantZ = 0.0,
+    double xComplimentaryAngle = 0.0,
+    double yComplimentaryAngle = 0.0,
+    double xFilteredAccelAngle = 0.0,
+    double yFilteredAccelAngle = 0.0,
+    uint8_t yawAxis = 0) {
+  ADIS16470StatusFrameBuilder builder_(_fbb);
+  builder_.add_yFilteredAccelAngle(yFilteredAccelAngle);
+  builder_.add_xFilteredAccelAngle(xFilteredAccelAngle);
+  builder_.add_yComplimentaryAngle(yComplimentaryAngle);
+  builder_.add_xComplimentaryAngle(xComplimentaryAngle);
+  builder_.add_accelInstantZ(accelInstantZ);
+  builder_.add_accelInstantY(accelInstantY);
+  builder_.add_accelInstantX(accelInstantX);
+  builder_.add_gyroInstantZ(gyroInstantZ);
+  builder_.add_gyroInstantY(gyroInstantY);
+  builder_.add_gyroInstantX(gyroInstantX);
+  builder_.add_rate(rate);
+  builder_.add_angle(angle);
+  builder_.add_yawAxis(yawAxis);
+  return builder_.Finish();
+}
+
 struct CTREMotorStatusFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef CTREMotorStatusFrameBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -2118,6 +2289,9 @@ struct StatusFrameHolder FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const rj::NavXStatusFrame *statusFrame_as_NavXStatusFrame() const {
     return statusFrame_type() == rj::StatusFrame_NavXStatusFrame ? static_cast<const rj::NavXStatusFrame *>(statusFrame()) : nullptr;
   }
+  const rj::ADIS16470StatusFrame *statusFrame_as_ADIS16470StatusFrame() const {
+    return statusFrame_type() == rj::StatusFrame_ADIS16470StatusFrame ? static_cast<const rj::ADIS16470StatusFrame *>(statusFrame()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<double>(verifier, VT_UNIXTIME) &&
@@ -2155,6 +2329,10 @@ template<> inline const rj::REVColorSensorStatusFrame *StatusFrameHolder::status
 
 template<> inline const rj::NavXStatusFrame *StatusFrameHolder::statusFrame_as<rj::NavXStatusFrame>() const {
   return statusFrame_as_NavXStatusFrame();
+}
+
+template<> inline const rj::ADIS16470StatusFrame *StatusFrameHolder::statusFrame_as<rj::ADIS16470StatusFrame>() const {
+  return statusFrame_as_ADIS16470StatusFrame();
 }
 
 struct StatusFrameHolderBuilder {
@@ -2229,6 +2407,10 @@ inline bool VerifyStatusFrame(flatbuffers::Verifier &verifier, const void *obj, 
     }
     case StatusFrame_NavXStatusFrame: {
       auto ptr = reinterpret_cast<const rj::NavXStatusFrame *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case StatusFrame_ADIS16470StatusFrame: {
+      auto ptr = reinterpret_cast<const rj::ADIS16470StatusFrame *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
