@@ -6,6 +6,154 @@ table InitializeStatusFrame {
   title:string;
 }
 
+struct REVCANEncoder {
+  position:double;
+  velocity:double;
+  positionConversionFactor:double;
+  velocityConversionFactor:double;
+  averageDepth:uint;
+  measurementPeriod:uint;
+  countsPerRevolution:uint;
+  inverted:bool;
+  lastError:uint8;
+}
+
+struct REVCANAnalog {
+  voltage:double;
+  position:double;
+  velocity:double;
+  positionConversionFactor:double;
+  velocityConversaionFactor:double;
+  averageDepth:uint;
+  measurementPeriod:uint;
+  inverted:bool;
+}
+
+struct REVPIDController {
+  p:double;
+  i:double;
+  d:double;
+  dFilter:double;
+  ff:double;
+  iZone:double;
+  outputMin:double;
+  outputMax:double;
+  smartMotionMaxVelocity:double;
+  smartMotionMaxAccel:double;
+  smartMotionMinOutputVelocity:double;
+  smartMotionAllowedClosedLoopError:double;
+  iMaxAccum:double;
+  iAccum:double;
+}
+
+struct REVCANDigitalInput {
+  value:bool;
+  enabled:bool;
+}
+
+table REVMotorStatusFrame {
+  firmwareVersion:uint32;
+  firmwareString:string;
+  serialNumber: [uint8];
+  deviceID:int;
+  encoder: REVCANEncoder;
+  altEncoder: REVCANEncoder;
+  analog: REVCANAnalog;
+  pid0: REVPIDController;
+  pid1: REVPIDController;
+  pid2: REVPIDController;
+  pid3: REVPIDController;
+  fwdLimitSwitch: REVCANDigitalInput;
+  revLimitSwitch: REVCANDigitalInput;
+  idleMode: bool;
+  voltageCompensationNominalVoltage:double;
+  openLoopRampRate:double;
+  closedLoopRampRate:double;
+  busVoltage:double;
+  appliedOutput:double;
+  outputCurrent:double;
+  temperature:double;
+  softLimitForwardEnabled:bool;
+  softLimitReverseEnabled:bool;
+  softLimitForwardValue:double;
+  softLimitReverseValue:double;
+  lastError: uint8;
+}
+
+struct RawColor {
+  red:uint;
+  green:uint;
+  blue:uint;
+  ir:uint;
+}
+
+table REVColorSensorStatusFrame {
+  color: RawColor;
+  proximity:uint;
+  reset:bool;
+}
+
+
+struct BoardYawAxis {
+  boardAxis:uint8;
+  up:bool;
+}
+
+table NavXStatusFrame {
+  pitch:float;
+  roll:float;
+  yaw:float;
+  compassHeading:float;
+  isCalibrating:bool;
+  isConnected:bool;
+  byteCount:double;
+  updateCount:double;
+  lastSensorTimestamp:uint64;
+  worldLinearAccelX:float;
+  worldLinearAccelY:float;
+  worldLinearAccelZ:float;
+  isMoving:bool;
+  isRotating:bool;
+  barometricPressure:float;
+  altitude:float;
+  isAltitudeValid:bool;
+  fusedHeading:float;
+  isMagneticDisturbance:bool;
+  isManetometerCalibrated:bool;
+  quaternionW:float;
+  quaternionX:float;
+  quaternionY:float;
+  quaternionZ:float;
+  velocityX:float;
+  velocityY:float;
+  velocityZ:float;
+  displacementX:float;
+  displacementY:float;
+  displacementZ:float;
+  angle:double;
+  rate:double;
+  angleAdjustment:double;
+  rawGyroX:float;
+  rawGyroY:float;
+  rawGyroZ:float;
+  rawAccelX:float;
+  rawAccelY:float;
+  rawAccelZ:float;
+  rawMagX:float;
+  rawMaxY:float;
+  rawMagZ:float;
+  pressure:float;
+  tempC:float;
+  boardYawAxis:BoardYawAxis;
+  firmwareVersion:string;
+  actualUpdateRate:int;
+  requestedUpdateRate:int;
+  isBoardLevelYawResetEnabled:bool;
+  gyroFullScaleRangeDPS:int16;
+  accelFullScaleRangeG:int16;
+}
+
+
 table CTREMotorStatusFrame {
   firmwareVersion:int;
   baseID:int;
@@ -55,7 +203,7 @@ table PCMStatusFrame {
   compressorNotConnectedFault:bool;
 }
 
-union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame }
+union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame, REVMotorStatusFrame, REVColorSensorStatusFrame, NavXStatusFrame }
 
 table StatusFrameHolder {
   unixTime:double;
