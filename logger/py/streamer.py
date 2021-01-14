@@ -8,9 +8,9 @@ import sys
 import fire
 
 DEFAULT_ROBOT_LOGGER_ADDRESS = ("10.83.32.2", 3538)
-PLOTBUFFER_CONSUMER_ADDRESS = ("127.0.0.1", 9870)
+DEFAULT_PJ_CONSUMER_ADDRESS = ("127.0.0.1", 9870)
 
-def logger(robot_address=DEFAULT_ROBOT_LOGGER_ADDRESS, stream=False, save=False, stream_to=DEFAULT_PLOTBUFFER_CONSUMER_ADDRESS):
+def logger(robot_address=DEFAULT_ROBOT_LOGGER_ADDRESS, stream=False, save=False, stream_to=DEFAULT_PJ_CONSUMER_ADDRESS):
     if not (stream or save):
         print("Nothing to do! Exiting...")
         return
