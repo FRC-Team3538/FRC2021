@@ -11,6 +11,8 @@
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 // #include "rev/CANSparkMax.h"
 
+#include "ExternalDeviceProvider.hpp"
+
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace frc;
@@ -31,11 +33,11 @@ private:
   };
 
   // Talon
-  WPI_TalonFX motorLeft1{motors::L1};
-  WPI_TalonFX motorLeft2{motors::L2};
+  WPI_TalonFX &motorLeft1;
+  WPI_TalonFX &motorLeft2;
 
-  WPI_TalonFX motorRight1{motors::R1};
-  WPI_TalonFX motorRight2{motors::R2};
+  WPI_TalonFX &motorRight1;
+  WPI_TalonFX &motorRight2;
 
   Solenoid solenoidShifter{8};
 
@@ -82,7 +84,17 @@ private:
 
 public:
   // Default Constructor
-  Drivebase();
+  Drivebase(ExternalDeviceProvider &xdp): 
+  motorLeft1(xdp.driveLeft1),
+  motorLeft2(xdp.driveLeft2),
+  motorRight1(xdp.driveRight1),
+  motorRight2(xdp.driveRight2),
+  navx(xdp.navx)
+  {
+    Configure();
+  }
+
+  void Configure();
 
   bool sensorOverride = false;
   double forwardHeading = 0;
@@ -115,7 +127,7 @@ public:
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
-  AHRS navx{SPI::Port::kMXP, 200};
+  AHRS &navx;
 
   //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
 };

@@ -17,9 +17,9 @@ public:
   ExternalDeviceProvider externalDeviceProvider;
 
   DS ds;
-  Drivebase drivebase;
-  Shooter shooter;
-  Climber climber;
+  Drivebase drivebase{externalDeviceProvider};
+  Shooter shooter{externalDeviceProvider};
+  Climber climber{externalDeviceProvider};
   ColorWheel colorWheel;
   vision::RJVisionPipeline RJV;
   Logging log;

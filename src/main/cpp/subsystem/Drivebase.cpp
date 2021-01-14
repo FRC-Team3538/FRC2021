@@ -4,7 +4,8 @@
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-Drivebase::Drivebase()
+void
+Drivebase::Configure()
 {
     // CTRE CAN
     motorLeft1.ConfigFactoryDefault();

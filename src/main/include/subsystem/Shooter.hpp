@@ -11,6 +11,8 @@
 #include <frc/DigitalInput.h>
 #include "rev/CANSparkMax.h"
 
+#include "ExternalDeviceProvider.hpp"
+
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
@@ -18,19 +20,19 @@ class Shooter
 {
 private:
   //CTRE CAN
-  WPI_TalonFX flywheel{6};
-  WPI_TalonFX flywheelB{7};
-  WPI_TalonFX motorIntake{8};
+  WPI_TalonFX &flywheel;
+  WPI_TalonFX &flywheelB;
+  WPI_TalonFX &motorIntake;
 
-  WPI_VictorSPX motorIndexer{9};
-  WPI_TalonFX motorIndexerB{15};
-  WPI_VictorSPX motorIndexerC{16};
+  WPI_VictorSPX &motorIndexer;
+  WPI_TalonFX &motorIndexerB;
+  WPI_VictorSPX &motorIndexerC;
 
-  rev::CANSparkMax sparkIndexerB{15, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax sparkIndexerC{16, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax &sparkIndexerB;
+  rev::CANSparkMax &sparkIndexerC;
 
-  WPI_TalonSRX motorFeeder{10};
-  WPI_VictorSPX motorHood{11};
+  WPI_TalonSRX &motorFeeder;
+  WPI_VictorSPX &motorHood;
 
   Solenoid solenoidIntake{0};
   Solenoid solenoidHood{1};
@@ -72,7 +74,22 @@ public:
     Percent
   };
 
-  Shooter();
+  Shooter(ExternalDeviceProvider &xdp):
+    flywheel(xdp.flywheel),
+    flywheelB(xdp.flywheelB),
+    motorIntake(xdp.motorIntake),
+    motorIndexer(xdp.motorIndexer),
+    motorIndexerB(xdp.motorIndexerB),
+    motorIndexerC(xdp.motorIndexerC),
+    sparkIndexerB(xdp.sparkIndexerB),
+    sparkIndexerC(xdp.sparkIndexerC),
+    motorFeeder(xdp.motorFeeder),
+    motorHood(xdp.motorHood)
+    {
+      Configure();
+    }
+
+  void Configure();
 
   void Stop();
   void SetShooterDistanceTwo(double distance);

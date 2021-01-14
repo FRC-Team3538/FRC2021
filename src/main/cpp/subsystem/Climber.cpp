@@ -3,7 +3,8 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 // Configure Hardware Settings
-Climber::Climber()
+void
+Climber::Configure()
 {
    motorClimber0.ConfigFactoryDefault();
    motorClimber1.ConfigFactoryDefault();
