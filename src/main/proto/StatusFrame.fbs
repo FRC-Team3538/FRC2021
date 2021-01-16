@@ -218,7 +218,50 @@ table PCMStatusFrame {
   compressorNotConnectedFault:bool;
 }
 
-union StatusFrame { CTREMotorStatusFrame, PDPStatusFrame, PCMStatusFrame, InitializeStatusFrame, REVMotorStatusFrame, REVColorSensorStatusFrame, NavXStatusFrame, ADIS16470StatusFrame }
+table WPIDigitalInput {
+  channel:int;
+  value:bool;
+  isAnalogTrigger:bool;
+}
+
+table WPIEncoder {
+  value:int;
+  period:double;
+  stopped:bool;
+  direction:bool;
+  raw:int;
+  encodingScale:int;
+  distance:double;
+  rate:double;
+  distancePerPulse:double;
+  samplesToAverage:int;
+  pidGet:double;
+  module:int;
+}
+
+table WPIDutyCycleEncoder {
+  frequency:int;
+  connected:bool;
+  value:double;
+  distancePerRotation:double;
+  distance:double;
+  index:int;
+  sourceChannel:int;
+}
+
+union StatusFrame { 
+  CTREMotorStatusFrame, 
+  PDPStatusFrame, 
+  PCMStatusFrame, 
+  InitializeStatusFrame, 
+  REVMotorStatusFrame, 
+  REVColorSensorStatusFrame, 
+  NavXStatusFrame, 
+  ADIS16470StatusFrame, 
+  WPIDigitalInput,
+  WPIEncoder,
+  WPIDutyCycleEncoder
+ }
 
 table StatusFrameHolder {
   unixTime:double;

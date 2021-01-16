@@ -39,7 +39,7 @@ private:
   WPI_TalonFX &motorRight1;
   WPI_TalonFX &motorRight2;
 
-  Solenoid solenoidShifter{8};
+  Solenoid &solenoidShifter;
 
   // Encoder Scale Factor (Inches)/(Pulse)
   const double kScaleFactor = 53.1875 / 52896;
@@ -89,6 +89,7 @@ public:
   motorLeft2(xdp.driveLeft2),
   motorRight1(xdp.driveRight1),
   motorRight2(xdp.driveRight2),
+  solenoidShifter(xdp.solenoidShifter),
   navx(xdp.navx)
   {
     Configure();

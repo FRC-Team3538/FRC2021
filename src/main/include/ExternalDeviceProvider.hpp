@@ -7,6 +7,10 @@
 #include <frc/Compressor.h>
 #include <frc/PowerDistributionPanel.h>
 #include <adi/ADIS16470_IMU.h>
+#include <frc/Solenoid.h>
+#include <frc/DutyCycleEncoder.h>
+#include <frc/Encoder.h>
+#include <frc/DigitalInput.h>
 
 #include <iostream>
 
@@ -47,13 +51,18 @@ public:
   WPI_TalonFX driveRight2{ kRight2 };
 
   AHRS navx{ SPI::Port::kMXP, 200 };
+  Solenoid solenoidShifter{8};
 
   // climber
   WPI_TalonFX motorClimber0{ 12 };
   WPI_VictorSPX motorClimber1{ 13 };
 
+  Solenoid solenoidClimber{2};
+  Solenoid climbBrake{3};
+
   // color wheel
-  VictorSPX motorColorWheel{ 14 };
+  WPI_VictorSPX motorColorWheel{ 14 };
+  Solenoid solenoidColorWheel{4};
   rev::ColorSensorV3 m_colorSensor{ frc::I2C::Port::kOnboard };
 
   // shooter
@@ -70,6 +79,15 @@ public:
 
   WPI_TalonSRX motorFeeder{ 10 };
   WPI_VictorSPX motorHood{ 11 };
+
+  Solenoid solenoidIntake{0};
+  Solenoid solenoidHood{1};
+
+  DutyCycleEncoder hoodEncAbs{0};
+
+  DigitalInput hoodZeroSw{3};
+  Encoder hoodEncQuad{1, 2};
+
 
   // doesn't exist
   // frc::ADIS16470_IMU imu{};

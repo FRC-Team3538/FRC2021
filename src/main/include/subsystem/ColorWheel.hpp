@@ -9,20 +9,21 @@
 #include "rev/ColorMatch.h"
 #include "frc/AddressableLED.h"
 
+#include "ExternalDeviceProvider.hpp"
+
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
 class ColorWheel
 {
 private:
-  WPI_VictorSPX motorColorWheel{14};
+  WPI_VictorSPX &motorColorWheel;
 
   // Solenoids
-  Solenoid solenoidColorWheel{4};
+  Solenoid &solenoidColorWheel;
 
   //Color Sensor
-  static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
-  rev::ColorSensorV3 m_colorSensor{i2cPort};
+  rev::ColorSensorV3 &m_colorSensor;
   rev::ColorMatch m_colorMatcher;
 
   //Color Presets
@@ -60,7 +61,15 @@ private:
 
 public:
   // Default Constructor
-  ColorWheel();
+  ColorWheel(ExternalDeviceProvider &xdp):
+    motorColorWheel(xdp.motorColorWheel),
+    solenoidColorWheel(xdp.solenoidColorWheel),
+    m_colorSensor(xdp.m_colorSensor)
+  {
+    Configure();
+  }
+
+  void Configure();
 
   void Stop();
   void SetColorWheel(double speed);

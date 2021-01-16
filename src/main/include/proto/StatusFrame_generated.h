@@ -44,6 +44,15 @@ struct PDPStatusFrameBuilder;
 struct PCMStatusFrame;
 struct PCMStatusFrameBuilder;
 
+struct WPIDigitalInput;
+struct WPIDigitalInputBuilder;
+
+struct WPIEncoder;
+struct WPIEncoderBuilder;
+
+struct WPIDutyCycleEncoder;
+struct WPIDutyCycleEncoderBuilder;
+
 struct StatusFrameHolder;
 struct StatusFrameHolderBuilder;
 
@@ -57,11 +66,14 @@ enum StatusFrame : uint8_t {
   StatusFrame_REVColorSensorStatusFrame = 6,
   StatusFrame_NavXStatusFrame = 7,
   StatusFrame_ADIS16470StatusFrame = 8,
+  StatusFrame_WPIDigitalInput = 9,
+  StatusFrame_WPIEncoder = 10,
+  StatusFrame_WPIDutyCycleEncoder = 11,
   StatusFrame_MIN = StatusFrame_NONE,
-  StatusFrame_MAX = StatusFrame_ADIS16470StatusFrame
+  StatusFrame_MAX = StatusFrame_WPIDutyCycleEncoder
 };
 
-inline const StatusFrame (&EnumValuesStatusFrame())[9] {
+inline const StatusFrame (&EnumValuesStatusFrame())[12] {
   static const StatusFrame values[] = {
     StatusFrame_NONE,
     StatusFrame_CTREMotorStatusFrame,
@@ -71,13 +83,16 @@ inline const StatusFrame (&EnumValuesStatusFrame())[9] {
     StatusFrame_REVMotorStatusFrame,
     StatusFrame_REVColorSensorStatusFrame,
     StatusFrame_NavXStatusFrame,
-    StatusFrame_ADIS16470StatusFrame
+    StatusFrame_ADIS16470StatusFrame,
+    StatusFrame_WPIDigitalInput,
+    StatusFrame_WPIEncoder,
+    StatusFrame_WPIDutyCycleEncoder
   };
   return values;
 }
 
 inline const char * const *EnumNamesStatusFrame() {
-  static const char * const names[10] = {
+  static const char * const names[13] = {
     "NONE",
     "CTREMotorStatusFrame",
     "PDPStatusFrame",
@@ -87,13 +102,16 @@ inline const char * const *EnumNamesStatusFrame() {
     "REVColorSensorStatusFrame",
     "NavXStatusFrame",
     "ADIS16470StatusFrame",
+    "WPIDigitalInput",
+    "WPIEncoder",
+    "WPIDutyCycleEncoder",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameStatusFrame(StatusFrame e) {
-  if (flatbuffers::IsOutRange(e, StatusFrame_NONE, StatusFrame_ADIS16470StatusFrame)) return "";
+  if (flatbuffers::IsOutRange(e, StatusFrame_NONE, StatusFrame_WPIDutyCycleEncoder)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStatusFrame()[index];
 }
@@ -132,6 +150,18 @@ template<> struct StatusFrameTraits<rj::NavXStatusFrame> {
 
 template<> struct StatusFrameTraits<rj::ADIS16470StatusFrame> {
   static const StatusFrame enum_value = StatusFrame_ADIS16470StatusFrame;
+};
+
+template<> struct StatusFrameTraits<rj::WPIDigitalInput> {
+  static const StatusFrame enum_value = StatusFrame_WPIDigitalInput;
+};
+
+template<> struct StatusFrameTraits<rj::WPIEncoder> {
+  static const StatusFrame enum_value = StatusFrame_WPIEncoder;
+};
+
+template<> struct StatusFrameTraits<rj::WPIDutyCycleEncoder> {
+  static const StatusFrame enum_value = StatusFrame_WPIDutyCycleEncoder;
 };
 
 bool VerifyStatusFrame(flatbuffers::Verifier &verifier, const void *obj, StatusFrame type);
@@ -2247,6 +2277,319 @@ inline flatbuffers::Offset<PCMStatusFrame> CreatePCMStatusFrame(
   return builder_.Finish();
 }
 
+struct WPIDigitalInput FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef WPIDigitalInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CHANNEL = 4,
+    VT_VALUE = 6,
+    VT_ISANALOGTRIGGER = 8
+  };
+  int32_t channel() const {
+    return GetField<int32_t>(VT_CHANNEL, 0);
+  }
+  bool value() const {
+    return GetField<uint8_t>(VT_VALUE, 0) != 0;
+  }
+  bool isAnalogTrigger() const {
+    return GetField<uint8_t>(VT_ISANALOGTRIGGER, 0) != 0;
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_CHANNEL) &&
+           VerifyField<uint8_t>(verifier, VT_VALUE) &&
+           VerifyField<uint8_t>(verifier, VT_ISANALOGTRIGGER) &&
+           verifier.EndTable();
+  }
+};
+
+struct WPIDigitalInputBuilder {
+  typedef WPIDigitalInput Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_channel(int32_t channel) {
+    fbb_.AddElement<int32_t>(WPIDigitalInput::VT_CHANNEL, channel, 0);
+  }
+  void add_value(bool value) {
+    fbb_.AddElement<uint8_t>(WPIDigitalInput::VT_VALUE, static_cast<uint8_t>(value), 0);
+  }
+  void add_isAnalogTrigger(bool isAnalogTrigger) {
+    fbb_.AddElement<uint8_t>(WPIDigitalInput::VT_ISANALOGTRIGGER, static_cast<uint8_t>(isAnalogTrigger), 0);
+  }
+  explicit WPIDigitalInputBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<WPIDigitalInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<WPIDigitalInput>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<WPIDigitalInput> CreateWPIDigitalInput(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t channel = 0,
+    bool value = false,
+    bool isAnalogTrigger = false) {
+  WPIDigitalInputBuilder builder_(_fbb);
+  builder_.add_channel(channel);
+  builder_.add_isAnalogTrigger(isAnalogTrigger);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+struct WPIEncoder FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef WPIEncoderBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4,
+    VT_PERIOD = 6,
+    VT_STOPPED = 8,
+    VT_DIRECTION = 10,
+    VT_RAW = 12,
+    VT_ENCODINGSCALE = 14,
+    VT_DISTANCE = 16,
+    VT_RATE = 18,
+    VT_DISTANCEPERPULSE = 20,
+    VT_SAMPLESTOAVERAGE = 22,
+    VT_PIDGET = 24,
+    VT_MODULE_ = 26
+  };
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  double period() const {
+    return GetField<double>(VT_PERIOD, 0.0);
+  }
+  bool stopped() const {
+    return GetField<uint8_t>(VT_STOPPED, 0) != 0;
+  }
+  bool direction() const {
+    return GetField<uint8_t>(VT_DIRECTION, 0) != 0;
+  }
+  int32_t raw() const {
+    return GetField<int32_t>(VT_RAW, 0);
+  }
+  int32_t encodingScale() const {
+    return GetField<int32_t>(VT_ENCODINGSCALE, 0);
+  }
+  double distance() const {
+    return GetField<double>(VT_DISTANCE, 0.0);
+  }
+  double rate() const {
+    return GetField<double>(VT_RATE, 0.0);
+  }
+  double distancePerPulse() const {
+    return GetField<double>(VT_DISTANCEPERPULSE, 0.0);
+  }
+  int32_t samplesToAverage() const {
+    return GetField<int32_t>(VT_SAMPLESTOAVERAGE, 0);
+  }
+  double pidGet() const {
+    return GetField<double>(VT_PIDGET, 0.0);
+  }
+  int32_t module_() const {
+    return GetField<int32_t>(VT_MODULE_, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_VALUE) &&
+           VerifyField<double>(verifier, VT_PERIOD) &&
+           VerifyField<uint8_t>(verifier, VT_STOPPED) &&
+           VerifyField<uint8_t>(verifier, VT_DIRECTION) &&
+           VerifyField<int32_t>(verifier, VT_RAW) &&
+           VerifyField<int32_t>(verifier, VT_ENCODINGSCALE) &&
+           VerifyField<double>(verifier, VT_DISTANCE) &&
+           VerifyField<double>(verifier, VT_RATE) &&
+           VerifyField<double>(verifier, VT_DISTANCEPERPULSE) &&
+           VerifyField<int32_t>(verifier, VT_SAMPLESTOAVERAGE) &&
+           VerifyField<double>(verifier, VT_PIDGET) &&
+           VerifyField<int32_t>(verifier, VT_MODULE_) &&
+           verifier.EndTable();
+  }
+};
+
+struct WPIEncoderBuilder {
+  typedef WPIEncoder Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(WPIEncoder::VT_VALUE, value, 0);
+  }
+  void add_period(double period) {
+    fbb_.AddElement<double>(WPIEncoder::VT_PERIOD, period, 0.0);
+  }
+  void add_stopped(bool stopped) {
+    fbb_.AddElement<uint8_t>(WPIEncoder::VT_STOPPED, static_cast<uint8_t>(stopped), 0);
+  }
+  void add_direction(bool direction) {
+    fbb_.AddElement<uint8_t>(WPIEncoder::VT_DIRECTION, static_cast<uint8_t>(direction), 0);
+  }
+  void add_raw(int32_t raw) {
+    fbb_.AddElement<int32_t>(WPIEncoder::VT_RAW, raw, 0);
+  }
+  void add_encodingScale(int32_t encodingScale) {
+    fbb_.AddElement<int32_t>(WPIEncoder::VT_ENCODINGSCALE, encodingScale, 0);
+  }
+  void add_distance(double distance) {
+    fbb_.AddElement<double>(WPIEncoder::VT_DISTANCE, distance, 0.0);
+  }
+  void add_rate(double rate) {
+    fbb_.AddElement<double>(WPIEncoder::VT_RATE, rate, 0.0);
+  }
+  void add_distancePerPulse(double distancePerPulse) {
+    fbb_.AddElement<double>(WPIEncoder::VT_DISTANCEPERPULSE, distancePerPulse, 0.0);
+  }
+  void add_samplesToAverage(int32_t samplesToAverage) {
+    fbb_.AddElement<int32_t>(WPIEncoder::VT_SAMPLESTOAVERAGE, samplesToAverage, 0);
+  }
+  void add_pidGet(double pidGet) {
+    fbb_.AddElement<double>(WPIEncoder::VT_PIDGET, pidGet, 0.0);
+  }
+  void add_module_(int32_t module_) {
+    fbb_.AddElement<int32_t>(WPIEncoder::VT_MODULE_, module_, 0);
+  }
+  explicit WPIEncoderBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<WPIEncoder> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<WPIEncoder>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<WPIEncoder> CreateWPIEncoder(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0,
+    double period = 0.0,
+    bool stopped = false,
+    bool direction = false,
+    int32_t raw = 0,
+    int32_t encodingScale = 0,
+    double distance = 0.0,
+    double rate = 0.0,
+    double distancePerPulse = 0.0,
+    int32_t samplesToAverage = 0,
+    double pidGet = 0.0,
+    int32_t module_ = 0) {
+  WPIEncoderBuilder builder_(_fbb);
+  builder_.add_pidGet(pidGet);
+  builder_.add_distancePerPulse(distancePerPulse);
+  builder_.add_rate(rate);
+  builder_.add_distance(distance);
+  builder_.add_period(period);
+  builder_.add_module_(module_);
+  builder_.add_samplesToAverage(samplesToAverage);
+  builder_.add_encodingScale(encodingScale);
+  builder_.add_raw(raw);
+  builder_.add_value(value);
+  builder_.add_direction(direction);
+  builder_.add_stopped(stopped);
+  return builder_.Finish();
+}
+
+struct WPIDutyCycleEncoder FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef WPIDutyCycleEncoderBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_FREQUENCY = 4,
+    VT_CONNECTED = 6,
+    VT_VALUE = 8,
+    VT_DISTANCEPERROTATION = 10,
+    VT_DISTANCE = 12,
+    VT_INDEX = 14,
+    VT_SOURCECHANNEL = 16
+  };
+  int32_t frequency() const {
+    return GetField<int32_t>(VT_FREQUENCY, 0);
+  }
+  bool connected() const {
+    return GetField<uint8_t>(VT_CONNECTED, 0) != 0;
+  }
+  double value() const {
+    return GetField<double>(VT_VALUE, 0.0);
+  }
+  double distancePerRotation() const {
+    return GetField<double>(VT_DISTANCEPERROTATION, 0.0);
+  }
+  double distance() const {
+    return GetField<double>(VT_DISTANCE, 0.0);
+  }
+  int32_t index() const {
+    return GetField<int32_t>(VT_INDEX, 0);
+  }
+  int32_t sourceChannel() const {
+    return GetField<int32_t>(VT_SOURCECHANNEL, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_FREQUENCY) &&
+           VerifyField<uint8_t>(verifier, VT_CONNECTED) &&
+           VerifyField<double>(verifier, VT_VALUE) &&
+           VerifyField<double>(verifier, VT_DISTANCEPERROTATION) &&
+           VerifyField<double>(verifier, VT_DISTANCE) &&
+           VerifyField<int32_t>(verifier, VT_INDEX) &&
+           VerifyField<int32_t>(verifier, VT_SOURCECHANNEL) &&
+           verifier.EndTable();
+  }
+};
+
+struct WPIDutyCycleEncoderBuilder {
+  typedef WPIDutyCycleEncoder Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_frequency(int32_t frequency) {
+    fbb_.AddElement<int32_t>(WPIDutyCycleEncoder::VT_FREQUENCY, frequency, 0);
+  }
+  void add_connected(bool connected) {
+    fbb_.AddElement<uint8_t>(WPIDutyCycleEncoder::VT_CONNECTED, static_cast<uint8_t>(connected), 0);
+  }
+  void add_value(double value) {
+    fbb_.AddElement<double>(WPIDutyCycleEncoder::VT_VALUE, value, 0.0);
+  }
+  void add_distancePerRotation(double distancePerRotation) {
+    fbb_.AddElement<double>(WPIDutyCycleEncoder::VT_DISTANCEPERROTATION, distancePerRotation, 0.0);
+  }
+  void add_distance(double distance) {
+    fbb_.AddElement<double>(WPIDutyCycleEncoder::VT_DISTANCE, distance, 0.0);
+  }
+  void add_index(int32_t index) {
+    fbb_.AddElement<int32_t>(WPIDutyCycleEncoder::VT_INDEX, index, 0);
+  }
+  void add_sourceChannel(int32_t sourceChannel) {
+    fbb_.AddElement<int32_t>(WPIDutyCycleEncoder::VT_SOURCECHANNEL, sourceChannel, 0);
+  }
+  explicit WPIDutyCycleEncoderBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<WPIDutyCycleEncoder> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<WPIDutyCycleEncoder>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<WPIDutyCycleEncoder> CreateWPIDutyCycleEncoder(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t frequency = 0,
+    bool connected = false,
+    double value = 0.0,
+    double distancePerRotation = 0.0,
+    double distance = 0.0,
+    int32_t index = 0,
+    int32_t sourceChannel = 0) {
+  WPIDutyCycleEncoderBuilder builder_(_fbb);
+  builder_.add_distance(distance);
+  builder_.add_distancePerRotation(distancePerRotation);
+  builder_.add_value(value);
+  builder_.add_sourceChannel(sourceChannel);
+  builder_.add_index(index);
+  builder_.add_frequency(frequency);
+  builder_.add_connected(connected);
+  return builder_.Finish();
+}
+
 struct StatusFrameHolder FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef StatusFrameHolderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -2292,6 +2635,15 @@ struct StatusFrameHolder FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const rj::ADIS16470StatusFrame *statusFrame_as_ADIS16470StatusFrame() const {
     return statusFrame_type() == rj::StatusFrame_ADIS16470StatusFrame ? static_cast<const rj::ADIS16470StatusFrame *>(statusFrame()) : nullptr;
   }
+  const rj::WPIDigitalInput *statusFrame_as_WPIDigitalInput() const {
+    return statusFrame_type() == rj::StatusFrame_WPIDigitalInput ? static_cast<const rj::WPIDigitalInput *>(statusFrame()) : nullptr;
+  }
+  const rj::WPIEncoder *statusFrame_as_WPIEncoder() const {
+    return statusFrame_type() == rj::StatusFrame_WPIEncoder ? static_cast<const rj::WPIEncoder *>(statusFrame()) : nullptr;
+  }
+  const rj::WPIDutyCycleEncoder *statusFrame_as_WPIDutyCycleEncoder() const {
+    return statusFrame_type() == rj::StatusFrame_WPIDutyCycleEncoder ? static_cast<const rj::WPIDutyCycleEncoder *>(statusFrame()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<double>(verifier, VT_UNIXTIME) &&
@@ -2333,6 +2685,18 @@ template<> inline const rj::NavXStatusFrame *StatusFrameHolder::statusFrame_as<r
 
 template<> inline const rj::ADIS16470StatusFrame *StatusFrameHolder::statusFrame_as<rj::ADIS16470StatusFrame>() const {
   return statusFrame_as_ADIS16470StatusFrame();
+}
+
+template<> inline const rj::WPIDigitalInput *StatusFrameHolder::statusFrame_as<rj::WPIDigitalInput>() const {
+  return statusFrame_as_WPIDigitalInput();
+}
+
+template<> inline const rj::WPIEncoder *StatusFrameHolder::statusFrame_as<rj::WPIEncoder>() const {
+  return statusFrame_as_WPIEncoder();
+}
+
+template<> inline const rj::WPIDutyCycleEncoder *StatusFrameHolder::statusFrame_as<rj::WPIDutyCycleEncoder>() const {
+  return statusFrame_as_WPIDutyCycleEncoder();
 }
 
 struct StatusFrameHolderBuilder {
@@ -2411,6 +2775,18 @@ inline bool VerifyStatusFrame(flatbuffers::Verifier &verifier, const void *obj, 
     }
     case StatusFrame_ADIS16470StatusFrame: {
       auto ptr = reinterpret_cast<const rj::ADIS16470StatusFrame *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case StatusFrame_WPIDigitalInput: {
+      auto ptr = reinterpret_cast<const rj::WPIDigitalInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case StatusFrame_WPIEncoder: {
+      auto ptr = reinterpret_cast<const rj::WPIEncoder *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case StatusFrame_WPIDutyCycleEncoder: {
+      auto ptr = reinterpret_cast<const rj::WPIDutyCycleEncoder *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

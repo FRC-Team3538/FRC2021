@@ -34,8 +34,8 @@ private:
   WPI_TalonSRX &motorFeeder;
   WPI_VictorSPX &motorHood;
 
-  Solenoid solenoidIntake{0};
-  Solenoid solenoidHood{1};
+  Solenoid &solenoidIntake;
+  Solenoid &solenoidHood;
 
   Timer shootDelay;
   bool shootOS = false;
@@ -55,15 +55,15 @@ private:
   const double kScaleFactorFly = (1.0 / 2048);
   const double kScaleFactorHood = (2.0 / 5.0) * (360.0 / 8096.0);
 
-  DutyCycleEncoder hoodEncAbs{0};
+  DutyCycleEncoder &hoodEncAbs;
 
   double iAcc = 0;
   double prevError_rel = 0;
   const double kPHood = 0.0250;
   const double kIHood = 0.000016;
 
-  DigitalInput hoodZeroSw{3};
-  Encoder hoodEncQuad{1, 2};
+  DigitalInput &hoodZeroSw;
+  Encoder &hoodEncQuad;
 
 public:
   // Default Constructor
@@ -84,7 +84,12 @@ public:
     sparkIndexerB(xdp.sparkIndexerB),
     sparkIndexerC(xdp.sparkIndexerC),
     motorFeeder(xdp.motorFeeder),
-    motorHood(xdp.motorHood)
+    motorHood(xdp.motorHood),
+    solenoidIntake(xdp.solenoidIntake),
+    solenoidHood(xdp.solenoidHood),
+    hoodEncAbs(xdp.hoodEncAbs),
+    hoodZeroSw(xdp.hoodZeroSw),
+    hoodEncQuad(xdp.hoodEncQuad)
     {
       Configure();
     }

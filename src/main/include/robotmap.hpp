@@ -20,7 +20,7 @@ public:
   Drivebase drivebase{externalDeviceProvider};
   Shooter shooter{externalDeviceProvider};
   Climber climber{externalDeviceProvider};
-  ColorWheel colorWheel;
+  ColorWheel colorWheel{externalDeviceProvider};
   vision::RJVisionPipeline RJV;
   Logging log;
 };

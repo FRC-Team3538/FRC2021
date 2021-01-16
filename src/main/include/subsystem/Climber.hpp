@@ -19,14 +19,16 @@ class Climber
     WPI_VictorSPX &motorClimber1;
 
     // Solenoids
-    Solenoid solenoidClimber{2};
-    Solenoid climbBrake{3};
+    Solenoid &solenoidClimber;
+    Solenoid &climbBrake;
 
   public:
     // Default Constructor
     Climber(ExternalDeviceProvider &xdp):
     motorClimber0(xdp.motorClimber0),
-    motorClimber1(xdp.motorClimber1) 
+    motorClimber1(xdp.motorClimber1),
+    solenoidClimber(xdp.solenoidClimber),
+    climbBrake(xdp.climbBrake)
     {
       Configure();
     };

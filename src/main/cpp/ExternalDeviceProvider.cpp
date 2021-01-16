@@ -316,6 +316,49 @@ GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
   );
 }
 
+flatbuffers::Offset<rj::WPIDigitalInput>
+GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
+  return rj::CreateWPIDigitalInput(
+      fbb,
+      input.GetChannel(),
+      input.Get(),
+      input.IsAnalogTrigger()
+  );
+}
+
+flatbuffers::Offset<rj::WPIEncoder>
+GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder) {
+  return rj::CreateWPIEncoder(
+      fbb,
+      encoder.Get(),
+      encoder.GetPeriod(),
+      encoder.GetStopped(),
+      encoder.GetDirection(),
+      encoder.GetRaw(),
+      encoder.GetEncodingScale(),
+      encoder.GetDistance(),
+      encoder.GetRate(),
+      encoder.GetDistancePerPulse(),
+      encoder.GetSamplesToAverage(),
+      encoder.PIDGet(),
+      encoder.GetFPGAIndex()
+  );
+}
+
+flatbuffers::Offset<rj::WPIDutyCycleEncoder>
+GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder) {
+  return rj::CreateWPIDutyCycleEncoder(
+      fbb,
+      encoder.GetFrequency(),
+      encoder.IsConnected(),
+      (double) encoder.Get(),
+      encoder.GetDistancePerRotation(),
+      encoder.GetDistance(),
+      encoder.GetFPGAIndex(),
+      encoder.GetSourceChannel()
+  );
+}
+
 void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
                               TalonFX &motor) {
   auto unixTime = frc::GetTime();
@@ -436,6 +479,42 @@ void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS1647
   rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
 }
 
+void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
+  auto unixTime = frc::GetTime();
+  auto monotonicTime = frc::Timer::GetFPGATimestamp();
+  auto statusFrameOffset = GetStatusFrame(fbb, input);
+
+  auto statusFrameHolder = rj::CreateStatusFrameHolder(
+      fbb, unixTime, monotonicTime,
+      rj::StatusFrame::StatusFrame_WPIDigitalInput, statusFrameOffset.Union());
+
+  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
+}
+
+void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder) {
+  auto unixTime = frc::GetTime();
+  auto monotonicTime = frc::Timer::GetFPGATimestamp();
+  auto statusFrameOffset = GetStatusFrame(fbb, encoder);
+
+  auto statusFrameHolder = rj::CreateStatusFrameHolder(
+      fbb, unixTime, monotonicTime,
+      rj::StatusFrame::StatusFrame_WPIEncoder, statusFrameOffset.Union());
+
+  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
+}
+
+void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder) {
+  auto unixTime = frc::GetTime();
+  auto monotonicTime = frc::Timer::GetFPGATimestamp();
+  auto statusFrameOffset = GetStatusFrame(fbb, encoder);
+
+  auto statusFrameHolder = rj::CreateStatusFrameHolder(
+      fbb, unixTime, monotonicTime,
+      rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder, statusFrameOffset.Union());
+
+  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
+}
+
 void ExternalDeviceProvider::PopulateLogBuffer(UDPLogger &logger) {
   flatbuffers::DetachedBuffer buffer;
 
@@ -547,6 +626,21 @@ void ExternalDeviceProvider::PopulateLogBuffer(UDPLogger &logger) {
 
   fbb.Reset();
   BuildExternalDeviceFrame(fbb, motorHood);
+  buffer = fbb.Release();
+  logger.Log(buffer.data(), buffer.size());
+
+  fbb.Reset();
+  BuildExternalDeviceFrame(fbb, hoodEncAbs);
+  buffer = fbb.Release();
+  logger.Log(buffer.data(), buffer.size());
+
+  fbb.Reset();
+  BuildExternalDeviceFrame(fbb, hoodZeroSw);
+  buffer = fbb.Release();
+  logger.Log(buffer.data(), buffer.size());
+
+  fbb.Reset();
+  BuildExternalDeviceFrame(fbb, hoodEncQuad);
   buffer = fbb.Release();
   logger.Log(buffer.data(), buffer.size());
 }
