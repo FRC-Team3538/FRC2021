@@ -1,655 +1,265 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
-#include "Robot.hpp"
-#include <iostream>
-#include <frc/Threads.h>
-#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/SlewRateLimiter.h>
+#include <frc/TimedRobot.h>
+#include <frc/XboxController.h>
+#include <frc/controller/RamseteController.h>
+#include <frc/Preferences.h>
+#include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/smartdashboard/SendableChooser.h>
+#include <frc2/Timer.h>
+#include <frc/Filesystem.h>
+#include <frc/trajectory/TrajectoryUtil.h>
+#include <wpi/Path.h>
+#include <wpi/SmallString.h>
 
-void Robot::RobotInit()
-{
-  IO.drivebase.ResetEncoders();
-  IO.drivebase.ResetGyro();
-  IO.RJV.Init();
+#include "Drivetrain.h"
 
-  chooseTestDevice.SetDefaultOption(sDrive, sDrive);
-  chooseTestDevice.AddOption(sIntake, sIntake);
-  chooseTestDevice.AddOption(sIndexer, sIndexer);
-  chooseTestDevice.AddOption(sFeeder, sFeeder);
-  chooseTestDevice.AddOption(sShooter, sShooter);
-  chooseTestDevice.AddOption(sShooterVelocity, sShooterVelocity);
-  chooseTestDevice.AddOption(sHood, sHood);
-  chooseTestDevice.AddOption(sClimber, sClimber);
-  chooseTestDevice.AddOption(sColorWheel, sColorWheel);
-  chooseTestDevice.AddOption(sVision, sVision);
-}
+class Robot : public frc::TimedRobot {
+ public:
+  void RobotInit() override {
+    // Flush NetworkTables every loop. This ensures that robot pose and other
+    // values are sent during every iteration.
+    SetNetworkTablesFlushEnabled(true);
 
-void Robot::RobotPeriodic()
-{
-  bool btnPSDr = IO.ds.Driver.GetPSButton();
-  if (btnPSDr)
-  {
-    IO.drivebase.ResetEncoders();
-    IO.drivebase.ResetGyro();
-    autoPrograms.Init();
+    m_chooser.SetDefaultOption("None", "None");
+    m_chooser.AddOption("TEST", "TEST");
+    m_chooser.AddOption("A-Red", "A-Red");
+    m_chooser.AddOption("A-Blue", "A-Blue");
+    m_chooser.AddOption("B-Red", "B-Red");
+    m_chooser.AddOption("B-Blue", "B-Blue");
+    m_chooser.AddOption("Barrel", "Barrel");
+    m_chooser.AddOption("Slalom", "Slalom");
+    m_chooser.AddOption("Bounce", "Bounce");
+    frc::SmartDashboard::PutData(&m_chooser);
   }
 
-  // Vision
-  IO.RJV.Periodic();
-
-  // Update Smart Dash
-  UpdateSD();
-}
-
-void Robot::AutonomousInit()
-{
-  IO.drivebase.ResetEncoders();
-  IO.drivebase.ResetGyro();
-  IO.shooter.Init();
-  autoPrograms.Init();
-  IO.drivebase.SetBrake();
-}
-
-void Robot::AutonomousPeriodic()
-{
-  autoPrograms.Run();
-}
-
-void Robot::TeleopInit()
-{
-  IO.drivebase.SetBrake();
-  IO.shooter.Init();
-}
-
-void Robot::DisabledInit()
-{
-  disableTimer.Reset();
-  disableTimer.Start();
-}
-
-void Robot::DisabledPeriodic()
-{
-  if (disableTimer.Get() > 2.0)
-  {
-    IO.drivebase.SetCoast();
+  void RobotPeriodic() override { 
+    m_drive.Periodic(); 
   }
-  IO.RJV.Reset();
-  IO.shooter.Stop();
-  IO.shooter.IntakeRetract();
-}
 
-void Robot::TestInit()
-{
-}
+  void AutonomousInit() override {
 
-void Robot::TestPeriodic()
-{
+    auto path = m_chooser.GetSelected();
+    if(m_chooser.GetSelected() == "None") return;
 
-  // Input
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, 0.05);
-  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, 0.05);
-
-  bool X = IO.ds.Driver.GetCrossButton();
-  bool O = IO.ds.Driver.GetCircleButton();
-  bool S = IO.ds.Driver.GetSquareButton();
-  bool T = IO.ds.Driver.GetTriangleButton();
-
-  //  Controller Type
-  auto testdevice = chooseTestDevice.GetSelected();
-
-  // Drive
-  if (testdevice == sDrive)
-  {
-    if (IO.ds.Driver.GetUpButton())
+    if(path == "A-Red")
     {
-      //IO.drivebase.DriveForward(84.0, 0.20);
-      IO.drivebase.Arcade(0.2, 0.0);
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(40_in, 120_in, -35_deg), {
+            frc::Translation2d(150_in, 60_in), 
+            frc::Translation2d(180_in, 150_in)
+          }, 
+          frc::Pose2d(360_in, 170_in, 0_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq)
+      );
     }
-    else if (IO.ds.Driver.GetDownButton())
+    else if(path == "A-Blue")
     {
-      //IO.drivebase.DriveForward(-84.0, 0.20);
-      IO.drivebase.Arcade(-0.2, 0.0);
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 35_in, 0_deg), {
+            frc::Translation2d(170_in, 35_in), 
+            frc::Translation2d(210_in, 110_in)
+          }, 
+          frc::Pose2d(360_in, 70_in, 0_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq)
+      );
     }
-    else if (IO.ds.Driver.GetLeftButton())
+    else if(path == "B-Red")
     {
-      //IO.drivebase.TurnAbs(90.0, 0.20);
-      IO.drivebase.Arcade(0.0, 0.2);
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 150_in, -45_deg), {
+            frc::Translation2d(150_in, 70_in), 
+            frc::Translation2d(210_in, 110_in)
+          }, 
+          frc::Pose2d(360_in, 160_in, 0_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq)
+      );
     }
-    else if (IO.ds.Driver.GetRightButton())
+    else if(path == "B-Blue")
     {
-      //IO.drivebase.TurnAbs(-90.0, 0.20);
-      IO.drivebase.Arcade(0.0, -0.2);
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 60_in, 0_deg), {
+            frc::Translation2d(170_in, 60_in), 
+            frc::Translation2d(240_in, 110_in)
+          }, 
+          frc::Pose2d(360_in, 20_in, -35_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq)
+      );
     }
-    else
+    else if(path == "Barrel")
     {
-      // Drive
-      IO.drivebase.Arcade(forward, rotate);
+      wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Barrel.wpilib.json");
 
-      IO.drivebase.ResetEncoders();
-      IO.drivebase.ResetGyro();
+      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     }
-  }
-
-  // Intake
-  if (testdevice == sIntake)
-  {
-    IO.shooter.SetIntake(forward);
-    if (X)
+    else if(path == "Slalom")
     {
-      IO.shooter.IntakeDeploy();
+      wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
+
+      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     }
-    if (O)
+    else if(path == "Bounce")
     {
-      IO.shooter.IntakeRetract();
-    }
-  }
-  else
-  {
-    IO.shooter.SetIntake(0.0);
-  }
+      wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Bounce-#.wpilib.json");
+      auto i = deployDirectory.rfind('#');
 
-  // Indexer
-  if (testdevice == sIndexer)
-  {
-    IO.shooter.SetIndexer(forward);
-  }
-  else
-  {
-    IO.shooter.SetIndexer(0.0);
-  }
+      // Load each path
+      deployDirectory[i] = '1';
+      auto t1 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s1 = t1.States();
 
-  // Feeder
-  if (testdevice == sFeeder)
-  {
-    IO.shooter.SetFeeder(forward);
-  }
-  else
-  {
-    IO.shooter.SetFeeder(0.0);
-  }
+      deployDirectory[i] = '2';
+      auto t2 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s2 = t2.States();
 
-  // Shooter
-  if (testdevice == sShooter)
-  {
-    IO.shooter.SetShooter(forward);
-  }
-  else if (testdevice == sShooterVelocity)
-  {
-    if (X)
-    {
-      IO.shooter.SetVelocity(3500.0);
-    }
-    if (O)
-    {
-      IO.shooter.SetVelocity(2500.0);
-    }
-    if (S)
-    {
-      IO.shooter.SetVelocity(1500.0);
-    }
-    if (T)
-    {
-      IO.shooter.SetVelocity(0.0);
-    }
-  }
-  else
-  {
-    IO.shooter.SetShooter(0.0);
-  }
+      deployDirectory[i] = '3';
+      auto t3 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s3 = t3.States();
 
-  // Hood
-  if (testdevice == sHood)
-  {
-    IO.shooter.SetHood(forward);
+      deployDirectory[i] = '4';
+      auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s4 = t4.States();
 
-    if (X)
-    {
-      IO.shooter.SetHoodAngle(0.0);
-    }
-    if (O)
-    {
-      IO.shooter.SetHoodAngle(90.0);
-    }
-    if (S)
-    {
-      IO.shooter.SetHoodAngle(30.0);
-    }
-    if (T)
-    {
-      IO.shooter.SetHoodAngle(60.0);
-    }
-  }
-  else
-  {
-    IO.shooter.SetHood(0.0);
-  }
-
-  // Climber
-  if (testdevice == sClimber)
-  {
-    IO.climber.SetClimber(forward);
-
-    if (X)
-    {
-      IO.climber.ClimberDeploy();
-    }
-    if (O)
-    {
-      IO.climber.ClimberRetract();
-    }
-  }
-  else
-  {
-    IO.climber.SetClimber(0.0);
-  }
-
-  // Color Wheel
-  if (testdevice == sColorWheel)
-  {
-    IO.colorWheel.SetColorWheel(forward);
-
-    if (X)
-    {
-      IO.colorWheel.ColorWheelDeploy();
-    }
-    if (O)
-    {
-      IO.colorWheel.ColorWheelRetract();
-    }
-  }
-  else
-  {
-    IO.colorWheel.SetColorWheel(0.0);
-  }
-
-  // Vision
-  if (testdevice == sVision)
-  {
-    if (X)
-    {
-      IO.RJV.Run(IO.RJV.Pipe::TwoClose);
-    }
-    if (O)
-    {
-      IO.RJV.Run(IO.RJV.Pipe::ThreeClose);
-    }
-    if (S)
-    {
-      IO.RJV.Run(IO.RJV.Pipe::ThreeFar);
-    }
-    if (T)
-    {
-      IO.RJV.Run(IO.RJV.Pipe::LongShot);
-    }
-  }
-  else
-  {
-    IO.RJV.Reset();
-  }
-}
-
-void Robot::TeleopPeriodic()
-{
-  // Shared Stuff
-  double indexer = 0.0;
-  double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
-  double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
-  //double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
-  double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
-  double intakeSpeed = leftTrigOp - rightTrigOp - rightTrigDr;
-  intakeSpeed = Deadband(-intakeSpeed, deadband);
-
-  //
-  // Drive
-  //
-  double forward = Deadband(IO.ds.Driver.GetY(GenericHID::kLeftHand) * -1.0, deadband);
-  double rotate = Deadband(IO.ds.Driver.GetX(GenericHID::kRightHand) * -1.0, deadband);
-  if (abs(forward) < 0.05)
-  {
-    rotate = (CABICA * pow(rotate, 3)) + (CABICB * rotate);
-  }
-  else
-  {
-    rotate = (cubicA * pow(rotate, 3)) + (cubicB * rotate);
-  }
-
-  // Limit turning rate normally
-  if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
-  {
-    rotate *= kDriveTurnLimit;
-  }
-  // TODO Cubic Smoothing
-
-  //
-  // Shooting Presets
-  //
-  if (IO.ds.Operator.GetDownButton())
-  {
-    IO.shooter.SetVelocity(2450.0);
-    PresetShooterRPM = 2450.0;
-    PresetHoodAngle = 23;
-    PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetUpButton())
-  {
-    IO.shooter.SetVelocity(4370.0);
-    PresetShooterRPM = 4370.0;
-    PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
-    PresetVisionPipeline = IO.RJV.Pipe::LongShot;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetLeftButton())
-  {
-    IO.shooter.SetVelocity(3000.0);
-    PresetShooterRPM = 3000.0;
-    PresetHoodAngle = 60.5;
-    PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetRightButton())
-  {
-    IO.shooter.SetVelocity(3500.0);
-    PresetShooterRPM = 3500.0;
-    PresetHoodAngle = 64.5;
-    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetScreenShotButton())
-  {
-    PresetShooterRPM = PRESET_RPM;
-    IO.shooter.SetVelocity(PresetShooterRPM);
-    PresetHoodAngle = PRESET_HOOD;
-    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-
-  //
-  // Vision Here
-  //
-
-  // Normal Driving
-  if (IO.ds.Driver.GetSquareButton())
-  {
-    if (!visionTestOS)
-    {
-      visionTest.Reset();
-      visionTest.Start();
-      visionTestOS = true;
-    }
-    data = IO.RJV.Run(0);
-    //data = IO.RJV.Run(PresetVisionPipeline);
-    if (data.filled)
-    {
-      double visionTime = visionTest.Get();
-      SmartDashboard::PutNumber("Vision Time", visionTime);
-      if (IO.drivebase.VisionAim(forward, data.angle, 0.3))
+      // Modify the time for each point in the second path
       {
-        PresetShooterRPM = PRESET_RPM;
-        IO.shooter.SetVelocity(PresetShooterRPM);
-        PresetHoodAngle = PRESET_HOOD;
-        SmartDashboard::PutNumber("Vision Time", visionTime);
-        visionTest.Stop();
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s2.size(); i++)
+        {
+          s2[i].t += start_time;         
+        } 
+
+        // Add the second path to the overall path
+        s1.insert( s1.end(), s2.begin(), s2.end() );
       }
-    }
-    else
-      IO.drivebase.Arcade(forward, rotate);
-  }
-  else if (IO.ds.Driver.GetCrossButton())
-  {
-    if (!visionTestOS)
-    {
-      visionTest.Reset();
-      visionTest.Start();
-      visionTestOS = true;
-    }
-    data = IO.RJV.Run(0);
-    //data = IO.RJV.Run(PresetVisionPipeline);
-    if (data.filled)
-    {
-      double visionTime = visionTest.Get();
-      SmartDashboard::PutNumber("Vision Time", visionTime);
-      if (IO.drivebase.VisionAim(forward, data.angle, 0.3))
+
       {
-        SmartDashboard::PutNumber("Vision Time", visionTime);
-        visionTest.Stop();
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s3.size(); i++)
+        {
+          s3[i].t += start_time;         
+        } 
+
+        // Add the second path to the overall path
+        s1.insert( s1.end(), s3.begin(), s3.end() );
       }
+
+      {
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s4.size(); i++)
+        {
+          s4[i].t += start_time;         
+        } 
+
+        // Add the second path to the overall path
+        s1.insert( s1.end(), s4.begin(), s4.end() );
+      }
+
+      // Save this Trajectory
+      m_trajectory = frc::Trajectory(s1);
     }
-    else
-      IO.drivebase.Arcade(forward, rotate);
-  }
-  else if (liteOn)
-  {
-    data = IO.RJV.Run(PresetVisionPipeline);
-    IO.drivebase.Arcade(forward, rotate);
-    data.filled = false;
-    picCt = 0;
-    tpCt = 0;
-    visionTestOS = false;
-  }
-  else
-  {
-    IO.drivebase.Arcade(forward, rotate);
-    data.filled = false;
-    picCt = 0;
-    tpCt = 0;
-    IO.RJV.Reset();
-    visionTestOS = false;
+    else if(path == "TEST")
+    {
+      // Get path from preferences for testing & tuning
+      prefs = frc::Preferences::GetInstance();
+      auto x0 = units::inch_t(prefs->GetDouble("x0", 0));
+      auto y0 = units::inch_t(prefs->GetDouble("y0", 0));
+      auto r0 = units::degree_t(prefs->GetDouble("r0", 0));
+
+      auto x1 = units::inch_t(prefs->GetDouble("x1", 0));
+      auto y1 = units::inch_t(prefs->GetDouble("y1", 0));
+
+      auto x2 = units::inch_t(prefs->GetDouble("x2", 0));
+      auto y2 = units::inch_t(prefs->GetDouble("y2", 0));
+
+      auto x3 = units::inch_t(prefs->GetDouble("x3", 0));
+      auto y3 = units::inch_t(prefs->GetDouble("y3", 0));
+      auto r3 = units::degree_t(prefs->GetDouble("r3", 0));
+
+      auto vel = units::meters_per_second_t(prefs->GetDouble("v", 2));
+      auto accel = units::meters_per_second_squared_t(prefs->GetDouble("a", 2));
+
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(x0, y0, r0), {
+            frc::Translation2d(x1, y1), 
+            frc::Translation2d(x2, y2)
+          }, 
+          frc::Pose2d(x3, y3, r3),
+          frc::TrajectoryConfig(vel, accel)
+      );
+    }
+
+    m_timer.Reset();
+    m_timer.Start();
+    m_drive.ResetOdometry(m_trajectory.InitialPose());
   }
 
-  // Reset Vision
+  void AutonomousPeriodic() override {
+    auto path = m_chooser.GetSelected();
+    if(m_chooser.GetSelected() == "None") return;
 
-  //
-  // Hood Control
-  //
-  double hoodAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kRightHand) * -1.0, deadband);
-  if (hoodAnalog != 0.0 || PresetHoodAngle < 0.0)
-  {
-    PresetHoodAngle = -1.0;
-    IO.shooter.SetHood(hoodAnalog);
-    IO.shooter.ResetHood();
-  }
-  else if (PresetHoodAngle >= 0.0)
-  {
-    IO.shooter.SetHoodAngle(PresetHoodAngle);
-  }
-  else
-  {
-    IO.shooter.SetHood(0.0);
+    auto elapsed = m_timer.Get();
+    auto reference = m_trajectory.Sample(elapsed);
+    auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+    m_drive.Drive(speeds.vx, speeds.omega);
+
   }
 
-  //
-  // Manual Shooting System
-  //
-  atSpeed = ((abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0));
-  atAngle = ((abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0));
+  void TeleopPeriodic() override {
+    const auto xSpeed = -m_speedLimiter.Calculate( deadband(m_controller.GetRawAxis(1))) *
+                        Drivetrain::kMaxSpeed;
 
-  if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton() && atSpeed && atAngle)) && abs(leftTrigOp == 0.0))
-  {
-    indexer = indexerSpeed;
-    IO.shooter.SetFeeder(1.0);
-  }
-  else
-  {
-    IO.shooter.SetFeeder(0.0);
+    auto rot = -m_rotLimiter.Calculate(
+                   deadband(m_controller.GetRawAxis(3))) *
+               Drivetrain::kMaxAngularSpeed;
+
+    m_drive.Drive(xSpeed, rot);
   }
 
-  // Hood Lock
-  //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
-
-  if (IO.ds.Operator.GetCircleButton())
-  {
-    IO.shooter.SetShooter(0.0);
-    liteOn = false;
+  void DisabledPeriodic() override {
+    m_drive.Drive(0_mps, 0_deg_per_s);
   }
 
-  //
-  // Intake
-  //
-
-  // Anti-jam
-  if (abs(leftTrigOp) > 0.0)
-  {
-    intakeSpeed = 0.0;
-    indexer = -indexerSpeed;
-    IO.shooter.SetFeeder(-1.0);
-  }
-  else if (IO.ds.Operator.GetSquareButton())
-  {
-    intakeSpeed = -0.8;
-  }
-  else if (IO.ds.Operator.GetCrossButton())
-  {
-    intakeSpeed = -0.8;
-    indexer = -indexerSpeed;
-  }
-  else if (intakeSpeed > 0.0)
-  {
-    intakeSpeed = 0.8;
-    indexer = indexerSpeed;
+  double deadband(double in){
+    if(fabs(in) < 0.05) return 0.0;
+    return in;
   }
 
-  IO.shooter.SetIntake(intakeSpeed);
+  void SimulationPeriodic() override { m_drive.SimulationPeriodic(); }
 
-  if (IO.ds.Operator.GetBumper(GenericHID::kLeftHand))
-  {
-    IO.shooter.IntakeRetract();
-  }
+ private:
+  frc::XboxController m_controller{0};
 
-  if (IO.ds.Operator.GetBumper(GenericHID::kRightHand))
-  {
-    liteOn = false;
-    IO.shooter.IntakeDeploy();
-    PresetHoodAngle = 0.0;
-  }
+  // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0
+  // to 1.
+  frc::SlewRateLimiter<units::scalar> m_speedLimiter{3 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
 
-  //
-  // Indexer
-  //
-  IO.shooter.SetIndexer(indexer);
+  Drivetrain m_drive{IsSimulation()};
+  
+  frc::Trajectory m_trajectory;
+  frc::RamseteController m_ramsete;
+  frc2::Timer m_timer;
 
-  //
-  // Climber
-  //
-  double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
-  IO.climber.SetClimber(climbAnalog);
+  frc::Preferences *prefs;
 
-  if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
-  {
-    IO.climber.ClimberDeploy();
-  }
-  else
-  {
-    IO.climber.ClimberRetract();
-  }
+  frc::SendableChooser<std::string> m_chooser;
 
-  //
-  // ColorWheel
-  //
-  double colorAnalog = Deadband(IO.ds.Operator.GetX(GenericHID::kRightHand) * -1, deadband);
-  IO.colorWheel.SetColorWheel(colorAnalog);
-
-  if (IO.ds.Operator.GetStickButton(GenericHID::kRightHand))
-  {
-    IO.colorWheel.AutoColorWheel();
-  }
-}
-
-double Robot::Deadband(double input, double deadband)
-{
-  if ((std::abs(input)) < deadband)
-  {
-    return 0.0;
-  }
-  else if (input > 0.95)
-  {
-    return 1.0;
-  }
-  else if (input < -0.95)
-  {
-    return -1.0;
-  }
-  else
-  {
-    return input;
-  }
-}
-
-void Robot::UpdateSD()
-{
-  // Don't update smart dash every loop,
-  // it causes watchdog warnings
-  smartDashSkip %= 30;
-  IO.shooter.UpdateSmartdash();
-  SmartDashboard::PutNumber("Cubic A", CABICA);
-  SmartDashboard::PutNumber("Cubic B", CABICB);
-  switch (smartDashSkip)
-  {
-  case 0:
-  {
-    IO.drivebase.UpdateSmartdash();
-    break;
-  }
-
-  case 5:
-  {
-
-    break;
-  }
-
-  case 10:
-  {
-    IO.climber.UpdateSmartdash();
-    break;
-  }
-
-  case 15:
-  {
-    IO.colorWheel.UpdateSmartdash();
-    break;
-  }
-  case 20:
-  {
-    IO.RJV.UpdateSmartDash();
-    break;
-  }
-  case 25:
-  {
-    SmartDashboard::PutData("_TestDevice", &chooseTestDevice);
-    //SmartDashboard::PutNumber("RPM TOLERANCE", RPM_TOLERANCE);
-    SmartDashboard::PutNumber("PRESET_HOOD", PRESET_HOOD);
-    SmartDashboard::PutBoolean("AtSpeed", atSpeed);
-    SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
-    SmartDashboard::PutBoolean("AtAngle", atAngle);
-  }
-  default:
-  {
-  }
-  }
-
-  // Critical
-  autoPrograms.SmartDash();
-  IO.ds.SmartDash();
-  smartDashSkip++;
-}
+};
 
 #ifndef RUNNING_FRC_TESTS
-int main()
-{
+int main() {
   return frc::StartRobot<Robot>();
 }
 #endif
