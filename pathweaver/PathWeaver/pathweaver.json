@@ -1,0 +1,9 @@
+{
+  "lengthUnit": "Meter",
+  "exportUnit": "Always Meters",
+  "maxVelocity": 3.0,
+  "maxAcceleration": 3.0,
+  "wheelBase": 0.6,
+  "gameName": "Slalom Path",
+  "outputDir": "../../../SimDemo/MP-demo/src/main/deploy"
+}
