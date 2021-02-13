@@ -33,6 +33,7 @@ class Robot : public frc::TimedRobot {
     m_chooser.AddOption("Barrel", "Barrel");
     m_chooser.AddOption("Slalom", "Slalom");
     m_chooser.AddOption("Bounce", "Bounce");
+    m_chooser.AddOption("PowerPort", "PowerPort");
     frc::SmartDashboard::PutData(&m_chooser);
   }
 
@@ -168,6 +169,14 @@ class Robot : public frc::TimedRobot {
 
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
+    }
+    else if(path == "PowerPort")
+    {
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(260_in, 90_in, 180_deg), { }, 
+          frc::Pose2d(120_in, 90_in, 180_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq)
+      );
     }
     else if(path == "TEST")
     {

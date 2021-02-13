@@ -73,11 +73,6 @@ public:
         frc::SmartDashboard::PutData("Field", &m_fieldSim);
     }
 
-    static constexpr units::meters_per_second_t kMaxSpeed =
-        3.0_mps; // 3 meters per second
-    static constexpr units::radians_per_second_t kMaxAngularSpeed{
-        wpi::math::pi}; // 1/2 rotation per second
-
     void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
     void Drive(units::meters_per_second_t xSpeed,
                units::radians_per_second_t rot);
@@ -90,18 +85,43 @@ public:
     void Periodic();
 
 private:
-    static constexpr units::meter_t kTrackWidth = 0.600_m;
-    static constexpr units::meter_t kWheelRadius = 0.0762_m;
-    static constexpr int kEncoderResolution = 2048;
 
+    /***************************************************************************/
+    // TODO: Tune on real robot
+
+    static constexpr units::meter_t kTrackWidth = 20_in;
+    static constexpr units::meter_t kWheelRadius = 3_in;
+    static constexpr double kGearRatio = 10.24;
+    static constexpr int kEncoderResolution = 2048;
+    static constexpr int kMotorCount = 2;
+
+    decltype(1_V) kStatic = 0.5_V;
+    decltype(1_V / 1_mps) kVlinear = 1.98_V / 1_mps;
+    decltype(1_V / 1_mps_sq) kAlinear = 0.2_V / 1_mps_sq;
+    decltype(1_V / 1_rad_per_s) kVangular = 1.5_V / 1_rad_per_s;
+    decltype(1_V / 1_rad_per_s_sq) kAangular = 0.3_V / 1_rad_per_s_sq;
+
+    // Velocity Control PID (Is this really required ???)
+    frc2::PIDController m_leftPIDController{8.5, 0.0, 0.0};
+    frc2::PIDController m_rightPIDController{8.5, 0.0, 0.0};
+
+public:
+    // Teleop Values
+    static constexpr units::feet_per_second_t kMaxSpeed{10.0};
+    static constexpr units::degrees_per_second_t kMaxAngularSpeed{180.0};
+
+    /***************************************************************************/
+    
+private:
     bool m_isSimulation = false;
 
-    // TODO: Falcon 500  (DONE!)
+    // Simulation motor controllers
     frc::PWMVictorSPX m_leftLeader{1};
     frc::PWMVictorSPX m_leftFollower{2};
     frc::PWMVictorSPX m_rightLeader{3};
     frc::PWMVictorSPX m_rightFollower{4};
 
+    // Real motor Controllers
     WPI_TalonFX m_driveL0{1};
     WPI_TalonFX m_driveL1{2};
     WPI_TalonFX m_driveL2{3};
@@ -109,70 +129,54 @@ private:
     WPI_TalonFX m_driveR1{5};
     WPI_TalonFX m_driveR2{6};
 
+    // Controller Groups
     frc::SpeedControllerGroup m_leftGroup{
-        m_leftLeader, 
+        m_leftLeader,
         m_leftFollower,
         m_driveL0,
         m_driveL1,
-        m_driveL2
-    };
+        m_driveL2};
 
     frc::SpeedControllerGroup m_rightGroup{
-        m_rightLeader, 
+        m_rightLeader,
         m_rightFollower,
         m_driveR0,
         m_driveR1,
-        m_driveR2
-    };
+        m_driveR2};
 
-    // TODO: Read from Falcon 500 (DONE!)
+    // Simulated Encoders
     frc::Encoder m_leftEncoder{0, 1};
     frc::Encoder m_rightEncoder{2, 3};
 
-    // TODO-2: Tune on real robot
-    frc2::PIDController m_leftPIDController{8.5, 0.0, 0.0};
-    frc2::PIDController m_rightPIDController{8.5, 0.0, 0.0};
-
-    // TODO: ADI Gyro
+    // Simulated Gyro
     frc::AnalogGyro m_gyro{0};
 
 #ifdef __FRC_ROBORIO__
     frc::ADIS16470_IMU m_imu{
-        frc::ADIS16470_IMU::IMUAxis::kZ, 
-        frc::SPI::Port::kMXP, 
-        frc::ADIS16470CalibrationTime::_512ms
-    };
+        frc::ADIS16470_IMU::IMUAxis::kZ,
+        frc::SPI::Port::kMXP,
+        frc::ADIS16470CalibrationTime::_512ms};
 #endif
 
     frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
     frc::DifferentialDriveOdometry m_odometry{m_gyro.GetRotation2d()};
-
-    // Gains are for example purposes only - must be determined for your own robot!
-    frc::SimpleMotorFeedforward<units::meters> m_feedforward{1_V, 3_V / 1_mps};
+    frc::SimpleMotorFeedforward<units::meters> m_feedforward{kStatic, kVlinear, kAlinear};
 
     // Simulation classes help us simulate our robot
-    frc::sim::AnalogGyroSim m_gyroSim{m_gyro};
-    frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
-    frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
-    frc::Field2d m_fieldSim;
-
-    // TODO-2: Tune on real robot
-    decltype(1_V / 1_mps) kVlinear = 1.98_V / 1_mps;
-    decltype(1_V / 1_mps_sq) kAlinear = 0.2_V / 1_mps_sq;
-    decltype(1_V / 1_rad_per_s) kVangular = 1.5_V / 1_rad_per_s;
-    decltype(1_V / 1_rad_per_s_sq) kAangular = 0.3_V / 1_rad_per_s_sq;
-
     frc::LinearSystem<2, 2, 2> m_drivetrainSystem =
         frc::LinearSystemId::IdentifyDrivetrainSystem(
             kVlinear, kAlinear,
             kVangular, kAangular);
 
-    // TODO-2: Check real robot values
     frc::sim::DifferentialDrivetrainSim m_drivetrainSimulator{
-        m_drivetrainSystem, 
-        kTrackWidth, 
-        frc::DCMotor::Falcon500(2), 
-        10.24, 
-        kWheelRadius
-    };
+        m_drivetrainSystem,
+        kTrackWidth,
+        frc::DCMotor::Falcon500(kMotorCount),
+        kGearRatio,
+        kWheelRadius};
+
+    frc::sim::AnalogGyroSim m_gyroSim{m_gyro};
+    frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
+    frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
+    frc::Field2d m_fieldSim;
 };

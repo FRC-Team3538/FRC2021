@@ -6,61 +6,61 @@
 
 #include <frc/RobotController.h>
 
-void Drivetrain::SetSpeeds(const frc::DifferentialDriveWheelSpeeds& speeds) {
+void Drivetrain::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
+{
   auto leftFeedforward = m_feedforward.Calculate(speeds.left);
   auto rightFeedforward = m_feedforward.Calculate(speeds.right);
 
-  double leftOutput = 0;
-  double rightOutput = 0;
+  double leftRate = 0.0;
+  double rightRate = 0.0;
 
-  if(m_isSimulation)
+  if (m_isSimulation)
   {
-    leftOutput = m_leftPIDController.Calculate(
-      m_leftEncoder.GetRate(),
-      speeds.left.to<double>()
-    );
-
-    rightOutput = m_rightPIDController.Calculate(
-      m_rightEncoder.GetRate(), 
-      speeds.right.to<double>()
-      );
-  } else {
-    leftOutput = m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
-    rightOutput = m_driveR0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
+    leftRate = m_leftEncoder.GetRate();
+    rightRate = m_rightEncoder.GetRate();
   }
+  else
+  {
+    leftRate = m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
+    rightRate = m_driveR0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
+  }
+
+  double leftOutput = m_leftPIDController.Calculate(
+      leftRate,
+      speeds.left.to<double>());
+
+  double rightOutput = m_rightPIDController.Calculate(
+      rightRate,
+      speeds.right.to<double>());
 
   m_leftGroup.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
   m_rightGroup.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
-                       units::radians_per_second_t rot) {
+                       units::radians_per_second_t rot)
+{
   SetSpeeds(m_kinematics.ToWheelSpeeds({xSpeed, 0_mps, rot}));
 }
 
-void Drivetrain::UpdateOdometry() {
-
-  if(m_isSimulation)
-  {
-    m_odometry.Update(m_gyro.GetRotation2d(),
-                      units::meter_t(m_leftEncoder.GetDistance()),
-                      units::meter_t(m_rightEncoder.GetDistance()));
-  } else {
-    auto left = m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
-    auto right = m_driveR0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
-
-    frc::Rotation2d heading;
+void Drivetrain::UpdateOdometry()
+{
 #ifdef __FRC_ROBORIO__
-    heading = frc::Rotation2d(units::degree_t(m_imu.GetAngle()));
-#endif
-    m_odometry.Update(heading,
-                      units::meter_t(left),
-                      units::meter_t(right));
-  }
+  auto left = m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
+  auto right = m_driveR0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
 
+  m_odometry.Update(m_imu.GetRotation2d(),
+                    units::meter_t(left),
+                    units::meter_t(right));
+#else
+  m_odometry.Update(m_gyro.GetRotation2d(),
+                    units::meter_t(m_leftEncoder.GetDistance()),
+                    units::meter_t(m_rightEncoder.GetDistance()));
+#endif
 }
 
-void Drivetrain::ResetOdometry(const frc::Pose2d& pose) {
+void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
+{
   m_leftEncoder.Reset();
   m_rightEncoder.Reset();
 
@@ -71,7 +71,8 @@ void Drivetrain::ResetOdometry(const frc::Pose2d& pose) {
   m_odometry.ResetPosition(pose, pose.Rotation());
 }
 
-void Drivetrain::SimulationPeriodic() {
+void Drivetrain::SimulationPeriodic()
+{
   // To update our simulation, we set motor voltage inputs, update the
   // simulation, and write the simulated positions and velocities to our
   // simulated encoder and gyro. We negate the right side so that positive
@@ -94,7 +95,8 @@ void Drivetrain::SimulationPeriodic() {
       -m_drivetrainSimulator.GetHeading().Degrees().to<double>());
 }
 
-void Drivetrain::Periodic() {
+void Drivetrain::Periodic()
+{
   UpdateOdometry();
   m_fieldSim.SetRobotPose(m_odometry.GetPose());
 }
