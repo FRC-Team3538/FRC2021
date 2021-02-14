@@ -35,6 +35,7 @@ public:
     m_chooser.AddOption("Barrel", "Barrel");
     m_chooser.AddOption("Slalom", "Slalom");
     m_chooser.AddOption("Bounce", "Bounce");
+    m_chooser.AddOption("Accuracy", "Accuracy");
     m_chooser.AddOption("PowerPort", "PowerPort");
     frc::SmartDashboard::PutData(&m_chooser);
 
@@ -48,7 +49,6 @@ public:
 
     frc::SmartDashboard::PutNumber("m_autoState", m_autoState);
     frc::SmartDashboard::PutNumber("m_autoTimer", m_autoTimer.Get().value());
-    
   }
 
   void AutonomousInit() override
@@ -166,6 +166,98 @@ public:
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
     }
+    else if (path == "Accuracy")
+    {
+      frc::Pose2d green{60_in, 90_in, 0_deg};
+      frc::Pose2d yellow{120_in, 90_in, 0_deg};
+      frc::Pose2d blue{180_in, 90_in, 0_deg};
+      frc::Pose2d red{240_in, 90_in, 0_deg};
+      frc::Pose2d load{300_in, 90_in, 0_deg};
+      frc::TrajectoryConfig config(Drivetrain::kMaxSpeed * 0.8, 5_fps_sq);
+
+      // Green -> Load
+      config.SetReversed(false);
+      m_trajectory_IA[0] = frc::TrajectoryGenerator::GenerateTrajectory(
+          green,
+          {},
+          load,
+          config);
+
+      // Load -> Yellow 1
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[1] = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          yellow,
+          config);
+
+      // Yellow -> Load
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[2] = frc::TrajectoryGenerator::GenerateTrajectory(
+          yellow,
+          {},
+          load,
+          config);
+
+      // Load -> Yellow 2
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[3] = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          yellow,
+          config);
+
+      // Yellow -> Load
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[4] = frc::TrajectoryGenerator::GenerateTrajectory(
+          yellow,
+          {},
+          load,
+          config);
+
+      // Load -> Blue
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[5] = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          blue,
+          config);
+
+      // blue -> Load
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[6] = frc::TrajectoryGenerator::GenerateTrajectory(
+          blue,
+          {},
+          load,
+          config);
+
+      // Load -> Red
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[7] = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          red,
+          config);
+
+      // Red -> Load
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[8] = frc::TrajectoryGenerator::GenerateTrajectory(
+          red,
+          {},
+          load,
+          config);
+
+      // Load -> Green
+      config.SetReversed(!config.IsReversed());
+      m_trajectory_IA[9] = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          green,
+          config);
+
+      // Cheat to load initial pose correclty
+      m_trajectory = m_trajectory_IA[0];
+    }
     else if (path == "PowerPort")
     {
       frc::Pose2d shoot{120_in, 90_in, 0_deg};
@@ -231,6 +323,10 @@ public:
     {
       AutoPowerPort();
     }
+    else if (path == "Accuracy")
+    {
+      AutoAccuracy();
+    }
     else
     {
       auto elapsed = m_autoTimer.Get();
@@ -268,46 +364,68 @@ public:
 
   void SimulationPeriodic() override { m_drive.SimulationPeriodic(); }
 
-  void AutoPowerPort() {
+  void AutoPowerPort()
+  {
 
-      auto delay = units::second_t(prefs->GetDouble("PP_Delay", 3.0));
+    auto delay = units::second_t(prefs->GetDouble("Load_Delay", 3.0));
 
-      if (m_autoState == 0)
+    if (m_autoState == 0)
+    {
+      // Go To reload
+      auto elapsed = m_autoTimer.Get();
+      auto reference = m_trajectory.Sample(elapsed);
+      auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+      m_drive.Drive(speeds.vx, speeds.omega);
+
+      // Next State
+      if (elapsed > (m_trajectory.TotalTime() + delay))
       {
-        // Go To reload
-        auto elapsed = m_autoTimer.Get();
-        auto reference = m_trajectory.Sample(elapsed);
-        auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
-        m_drive.Drive(speeds.vx, speeds.omega);
+        m_autoState = 1;
+        m_autoTimer.Reset();
+        m_autoTimer.Start();
+      }
+    }
+    else if (m_autoState == 1)
+    {
+      // Go To Shoot
+      auto elapsed = m_autoTimer.Get();
+      auto reference = m_trajectory_PP.Sample(elapsed);
+      auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+      m_drive.Drive(speeds.vx, speeds.omega);
 
-        // Next State
-        if (elapsed > (m_trajectory.TotalTime() + delay))
-        {
-          m_autoState = 1;
-          m_autoTimer.Reset();
-          m_autoTimer.Start();
-        }
-      }
-      else if (m_autoState == 1)
+      // Next State
+      if (elapsed > m_trajectory_PP.TotalTime() + delay)
       {
-        // Go To Shoot
-        auto elapsed = m_autoTimer.Get();
-        auto reference = m_trajectory_PP.Sample(elapsed);
-        auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
-        m_drive.Drive(speeds.vx, speeds.omega);
+        m_autoState = 0;
+        m_autoTimer.Reset();
+        m_autoTimer.Start();
+      }
+    }
+    else
+    {
+      m_drive.Drive(0_mps, 0_deg_per_s);
+    }
+  }
 
-        // Next State
-        if (elapsed > m_trajectory_PP.TotalTime() + delay)
-        {
-          m_autoState = 0;
-          m_autoTimer.Reset();
-          m_autoTimer.Start();
-        }
-      }
-      else
-      {
-        m_drive.Drive(0_mps, 0_deg_per_s);
-      }
+  void AutoAccuracy()
+  {
+    // Load Delay
+    auto delay = units::second_t(prefs->GetDouble("Load_Delay", 3.0));
+
+    // Pathing
+    auto elapsed = m_autoTimer.Get();
+    auto reference = m_trajectory_IA[m_autoState].Sample(elapsed);
+    auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+    m_drive.Drive(speeds.vx, speeds.omega);
+
+    // Next State
+    if (elapsed > (m_trajectory_IA[m_autoState].TotalTime() + delay))
+    {
+      m_autoState++;
+      m_autoState %= 10;
+      m_autoTimer.Reset();
+      m_autoTimer.Start();
+    }
   }
 
 private:
@@ -322,6 +440,7 @@ private:
 
   frc::Trajectory m_trajectory;
   frc::Trajectory m_trajectory_PP;
+  frc::Trajectory m_trajectory_IA[10];
   frc::RamseteController m_ramsete;
   frc2::Timer m_autoTimer;
 

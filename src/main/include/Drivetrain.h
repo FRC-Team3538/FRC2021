@@ -158,12 +158,17 @@ private:
         frc::SPI::Port::kMXP,
         frc::ADIS16470CalibrationTime::_512ms};
 #endif
-
+    
+    //
+    // Dynamics
+    //
     frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
     frc::DifferentialDriveOdometry m_odometry{m_gyro.GetRotation2d()};
     frc::SimpleMotorFeedforward<units::meters> m_feedforward{kStatic, kVlinear, kAlinear};
 
-    // Simulation classes help us simulate our robot
+    //
+    // Simulation 
+    //
     frc::LinearSystem<2, 2, 2> m_drivetrainSystem =
         frc::LinearSystemId::IdentifyDrivetrainSystem(
             kVlinear, kAlinear,
