@@ -87,27 +87,28 @@ public:
 private:
 
     /***************************************************************************/
-    // TODO: Tune on real robot
+    // CrossFire Characterization Values
 
-    static constexpr units::meter_t kTrackWidth = 20_in;
+    static constexpr units::meter_t kTrackWidth = 24.19872_in;
     static constexpr units::meter_t kWheelRadius = 3_in;
     static constexpr double kGearRatio = 10.24;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic = 0.5_V;
-    decltype(1_V / 1_mps) kVlinear = 1.98_V / 1_mps;
-    decltype(1_V / 1_mps_sq) kAlinear = 0.2_V / 1_mps_sq;
-    decltype(1_V / 1_rad_per_s) kVangular = 1.5_V / 1_rad_per_s;
-    decltype(1_V / 1_rad_per_s_sq) kAangular = 0.3_V / 1_rad_per_s_sq;
+    decltype(1_V) kStatic {0.688};
+    decltype(1_V / 1_fps) kVlinear {0.686};
+    decltype(1_V / 1_fps_sq) kAlinear {0.124};
+    decltype(1_V / 1_rad_per_s) kVangular {0.717};
+    decltype(1_V / 1_rad_per_s_sq) kAangular {0.092};
 
     // Velocity Control PID (Is this really required ???)
     frc2::PIDController m_leftPIDController{8.5, 0.0, 0.0};
     frc2::PIDController m_rightPIDController{8.5, 0.0, 0.0};
 
 public:
-    // Teleop Values
-    static constexpr units::feet_per_second_t kMaxSpeed{10.0};
+    // Teleop Values 
+    /// TODO(Dereck): Measure these too
+    static constexpr units::feet_per_second_t kMaxSpeed{10.0}; 
     static constexpr units::degrees_per_second_t kMaxAngularSpeed{180.0};
 
     /***************************************************************************/

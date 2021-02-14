@@ -17,9 +17,11 @@
 
 #include "Drivetrain.h"
 
-class Robot : public frc::TimedRobot {
- public:
-  void RobotInit() override {
+class Robot : public frc::TimedRobot
+{
+public:
+  void RobotInit() override
+  {
     // Flush NetworkTables every loop. This ensures that robot pose and other
     // values are sent during every iteration.
     SetNetworkTablesFlushEnabled(true);
@@ -35,62 +37,56 @@ class Robot : public frc::TimedRobot {
     m_chooser.AddOption("Bounce", "Bounce");
     m_chooser.AddOption("PowerPort", "PowerPort");
     frc::SmartDashboard::PutData(&m_chooser);
+
+    // Robot Preferences
+    prefs = frc::Preferences::GetInstance();
   }
 
-  void RobotPeriodic() override { 
-    m_drive.Periodic(); 
+  void RobotPeriodic() override
+  {
+    m_drive.Periodic();
+
+    frc::SmartDashboard::PutNumber("m_autoState", m_autoState);
+    frc::SmartDashboard::PutNumber("m_autoTimer", m_autoTimer.Get().value());
+    
   }
 
-  void AutonomousInit() override {
-
+  void AutonomousInit() override
+  {
+    // Generate / load paths
     auto path = m_chooser.GetSelected();
-    if(m_chooser.GetSelected() == "None") return;
+    if (m_chooser.GetSelected() == "None")
+      return;
 
-    if(path == "A-Red")
+    if (path == "A-Red")
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(40_in, 120_in, -35_deg), {
-            frc::Translation2d(150_in, 60_in), 
-            frc::Translation2d(180_in, 150_in)
-          }, 
+          frc::Pose2d(40_in, 120_in, -35_deg), {frc::Translation2d(150_in, 60_in), frc::Translation2d(180_in, 150_in)},
           frc::Pose2d(360_in, 170_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq)
-      );
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
     }
-    else if(path == "A-Blue")
+    else if (path == "A-Blue")
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 35_in, 0_deg), {
-            frc::Translation2d(170_in, 35_in), 
-            frc::Translation2d(210_in, 110_in)
-          }, 
+          frc::Pose2d(45_in, 35_in, 0_deg), {frc::Translation2d(170_in, 35_in), frc::Translation2d(210_in, 110_in)},
           frc::Pose2d(360_in, 70_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq)
-      );
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
     }
-    else if(path == "B-Red")
+    else if (path == "B-Red")
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 150_in, -45_deg), {
-            frc::Translation2d(150_in, 70_in), 
-            frc::Translation2d(210_in, 110_in)
-          }, 
+          frc::Pose2d(45_in, 150_in, -45_deg), {frc::Translation2d(150_in, 70_in), frc::Translation2d(210_in, 110_in)},
           frc::Pose2d(360_in, 160_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq)
-      );
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
     }
-    else if(path == "B-Blue")
+    else if (path == "B-Blue")
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 60_in, 0_deg), {
-            frc::Translation2d(170_in, 60_in), 
-            frc::Translation2d(240_in, 110_in)
-          }, 
+          frc::Pose2d(45_in, 60_in, 0_deg), {frc::Translation2d(170_in, 60_in), frc::Translation2d(240_in, 110_in)},
           frc::Pose2d(360_in, 20_in, -35_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq)
-      );
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
     }
-    else if(path == "Barrel")
+    else if (path == "Barrel")
     {
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
@@ -99,7 +95,7 @@ class Robot : public frc::TimedRobot {
 
       m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     }
-    else if(path == "Slalom")
+    else if (path == "Slalom")
     {
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
@@ -108,7 +104,7 @@ class Robot : public frc::TimedRobot {
 
       m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     }
-    else if(path == "Bounce")
+    else if (path == "Bounce")
     {
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
@@ -138,50 +134,62 @@ class Robot : public frc::TimedRobot {
         auto start_time = s1.back().t + 10_ms;
         for (size_t i = 0; i < s2.size(); i++)
         {
-          s2[i].t += start_time;         
-        } 
+          s2[i].t += start_time;
+        }
 
         // Add the second path to the overall path
-        s1.insert( s1.end(), s2.begin(), s2.end() );
+        s1.insert(s1.end(), s2.begin(), s2.end());
       }
 
       {
         auto start_time = s1.back().t + 10_ms;
         for (size_t i = 0; i < s3.size(); i++)
         {
-          s3[i].t += start_time;         
-        } 
+          s3[i].t += start_time;
+        }
 
         // Add the second path to the overall path
-        s1.insert( s1.end(), s3.begin(), s3.end() );
+        s1.insert(s1.end(), s3.begin(), s3.end());
       }
 
       {
         auto start_time = s1.back().t + 10_ms;
         for (size_t i = 0; i < s4.size(); i++)
         {
-          s4[i].t += start_time;         
-        } 
+          s4[i].t += start_time;
+        }
 
         // Add the second path to the overall path
-        s1.insert( s1.end(), s4.begin(), s4.end() );
+        s1.insert(s1.end(), s4.begin(), s4.end());
       }
 
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
     }
-    else if(path == "PowerPort")
+    else if (path == "PowerPort")
     {
+      frc::Pose2d shoot{120_in, 90_in, 0_deg};
+      frc::Pose2d load{260_in, 90_in, 0_deg};
+      frc::TrajectoryConfig config(Drivetrain::kMaxSpeed, 10_fps_sq);
+
+      // Go to Load
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(260_in, 90_in, 180_deg), { }, 
-          frc::Pose2d(120_in, 90_in, 180_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq)
-      );
+          shoot,
+          {},
+          load,
+          config);
+
+      // Go To Shoot
+      config.SetReversed(true);
+      m_trajectory_PP = frc::TrajectoryGenerator::GenerateTrajectory(
+          load,
+          {},
+          shoot,
+          config);
     }
-    else if(path == "TEST")
+    else if (path == "TEST")
     {
       // Get path from preferences for testing & tuning
-      prefs = frc::Preferences::GetInstance();
       auto x0 = units::inch_t(prefs->GetDouble("x0", 0));
       auto y0 = units::inch_t(prefs->GetDouble("y0", 0));
       auto r0 = units::degree_t(prefs->GetDouble("r0", 0));
@@ -200,34 +208,43 @@ class Robot : public frc::TimedRobot {
       auto accel = units::meters_per_second_squared_t(prefs->GetDouble("a", 2));
 
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(x0, y0, r0), {
-            frc::Translation2d(x1, y1), 
-            frc::Translation2d(x2, y2)
-          }, 
+          frc::Pose2d(x0, y0, r0), {frc::Translation2d(x1, y1), frc::Translation2d(x2, y2)},
           frc::Pose2d(x3, y3, r3),
-          frc::TrajectoryConfig(vel, accel)
-      );
+          frc::TrajectoryConfig(vel, accel));
     }
 
-    m_timer.Reset();
-    m_timer.Start();
+    // Reset State Vars
+    m_autoTimer.Reset();
+    m_autoTimer.Start();
     m_drive.ResetOdometry(m_trajectory.InitialPose());
+    m_autoState = 0;
   }
 
-  void AutonomousPeriodic() override {
+  void AutonomousPeriodic() override
+  {
     auto path = m_chooser.GetSelected();
-    if(m_chooser.GetSelected() == "None") return;
-
-    auto elapsed = m_timer.Get();
-    auto reference = m_trajectory.Sample(elapsed);
-    auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
-    m_drive.Drive(speeds.vx, speeds.omega);
-
+    if (m_chooser.GetSelected() == "None")
+    {
+      return;
+    }
+    else if (path == "PowerPort")
+    {
+      AutoPowerPort();
+    }
+    else
+    {
+      auto elapsed = m_autoTimer.Get();
+      auto reference = m_trajectory.Sample(elapsed);
+      auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+      m_drive.Drive(speeds.vx, speeds.omega);
+    }
   }
 
-  void TeleopPeriodic() override {
-    const auto xSpeed = -m_speedLimiter.Calculate( deadband(m_controller.GetRawAxis(1))) *
-                        Drivetrain::kMaxSpeed;
+  void TeleopPeriodic() override
+  {
+    auto xSpeed = -m_speedLimiter.Calculate(
+                      deadband(m_controller.GetRawAxis(1))) *
+                  Drivetrain::kMaxSpeed;
 
     auto rot = -m_rotLimiter.Calculate(
                    deadband(m_controller.GetRawAxis(3))) *
@@ -236,39 +253,89 @@ class Robot : public frc::TimedRobot {
     m_drive.Drive(xSpeed, rot);
   }
 
-  void DisabledPeriodic() override {
+  void DisabledPeriodic() override
+  {
     m_drive.Drive(0_mps, 0_deg_per_s);
   }
 
-  double deadband(double in){
-    if(fabs(in) < 0.05) return 0.0;
+  double deadband(double in)
+  {
+    if (fabs(in) < 0.05)
+      return 0.0;
+
     return in;
   }
 
   void SimulationPeriodic() override { m_drive.SimulationPeriodic(); }
 
- private:
+  void AutoPowerPort() {
+
+      auto delay = units::second_t(prefs->GetDouble("PP_Delay", 3.0));
+
+      if (m_autoState == 0)
+      {
+        // Go To reload
+        auto elapsed = m_autoTimer.Get();
+        auto reference = m_trajectory.Sample(elapsed);
+        auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+        m_drive.Drive(speeds.vx, speeds.omega);
+
+        // Next State
+        if (elapsed > (m_trajectory.TotalTime() + delay))
+        {
+          m_autoState = 1;
+          m_autoTimer.Reset();
+          m_autoTimer.Start();
+        }
+      }
+      else if (m_autoState == 1)
+      {
+        // Go To Shoot
+        auto elapsed = m_autoTimer.Get();
+        auto reference = m_trajectory_PP.Sample(elapsed);
+        auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
+        m_drive.Drive(speeds.vx, speeds.omega);
+
+        // Next State
+        if (elapsed > m_trajectory_PP.TotalTime() + delay)
+        {
+          m_autoState = 0;
+          m_autoTimer.Reset();
+          m_autoTimer.Start();
+        }
+      }
+      else
+      {
+        m_drive.Drive(0_mps, 0_deg_per_s);
+      }
+  }
+
+private:
+  // TODO(Dereck): Change to PS4 controller
   frc::XboxController m_controller{0};
 
-  // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0
-  // to 1.
+  // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   frc::SlewRateLimiter<units::scalar> m_speedLimiter{3 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
 
   Drivetrain m_drive{IsSimulation()};
-  
+
   frc::Trajectory m_trajectory;
+  frc::Trajectory m_trajectory_PP;
   frc::RamseteController m_ramsete;
-  frc2::Timer m_timer;
+  frc2::Timer m_autoTimer;
 
   frc::Preferences *prefs;
 
   frc::SendableChooser<std::string> m_chooser;
 
+  // Auto State
+  uint m_autoState = 0;
 };
 
 #ifndef RUNNING_FRC_TESTS
-int main() {
+int main()
+{
   return frc::StartRobot<Robot>();
 }
 #endif
