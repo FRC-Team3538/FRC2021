@@ -329,8 +329,45 @@ public:
     }
     else
     {
-      auto elapsed = m_autoTimer.Get();
-      auto reference = m_trajectory.Sample(elapsed);
+      //
+      // Detect when we cross the finish line and stop
+      //
+
+      // Distance from center of robot to the outside perimeter of the bumper
+      auto BumperDist = 14_in;
+
+      if ((path == "A-Red" || path == "A-Blue" || path == "B-Red" || path == "A-Blue"))
+      {
+        if (m_drive.GetPose().X() > (330.0_in - BumperDist))
+        {
+          m_drive.Drive(0_mps, 0_deg_per_s);
+          m_autoTimer.Stop();
+          return;
+        }
+      }
+      else if (path == "Barrel" || path == "Slalom")
+      {
+        if ((m_autoTimer.Get() > m_trajectory.TotalTime() / 2.0) && m_drive.GetPose().X() < (60.0_in + BumperDist))
+        {
+          m_drive.Drive(0_mps, 0_deg_per_s);
+          m_autoTimer.Stop();
+          return;
+        }
+      }
+      else if (path == "Bounce")
+      {
+        if (m_drive.GetPose().X() > (300.0_in - BumperDist))
+        {
+          m_drive.Drive(0_mps, 0_deg_per_s);
+          m_autoTimer.Stop();
+          return;
+        }
+      }
+
+      //
+      // Just Follow a Path...
+      //
+      auto reference = m_trajectory.Sample(m_autoTimer.Get());
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
       m_drive.Drive(speeds.vx, speeds.omega);
     }
