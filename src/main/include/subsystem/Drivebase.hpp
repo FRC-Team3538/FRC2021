@@ -40,7 +40,7 @@ private:
   Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  const double kScaleFactor = 53.1875 / 52896;
+  const double kScaleFactor = 240.0 / 258824.5;//53.1875 / 52896;
 
   enum slots
   {
@@ -68,7 +68,7 @@ private:
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
 #define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))    //15
 
-#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
+#define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021)) //0.021
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
 #define KD_FORWARD (SmartDashboard::GetNumber("KD_FORWARD", 0.0))
 

@@ -26,6 +26,7 @@ void Robot::RobotInit()
   chooseTestDevice.AddOption(sClimber, sClimber);
   chooseTestDevice.AddOption(sColorWheel, sColorWheel);
   chooseTestDevice.AddOption(sVision, sVision);
+
 }
 
 void Robot::RobotPeriodic()
@@ -40,6 +41,14 @@ void Robot::RobotPeriodic()
 
   // Vision
   IO.RJV.Periodic();
+
+  // Test
+  if (IO.RJV.GetConfig() == vision::RJVisionPipeline::SearchConfig::Red)
+    frc::SmartDashboard::PutString("Config", "Red");
+  else if (IO.RJV.GetConfig() == vision::RJVisionPipeline::SearchConfig::Blue)
+    frc::SmartDashboard::PutString("Config", "Blue");
+  else
+    frc::SmartDashboard::PutString("Config", "Nunya");
 
   // Update Smart Dash
   UpdateSD();
@@ -63,6 +72,7 @@ void Robot::TeleopInit()
 {
   IO.drivebase.SetBrake();
   IO.shooter.Init();
+  SmartDashboard::PutNumber("PowerPort Delay", 5.0);
 }
 
 void Robot::DisabledInit()
@@ -80,6 +90,7 @@ void Robot::DisabledPeriodic()
   IO.RJV.Reset();
   IO.shooter.Stop();
   IO.shooter.IntakeRetract();
+  runAuto = false;
 }
 
 void Robot::TestInit()
@@ -298,9 +309,9 @@ void Robot::TeleopPeriodic()
   double indexer = 0.0;
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kRightHand);
-  //double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
+  double leftTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kLeftHand);
   double rightTrigDr = IO.ds.Driver.GetTriggerAxis(GenericHID::kRightHand);
-  double intakeSpeed = leftTrigOp - rightTrigOp - rightTrigDr;
+  double intakeSpeed = leftTrigOp + leftTrigDr - rightTrigOp - rightTrigDr;
   intakeSpeed = Deadband(-intakeSpeed, deadband);
 
   //
@@ -317,6 +328,24 @@ void Robot::TeleopPeriodic()
     rotate = (cubicA * pow(rotate, 3)) + (cubicB * rotate);
   }
 
+  // Run Auto
+  if((abs(forward) == 0.0) && (abs(rotate) == 0.0) && (IO.ds.Driver.GetOptionsButton() || runAuto))
+  {
+    if(!runAuto)
+    {
+      AutonomousInit();
+      IO.drivebase.Stop();
+    }
+    AutonomousPeriodic();
+    runAuto = true;
+    return;
+  }
+  else
+  {
+    runAuto = false;
+  }
+  
+
   // Limit turning rate normally
   if (!IO.ds.Driver.GetStickButton(GenericHID::kRightHand))
   {
@@ -324,59 +353,78 @@ void Robot::TeleopPeriodic()
   }
   // TODO Cubic Smoothing
 
-  //
-  // Shooting Presets
-  //
-  if (IO.ds.Operator.GetDownButton())
+  if((IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()) && !feedbackModeOS)
   {
-    IO.shooter.SetVelocity(2450.0);
-    PresetShooterRPM = 2450.0;
-    PresetHoodAngle = 23;
-    PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
+    feedbackMode = feedbackMode ? false : true;
+    feedbackModeOS = true;
   }
-  else if (IO.ds.Operator.GetUpButton())
+  else if (!(IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()))
   {
-    IO.shooter.SetVelocity(4370.0);
-    PresetShooterRPM = 4370.0;
-    PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
-    PresetVisionPipeline = IO.RJV.Pipe::LongShot;
-    liteOn = true;
-
-    IO.RJV.SetPipeline(PresetVisionPipeline);
+    feedbackModeOS = false;
   }
-  else if (IO.ds.Operator.GetLeftButton())
-  {
-    IO.shooter.SetVelocity(3000.0);
-    PresetShooterRPM = 3000.0;
-    PresetHoodAngle = 60.5;
-    PresetVisionPipeline = IO.RJV.Pipe::ThreeFar;
-    liteOn = true;
+  
 
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetRightButton())
-  {
-    IO.shooter.SetVelocity(3500.0);
-    PresetShooterRPM = 3500.0;
-    PresetHoodAngle = 64.5;
-    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
-    liteOn = true;
+    //
+    // Shooting Presets
+    //
+    if (IO.ds.Operator.GetDownButton() || IO.ds.Driver.GetDownButton())
+    {
+      IO.shooter.SetVelocity(2750.0);
+      PresetShooterRPM = 2750.0;
+      PresetHoodAngle = 51;
+      PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
+      liteOn = true;
 
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (IO.ds.Operator.GetScreenShotButton())
-  {
-    PresetShooterRPM = PRESET_RPM;
-    IO.shooter.SetVelocity(PresetShooterRPM);
-    PresetHoodAngle = PRESET_HOOD;
-    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
-    liteOn = true;
+      IO.RJV.SetPipeline(PresetVisionPipeline);
+    }
+    else if (IO.ds.Operator.GetUpButton() || IO.ds.Driver.GetUpButton())
+    {
+      IO.shooter.SetVelocity(4000.0);
+      PresetShooterRPM = 4000.0;
+      PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
+      PresetVisionPipeline = IO.RJV.Pipe::LongShot;
+      liteOn = true;
 
-    IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
+      IO.RJV.SetPipeline(PresetVisionPipeline);
+    }
+    else if (IO.ds.Operator.GetLeftButton() || IO.ds.Driver.GetLeftButton())
+    {
+      IO.shooter.SetVelocity(3000.0);
+      PresetShooterRPM = 3000.0;
+      PresetHoodAngle = 59;
+      PresetVisionPipeline = 0;//IO.RJV.Pipe::ThreeFar;
+      liteOn = true;
+
+      IO.RJV.SetPipeline(PresetVisionPipeline);
+    }
+    else if (IO.ds.Operator.GetRightButton() || IO.ds.Driver.GetRightButton())
+    {
+      IO.shooter.SetVelocity(3500.0);
+      PresetShooterRPM = 3500.0;
+      PresetHoodAngle = 64;
+      PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+      liteOn = true;
+
+      IO.RJV.SetPipeline(PresetVisionPipeline);
+    }
+    else if (IO.ds.Operator.GetScreenShotButton() || IO.ds.Driver.GetScreenShotButton())
+    {
+      PresetShooterRPM = PRESET_RPM;
+      IO.shooter.SetVelocity(PresetShooterRPM);
+      PresetHoodAngle = PRESET_HOOD;
+      PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+      liteOn = true;
+
+      IO.RJV.SetPipeline(PresetVisionPipeline);
+    }
+    else if (feedbackMode)
+    {
+      PresetShooterRPM = 2750.0;
+      IO.shooter.SetVelocity(PresetShooterRPM);
+      PresetHoodAngle = 53.0;
+      PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
+      liteOn = false;
+    }
 
   //
   // Vision Here
@@ -474,11 +522,15 @@ void Robot::TeleopPeriodic()
 
   //
   // Manual Shooting System
-  //
   atSpeed = ((abs(PresetShooterRPM - IO.shooter.GetVelocity()) < 150.0));
   atAngle = ((abs(PresetHoodAngle - IO.shooter.GetHoodAngle()) < 1.0));
 
-  if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton() && atSpeed && atAngle)) && abs(leftTrigOp == 0.0))
+  if ((IO.ds.Operator.GetTriangleButton() || (IO.ds.Driver.GetTriangleButton()))) // && atSpeed && atAngle)) && abs(leftTrigOp == 0.0))
+  {
+    indexer = indexerSpeed;
+    IO.shooter.SetFeeder(1.0);
+  }
+  else if(feedbackMode)
   {
     indexer = indexerSpeed;
     IO.shooter.SetFeeder(1.0);
@@ -491,7 +543,7 @@ void Robot::TeleopPeriodic()
   // Hood Lock
   //IO.shooter.SetHoodLock(IO.ds.Operator.GetTriangleButton() || IO.ds.Driver.GetTriangleButton());
 
-  if (IO.ds.Operator.GetCircleButton())
+  if (IO.ds.Operator.GetCircleButton() || IO.ds.Driver.GetCircleButton())
   {
     IO.shooter.SetShooter(0.0);
     liteOn = false;
@@ -502,7 +554,7 @@ void Robot::TeleopPeriodic()
   //
 
   // Anti-jam
-  if (abs(leftTrigOp) > 0.0)
+  if ((abs(leftTrigOp) || abs(leftTrigDr)) > 0.0)
   {
     intakeSpeed = 0.0;
     indexer = -indexerSpeed;
@@ -525,12 +577,12 @@ void Robot::TeleopPeriodic()
 
   IO.shooter.SetIntake(intakeSpeed);
 
-  if (IO.ds.Operator.GetBumper(GenericHID::kLeftHand))
+  if (IO.ds.Operator.GetBumper(GenericHID::kLeftHand) || IO.ds.Driver.GetBumper(GenericHID::kLeftHand))
   {
     IO.shooter.IntakeRetract();
   }
 
-  if (IO.ds.Operator.GetBumper(GenericHID::kRightHand))
+  if (IO.ds.Operator.GetBumper(GenericHID::kRightHand) || IO.ds.Driver.GetBumper(GenericHID::kRightHand))
   {
     liteOn = false;
     IO.shooter.IntakeDeploy();
@@ -548,14 +600,14 @@ void Robot::TeleopPeriodic()
   double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
   IO.climber.SetClimber(climbAnalog);
 
-  if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
-  {
-    IO.climber.ClimberDeploy();
-  }
-  else
-  {
-    IO.climber.ClimberRetract();
-  }
+  // if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
+  // {
+  //   IO.climber.ClimberDeploy();
+  // }
+  // else
+  // {
+  //   IO.climber.ClimberRetract();
+  // }
 
   //
   // ColorWheel
@@ -635,6 +687,7 @@ void Robot::UpdateSD()
     SmartDashboard::PutBoolean("AtSpeed", atSpeed);
     SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutBoolean("AtAngle", atAngle);
+    SmartDashboard::PutBoolean("Feedback Mode", feedbackMode);
   }
   default:
   {

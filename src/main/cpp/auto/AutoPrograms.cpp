@@ -9,6 +9,8 @@
 #include "auto/AutoStealTrenchRun.hpp"
 #include "auto/AutoShootTrenchYolo.hpp"
 #include "auto/AutoEightBall.hpp"
+#include "auto/AutoIntAcc.hpp"
+#include "auto/AutoPowerPort.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -23,7 +25,8 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(AutoStealTrenchRun::GetName(), AutoStealTrenchRun::GetName());
     m_chooser.AddOption(AutoShootTrenchYolo::GetName(), AutoShootTrenchYolo::GetName());
     m_chooser.AddOption(AutoEightBall::GetName(), AutoEightBall::GetName());
-
+    m_chooser.AddOption(AutoIntAcc::GetName(), AutoIntAcc::GetName());
+    m_chooser.AddOption(AutoPowerPort::GetName(), AutoPowerPort::GetName());
 }
 
 // Initialize the selected auto program
@@ -68,6 +71,14 @@ void AutoPrograms::Init()
     if (name == AutoEightBall::GetName())
     {
         m_autoProgram = new AutoEightBall(IO);
+    }
+    if (name == AutoIntAcc::GetName())
+    {
+        m_autoProgram = new AutoIntAcc(IO);
+    }
+    if (name == AutoPowerPort::GetName())
+    {
+        m_autoProgram = new AutoPowerPort(IO);
     }
 }
 

@@ -22,12 +22,16 @@ private:
 	const double dh = 63.0; //distance between camera lens and quarter-way up the goal
 
 	std::shared_ptr<NetworkTable> table;
+	std::shared_ptr<NetworkTable> ballTable;
 	std::vector<double> pnpPoints;
 	double dy, dx, tv, pipe, pnpDist;
 	bool pipeSwitchOS = false;
 	int pipeSwitchCt = 0;
 	frc::Timer pipeSwitch;
 	frc::Timer lightOn;
+
+	const double redConfig[2][3] = {{240.0, 50.0, 165.0}, {200.0, 150.0, 120.0}}; //(x, y)
+	const double blueConfig[2][3] = {{1.0, 2.0, 3.0}, {1.0, 2.0, 3.0}}; //(x, y)
 
 public:
 	typedef struct
@@ -50,6 +54,13 @@ public:
 		LongShot
 	};
 
+	enum SearchConfig
+	{
+		Red = 0,
+		Blue,
+		Err
+	};
+
 	RJVisionPipeline();
 	void Init();
 	void Periodic();
@@ -61,5 +72,6 @@ public:
 	double DistEstimation();
 	double DeterminePipeline(int shotType);
 	void Reset();
+	SearchConfig GetConfig();
 };
 } // namespace vision

@@ -39,11 +39,11 @@ Shooter::Shooter()
 
    flywheel.Config_IntegralZone(0, 200.0);
 
-   motorIntake.SetInverted(false);
+   motorIntake.SetInverted(true);
 
-   motorIndexer.SetInverted(false);  // Omni Rollers
+   motorIndexer.SetInverted(true);   // Omni Rollers
    motorIndexerB.SetInverted(false); // First set of brushes (Rear)
-   motorIndexerC.SetInverted(true);  // Second set of brushes (Front)
+   motorIndexerC.SetInverted(false); // Second set of brushes (Front)
 
    motorFeeder.SetInverted(true);
    motorHood.SetInverted(true);
@@ -232,7 +232,6 @@ void Shooter::SetIndexer(double speed)
    motorIndexerC.Set(ControlMode::PercentOutput, speed * SECONDBRUSH);
    sparkIndexerB.Set(speed * FIRSTBRUSH);
    sparkIndexerC.Set(speed * SECONDBRUSH);
-
 }
 
 void Shooter::SetFeeder(double speed)
@@ -270,7 +269,7 @@ void Shooter::SetHood(double input)
    // Manual Mode
 
    // Soft Limits
-   if (!hoodZeroSw.Get() && input < 0.0)
+   if ((!hoodZeroSw.Get() || GetHoodAngle() < 20.0) && input < 0.0)
    {
       motorHood.Set(0.0);
    }
@@ -339,11 +338,20 @@ double Shooter::GetHoodAngle()
    // Zero Switch
    if (!hoodZeroSw.Get())
    {
+
       hoodEncQuad.Reset();
    }
-
-   return (hoodEncQuad.GetDistance() + offset);
-   //return (-hoodEncAbs.GetDistance() + offset);
+   //return (hoodEncQuad.GetDistance() + offset);
+   double ang = -hoodEncAbs.GetDistance() + offset;
+   if (ang < 0 || ang > 120)
+   {
+      ang = fmod(ang, 144.0);
+   }
+   if (ang < 0)
+   {
+      ang += 144.0;
+   }
+   return (ang);
 }
 
 void Shooter::ManualShoot(double inputFly, double inputKick)
