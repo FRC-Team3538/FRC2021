@@ -62,7 +62,7 @@ public:
         // Set the distance per pulse for the drive encoders. We can simply use the
         // distance traveled for one rotation of the wheel divided by the encoder
         // resolution.
-        auto dpp = empiricalDist/196920.0;//empiricalDist/258824.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution) / 10.24;
+        auto dpp = /*empiricalDist/196920.0;*/empiricalDist/258824.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution) / 10.24;
         m_leftEncoder.SetDistancePerPulse(dpp.value());
         m_rightEncoder.SetDistancePerPulse(-dpp.value());
 
@@ -102,7 +102,7 @@ private:
 
     static constexpr units::meter_t kTrackWidth = 24.19872_in;
     static constexpr units::meter_t kWheelRadius = 3_in;
-    static constexpr units::meter_t empiricalDist = 180_in;
+    static constexpr units::meter_t empiricalDist = 240_in;
     static constexpr double kGearRatio = 10.24;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;

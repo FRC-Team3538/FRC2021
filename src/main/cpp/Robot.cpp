@@ -105,7 +105,7 @@ public:
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
       wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Barrel.wpilib.json");
+      wpi::sys::path::append(deployDirectory, "Barrel2.wpilib.json");
 
       m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     }
@@ -279,7 +279,7 @@ public:
       frc::TrajectoryConfig config(5_fps, 5_fps_sq); //10
 
       // Go to Load
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+      m_trajectory_PP = frc::TrajectoryGenerator::GenerateTrajectory(
           shoot,
           {},
           load,
@@ -287,7 +287,7 @@ public:
 
       // Go To Shoot
       config.SetReversed(true);
-      m_trajectory_PP = frc::TrajectoryGenerator::GenerateTrajectory(
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           load,
           {},
           shoot,
@@ -437,11 +437,7 @@ public:
       frc::to_json(j, reference);
       auto reference_json = j.dump(0);
 
-      frc::to_json(j, m_drive.GetPose());
-      auto pose_json = j.dump(0);
-
       frc::SmartDashboard::PutString("Reference", reference_json);
-      frc::SmartDashboard::PutString("Pose", pose_json);
 
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
       m_drive.Drive(speeds.vx, speeds.omega);
