@@ -11,7 +11,7 @@
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
-class Climber
+class Climber: rj::Loggable
 {
   private:
 
@@ -33,10 +33,10 @@ class Climber
     void Configure();
     
     void Log(UDPLogger &logger)
-  {
-    logger.LogExternalDevice(motorClimber0);
-    logger.LogExternalDevice(motorClimber1);
-  }
+    {
+      logger.LogExternalDevice(motorClimber0);
+      logger.LogExternalDevice(motorClimber1);
+    }
 
 
     void Stop();

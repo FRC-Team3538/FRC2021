@@ -27,7 +27,7 @@ constexpr uint32_t kLeft2 = 1;
 constexpr uint32_t kRight1 = 3;
 constexpr uint32_t kRight2 = 4;
 
-class Drivebase
+class Drivebase: rj::Loggable
 {
 private:
   // Hardware setup
