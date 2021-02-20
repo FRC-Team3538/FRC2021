@@ -5,7 +5,8 @@
 #include <frc/Compressor.h>
 
 
-class GlobalDevices: rj::Loggable {
+class GlobalDevices: public rj::Loggable
+{
   frc::PowerDistributionPanel pdp;
   frc::Compressor pcm;
     

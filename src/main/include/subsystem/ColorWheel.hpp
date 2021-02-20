@@ -14,7 +14,7 @@
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
-class ColorWheel: rj::Loggable
+class ColorWheel: public rj::Loggable
 {
 private:
   WPI_VictorSPX motorColorWheel{ 14 };

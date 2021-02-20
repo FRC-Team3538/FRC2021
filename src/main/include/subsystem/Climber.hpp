@@ -11,7 +11,7 @@
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
-class Climber: rj::Loggable
+class Climber: public rj::Loggable
 {
   private:
 

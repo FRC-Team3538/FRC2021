@@ -36,10 +36,10 @@ public:
   Logging log;
 
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
-    // std::shared_ptr<rj::Loggable>(&globals)
-    // std::shared_ptr<rj::Loggable>(&drivebase)
-    // std::shared_ptr<rj::Loggable>(&shooter)
-    // std::shared_ptr<rj::Loggable>(&climber)
-    // std::shared_ptr<rj::Loggable>(&colorWheel)
+    std::shared_ptr<rj::Loggable>(&globals),
+    std::shared_ptr<rj::Loggable>(&drivebase),
+    std::shared_ptr<rj::Loggable>(&shooter),
+    std::shared_ptr<rj::Loggable>(&climber),
+    std::shared_ptr<rj::Loggable>(&colorWheel),
   };
 };
