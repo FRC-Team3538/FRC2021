@@ -33,8 +33,12 @@ void Drivetrain::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
       rightRate,
       speeds.right.to<double>());
 
-  m_leftGroup.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
-  m_rightGroup.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+  // m_leftGroup.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+  // m_rightGroup.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+
+  m_leftGroup.SetVoltage(leftFeedforward);
+  m_rightGroup.SetVoltage(rightFeedforward);
+  
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
@@ -47,13 +51,13 @@ void Drivetrain::UpdateOdometry()
 {
 #ifdef __FRC_ROBORIO__
   auto left = m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
-  auto right = m_driveR0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
+  auto right = m_driveR0.GetSelectedSensorPosition(0) * m_rightEncoder.GetDistancePerPulse();
 
   m_odometry.Update(m_imu.GetRotation2d(),
-                    units::meter_t(left),
+                    units::meter_t(left), 
                     units::meter_t(right));
 #else
-  m_odometry.Update(m_gyro.GetRotation2d(),
+  m_odometry.Update(m_gyro.GetRotation2d() /*m_gyro.GetRotation2d()*/,
                     units::meter_t(m_leftEncoder.GetDistance()),
                     units::meter_t(m_rightEncoder.GetDistance()));
 #endif
@@ -98,5 +102,13 @@ void Drivetrain::SimulationPeriodic()
 void Drivetrain::Periodic()
 {
   UpdateOdometry();
-  m_fieldSim.SetRobotPose(m_odometry.GetPose());
+  //m_fieldSim.SetRobotPose(m_odometry.GetPose());
+  // double angle = /*m_imu.GetAngle();*/ acos(m_imu.GetRotation2d().Cos()) * (180.0 / wpi::math::pi);
+  // double distL = (m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse());
+  // double distR = (m_driveR0.GetSelectedSensorPosition(0) * m_rightEncoder.GetDistancePerPulse());
+  // frc::SmartDashboard::PutNumber("Dist L", distL);
+  // frc::SmartDashboard::PutNumber("Dist R", distR);
+  // frc::SmartDashboard::PutNumber("Angle", angle);
+  // frc::SmartDashboard::PutNumber("DISTANCEL", m_driveL0.GetSelectedSensorPosition(0));
+  // frc::SmartDashboard::PutNumber("DISTANCER", m_driveR0.GetSelectedSensorPosition(0));
 }

@@ -14,6 +14,7 @@
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
+#include <wpi/json.h>
 
 #include "Drivetrain.h"
 
@@ -41,6 +42,13 @@ public:
 
     // Robot Preferences
     prefs = frc::Preferences::GetInstance();
+
+    frc::SmartDashboard::PutNumber("VoltageL", 0.0);
+    frc::SmartDashboard::PutNumber("VoltageR", 0.0);
+    frc::SmartDashboard::PutNumber("Left Rate", 0.0);
+    frc::SmartDashboard::PutNumber("Right Rate", 0.0);
+    frc::SmartDashboard::PutString("Reference", "");
+    frc::SmartDashboard::PutString("Pose", "");
   }
 
   void RobotPeriodic() override
@@ -49,6 +57,12 @@ public:
 
     frc::SmartDashboard::PutNumber("m_autoState", m_autoState);
     frc::SmartDashboard::PutNumber("m_autoTimer", m_autoTimer.Get().value());
+
+    wpi::json j;
+    frc::to_json(j, m_drive.GetPose());
+    auto pose_json = j.dump(0);
+
+    frc::SmartDashboard::PutString("Pose", pose_json);
   }
 
   void AutonomousInit() override
@@ -260,9 +274,9 @@ public:
     }
     else if (path == "PowerPort")
     {
-      frc::Pose2d shoot{120_in, 90_in, 0_deg};
-      frc::Pose2d load{260_in, 90_in, 0_deg};
-      frc::TrajectoryConfig config(Drivetrain::kMaxSpeed, 10_fps_sq);
+      frc::Pose2d shoot{0_in, 0_in, 0_deg};
+      frc::Pose2d load{120_in, 0_in, 0_deg};         //300
+      frc::TrajectoryConfig config(5_fps, 5_fps_sq); //10
 
       // Go to Load
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
@@ -347,6 +361,7 @@ public:
       }
       else if (path == "Barrel" || path == "Slalom")
       {
+
         if ((m_autoTimer.Get() > m_trajectory.TotalTime() / 2.0) && m_drive.GetPose().X() < (60.0_in + BumperDist))
         {
           m_drive.Drive(0_mps, 0_deg_per_s);
@@ -370,6 +385,12 @@ public:
       auto reference = m_trajectory.Sample(m_autoTimer.Get());
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
       m_drive.Drive(speeds.vx, speeds.omega);
+
+      wpi::json j;
+      frc::to_json(j, reference);
+      auto reference_json = j.dump(0);
+      
+      frc::SmartDashboard::PutString("Reference", reference_json);
     }
   }
 
@@ -380,8 +401,8 @@ public:
                   Drivetrain::kMaxSpeed;
 
     auto rot = -m_rotLimiter.Calculate(
-                   deadband(m_controller.GetRawAxis(3))) *
-               Drivetrain::kMaxAngularSpeed;
+                   deadband(m_controller.GetRawAxis(2))) *
+               Drivetrain::kMaxAngularSpeed; //3
 
     m_drive.Drive(xSpeed, rot);
   }
@@ -411,6 +432,17 @@ public:
       // Go To reload
       auto elapsed = m_autoTimer.Get();
       auto reference = m_trajectory.Sample(elapsed);
+
+      wpi::json j;
+      frc::to_json(j, reference);
+      auto reference_json = j.dump(0);
+
+      frc::to_json(j, m_drive.GetPose());
+      auto pose_json = j.dump(0);
+
+      frc::SmartDashboard::PutString("Reference", reference_json);
+      frc::SmartDashboard::PutString("Pose", pose_json);
+
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
       m_drive.Drive(speeds.vx, speeds.omega);
 
