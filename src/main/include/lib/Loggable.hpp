@@ -1,3 +1,4 @@
+#pragma once
 #include <UDPLogger.hpp>
 
 namespace rj {

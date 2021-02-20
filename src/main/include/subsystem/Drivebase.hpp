@@ -10,7 +10,12 @@
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 // #include "rev/CANSparkMax.h"
+
 #include <adi/ADIS16470_IMU.h>
+
+#include "lib/Loggable.hpp"
+#include <UDPLogger.hpp>
+
 
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
@@ -73,7 +78,7 @@ private:
 
 #define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.022))
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
-#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))    //15
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015)) //15
 
 #define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
@@ -95,6 +100,14 @@ public:
   }
 
   void Configure();
+
+  void Log(UDPLogger &logger)
+  {
+    logger.LogExternalDevice(motorLeft1);
+    logger.LogExternalDevice(motorLeft2);
+    logger.LogExternalDevice(motorRight1);
+    logger.LogExternalDevice(motorRight2);
+  }
 
   bool sensorOverride = false;
   double forwardHeading = 0;

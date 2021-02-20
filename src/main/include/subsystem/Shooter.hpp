@@ -11,29 +11,32 @@
 #include <frc/DigitalInput.h>
 #include "rev/CANSparkMax.h"
 
+#include "lib/Loggable.hpp"
+#include <UDPLogger.hpp>
+
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
-class Shooter
+class Shooter : public rj::Loggable
 {
 private:
   //CTRE CAN
-  WPI_TalonFX flywheel { 6 };
-  WPI_TalonFX flywheelB { 7 };
-  WPI_TalonFX motorIntake { 8 };
+  WPI_TalonFX flywheel{6};
+  WPI_TalonFX flywheelB{7};
+  WPI_TalonFX motorIntake{8};
 
-  WPI_VictorSPX motorIndexer{ 9 };
-  WPI_TalonFX   motorIndexerB{ 15 };
-  WPI_VictorSPX motorIndexerC{ 16 };
+  WPI_VictorSPX motorIndexer{9};
+  WPI_TalonFX motorIndexerB{15};
+  WPI_VictorSPX motorIndexerC{16};
 
-  rev::CANSparkMax sparkIndexerB{ 15, rev::CANSparkMax::MotorType::kBrushless };
-  rev::CANSparkMax sparkIndexerC{ 16, rev::CANSparkMax::MotorType::kBrushless };
+  rev::CANSparkMax sparkIndexerB{15, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax sparkIndexerC{16, rev::CANSparkMax::MotorType::kBrushless};
 
-  WPI_TalonSRX motorFeeder{ 10 };
-  WPI_VictorSPX motorHood{ 11 };
+  WPI_TalonSRX motorFeeder{10};
+  WPI_VictorSPX motorHood{11};
 
-  Solenoid solenoidIntake{ 0 };
-  Solenoid solenoidHood{ 1 };
+  Solenoid solenoidIntake{0};
+  Solenoid solenoidHood{1};
 
   Timer shootDelay;
   bool shootOS = false;
@@ -73,11 +76,25 @@ public:
   };
 
   Shooter()
-    {
-      Configure();
-    }
+  {
+    Configure();
+  }
 
   void Configure();
+
+  void Log(UDPLogger &logger)
+  {
+    logger.LogExternalDevice(flywheel);
+    logger.LogExternalDevice(flywheelB);
+    logger.LogExternalDevice(motorIndexer);
+    logger.LogExternalDevice(motorIndexerB);
+    logger.LogExternalDevice(motorIndexerC);
+    logger.LogExternalDevice(motorFeeder);
+    logger.LogExternalDevice(motorHood);
+    logger.LogExternalDevice(hoodEncAbs);
+    logger.LogExternalDevice(hoodZeroSw);
+    logger.LogExternalDevice(hoodEncQuad);
+  }
 
   void Stop();
   void SetShooterDistanceTwo(double distance);

@@ -5,6 +5,9 @@
 #include <frc/SpeedControllerGroup.h>
 #include <frc/Solenoid.h>
 
+#include "lib/Loggable.hpp"
+#include <UDPLogger.hpp>
+
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
@@ -28,6 +31,13 @@ class Climber
     };
 
     void Configure();
+    
+    void Log(UDPLogger &logger)
+  {
+    logger.LogExternalDevice(motorClimber0);
+    logger.LogExternalDevice(motorClimber1);
+  }
+
 
     void Stop();
     void SetClimber(double speed);
