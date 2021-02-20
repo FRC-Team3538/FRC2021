@@ -8,7 +8,7 @@ std::string AutoCenterShootForward::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoCenterShootForward::AutoCenterShootForward(robotmap &IO) : IO(IO)
+AutoCenterShootForward::AutoCenterShootForward(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();

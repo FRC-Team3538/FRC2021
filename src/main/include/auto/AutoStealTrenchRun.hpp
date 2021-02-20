@@ -5,7 +5,7 @@
 #include <frc/Timer.h>
 
 #include "AutoInterface.hpp"
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 
 class AutoStealTrenchRun : public AutoInterface {
  public:
@@ -13,8 +13,8 @@ class AutoStealTrenchRun : public AutoInterface {
     static std::string GetName();
 
  private:
-    // Get a referance to the robotmap
-    robotmap& IO;
+    // Get a referance to the RobotMap
+    RobotMap& IO;
 
     // State Variables
     int m_state;   
@@ -25,7 +25,7 @@ class AutoStealTrenchRun : public AutoInterface {
  public:
     // Constructor requires a reference to the RobotMap
     AutoStealTrenchRun() = delete;
-    AutoStealTrenchRun(robotmap& );
+    AutoStealTrenchRun(RobotMap& );
     ~AutoStealTrenchRun();
 
     // Auto Program Logic
@@ -39,5 +39,5 @@ class AutoStealTrenchRun : public AutoInterface {
 #include <frc/Timer.h>
 
 #include "AutoInterface.hpp"
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 

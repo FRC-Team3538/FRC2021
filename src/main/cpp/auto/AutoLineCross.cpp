@@ -8,7 +8,7 @@ std::string AutoLineCross::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoLineCross::AutoLineCross(robotmap &IO) : IO(IO)
+AutoLineCross::AutoLineCross(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();

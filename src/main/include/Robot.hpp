@@ -11,7 +11,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "auto/AutoPrograms.hpp"
 #include <string>
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <opencv2/videoio.hpp>
@@ -41,7 +41,7 @@ private:
   void UpdateSD();
 
   std::thread logger;
-  robotmap IO;
+  RobotMap IO;
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 

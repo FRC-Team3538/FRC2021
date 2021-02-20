@@ -5,8 +5,6 @@
 #include <frc/SpeedControllerGroup.h>
 #include <frc/Solenoid.h>
 
-#include "ExternalDeviceProvider.hpp"
-
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
@@ -15,20 +13,16 @@ class Climber
   private:
 
     // CTRE CAN
-    WPI_TalonFX &motorClimber0;
-    WPI_VictorSPX &motorClimber1;
+    WPI_TalonFX motorClimber0{ 12 };
+    WPI_VictorSPX motorClimber1{ 13 };
 
     // Solenoids
-    Solenoid &solenoidClimber;
-    Solenoid &climbBrake;
+    Solenoid solenoidClimber{ 2 };
+    Solenoid climbBrake{ 3 };
 
   public:
     // Default Constructor
-    Climber(ExternalDeviceProvider &xdp):
-    motorClimber0(xdp.motorClimber0),
-    motorClimber1(xdp.motorClimber1),
-    solenoidClimber(xdp.solenoidClimber),
-    climbBrake(xdp.climbBrake)
+    Climber()
     {
       Configure();
     };

@@ -1986,7 +1986,7 @@ from_json(const BasicJsonType& j, ControlFrameEnhanced& e)
   e = ((it != std::end(m)) ? it : std::begin(m))->first;
 }
 
-} // namespace motorcontrol
+}
 namespace motion {
 template<typename BasicJsonType>
 inline void
@@ -2027,7 +2027,7 @@ from_json(const BasicJsonType& j, SetValueMotionProfile& e)
   e = ((it != std::end(m)) ? it : std::begin(m))->first;
 }
 
-} // namespace motion
+}
 namespace sensors {
 template<typename BasicJsonType>
 inline void
@@ -2481,9 +2481,9 @@ from_json(const BasicJsonType& j, PigeonIMU::PigeonState& e)
   e = ((it != std::end(m)) ? it : std::begin(m))->first;
 }
 
-} // namespace sensors
-} // namespace phoenix
-} // namespace ctre
+}
+}
+}
 
 namespace ctre {
 namespace phoenix {
@@ -2700,7 +2700,7 @@ from_json(const wpi::json& nlohmann_json_j,
     nlohmann_json_j.at("timeDurMs"), nlohmann_json_t.timeDurMs);
 }
 
-} // namespace motion
+}
 namespace motorcontrol {
 
 inline void
@@ -4333,8 +4333,8 @@ from_json(const wpi::json& nlohmann_json_j,
     nlohmann_json_j.at("diff1Term"), nlohmann_json_t.diff1Term);
 }
 
-} // namespace can
-} // namespace motorcontrol
+}
+}
 namespace sensors {
 inline void
 to_json(wpi::json& nlohmann_json_j, const CANCoderFaults& nlohmann_json_t)
@@ -4544,6 +4544,6 @@ from_json(const wpi::json& nlohmann_json_j,
                                        nlohmann_json_t.sensorTimeBase);
 }
 
-} // namespace sensors
-} // namespace phoenix
-} // namespace ctre
+}
+}
+}

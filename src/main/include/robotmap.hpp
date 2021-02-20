@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ExternalDeviceProvider.hpp>
 #include <UDPLogger.hpp>
 #include <subsystem/Climber.hpp>
 #include <subsystem/ColorWheel.hpp>
@@ -10,17 +9,30 @@
 #include <subsystem/RJVisionPipeline.hpp>
 #include <subsystem/Shooter.hpp>
 
-class robotmap
+#include <lib/Configuration.hpp>
+#include <lib/Loggable.hpp>
+
+class RobotMap
 {
+private:
+  Configuration config;
+  std::string drivetrainFile { "DrivebaseConfig.json" };
+  std::string shooterFile { "ShooterConfig.json" };
+  std::string climberFile { "ClimberConfig.json" };
+  std::string colorWheelFile { "ColorWheelConfig.json" };
+
 public:
   UDPLogger logger;
-  ExternalDeviceProvider externalDeviceProvider;
 
   DS ds;
-  Drivebase drivebase{externalDeviceProvider};
-  Shooter shooter{externalDeviceProvider};
-  Climber climber{externalDeviceProvider};
-  ColorWheel colorWheel{externalDeviceProvider};
+  Drivebase drivebase{};
+  Shooter shooter{};
+  Climber climber{};
+  ColorWheel colorWheel{};
   vision::RJVisionPipeline RJV;
   Logging log;
+
+  std::vector<std::shared_ptr<rj::Loggable>> loggables{
+    // std::shared_ptr<rj::Loggable>(&drivebase)
+  };
 };

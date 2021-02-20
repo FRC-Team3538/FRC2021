@@ -287,8 +287,8 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, rev::CANSparkMax 
   auto revPID2 = GetREVPIDController(pid, 2);
   auto revPID3 = GetREVPIDController(pid, 3);
 
-  auto revFwdLimit = GetRevCANDigitalInput(fwdLimit);
-  auto revRevLimit = GetRevCANDigitalInput(revLimit);
+  auto revFwdLimit = GetREVCANDigitalInput(fwdLimit);
+  auto revRevLimit = GetREVCANDigitalInput(revLimit);
 
   return rj::CreateREVMotorStatusFrameDirect(
       fbb,
@@ -671,20 +671,6 @@ void UDPLogger::LogExternalDevice(ctre::phoenix::motorcontrol::can::TalonSRX& sr
 void UDPLogger::LogExternalDevice(ctre::phoenix::motorcontrol::can::VictorSPX& spx) {
   fbb.Reset();
   BuildExternalDeviceFrame(fbb, spx);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::PowerDistributionPanel& pdp) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pdp);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::Compressor& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
   auto buffer = fbb.Release();
   Log(buffer.data(), buffer.size());
 }

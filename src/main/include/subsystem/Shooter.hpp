@@ -11,8 +11,6 @@
 #include <frc/DigitalInput.h>
 #include "rev/CANSparkMax.h"
 
-#include "ExternalDeviceProvider.hpp"
-
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
@@ -20,22 +18,22 @@ class Shooter
 {
 private:
   //CTRE CAN
-  WPI_TalonFX &flywheel;
-  WPI_TalonFX &flywheelB;
-  WPI_TalonFX &motorIntake;
+  WPI_TalonFX flywheel { 6 };
+  WPI_TalonFX flywheelB { 7 };
+  WPI_TalonFX motorIntake { 8 };
 
-  WPI_VictorSPX &motorIndexer;
-  WPI_TalonFX &motorIndexerB;
-  WPI_VictorSPX &motorIndexerC;
+  WPI_VictorSPX motorIndexer{ 9 };
+  WPI_TalonFX   motorIndexerB{ 15 };
+  WPI_VictorSPX motorIndexerC{ 16 };
 
-  rev::CANSparkMax &sparkIndexerB;
-  rev::CANSparkMax &sparkIndexerC;
+  rev::CANSparkMax sparkIndexerB{ 15, rev::CANSparkMax::MotorType::kBrushless };
+  rev::CANSparkMax sparkIndexerC{ 16, rev::CANSparkMax::MotorType::kBrushless };
 
-  WPI_TalonSRX &motorFeeder;
-  WPI_VictorSPX &motorHood;
+  WPI_TalonSRX motorFeeder{ 10 };
+  WPI_VictorSPX motorHood{ 11 };
 
-  Solenoid &solenoidIntake;
-  Solenoid &solenoidHood;
+  Solenoid solenoidIntake{ 0 };
+  Solenoid solenoidHood{ 1 };
 
   Timer shootDelay;
   bool shootOS = false;
@@ -55,15 +53,15 @@ private:
   const double kScaleFactorFly = (1.0 / 2048);
   const double kScaleFactorHood = (2.0 / 5.0) * (360.0 / 8096.0);
 
-  DutyCycleEncoder &hoodEncAbs;
+  DutyCycleEncoder hoodEncAbs{0};
 
   double iAcc = 0;
   double prevError_rel = 0;
   const double kPHood = 0.0250;
   const double kIHood = 0.000016;
 
-  DigitalInput &hoodZeroSw;
-  Encoder &hoodEncQuad;
+  DigitalInput hoodZeroSw{3};
+  Encoder hoodEncQuad{1, 2};
 
 public:
   // Default Constructor
@@ -74,22 +72,7 @@ public:
     Percent
   };
 
-  Shooter(ExternalDeviceProvider &xdp):
-    flywheel(xdp.flywheel),
-    flywheelB(xdp.flywheelB),
-    motorIntake(xdp.motorIntake),
-    motorIndexer(xdp.motorIndexer),
-    motorIndexerB(xdp.motorIndexerB),
-    motorIndexerC(xdp.motorIndexerC),
-    sparkIndexerB(xdp.sparkIndexerB),
-    sparkIndexerC(xdp.sparkIndexerC),
-    motorFeeder(xdp.motorFeeder),
-    motorHood(xdp.motorHood),
-    solenoidIntake(xdp.solenoidIntake),
-    solenoidHood(xdp.solenoidHood),
-    hoodEncAbs(xdp.hoodEncAbs),
-    hoodZeroSw(xdp.hoodZeroSw),
-    hoodEncQuad(xdp.hoodEncQuad)
+  Shooter()
     {
       Configure();
     }

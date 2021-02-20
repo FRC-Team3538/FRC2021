@@ -96,8 +96,6 @@ public:
   void LogExternalDevice(ctre::phoenix::motorcontrol::can::VictorSPX& spx);
   void LogExternalDevice(frc::PowerDistributionPanel& pdp);
   void LogExternalDevice(frc::Compressor& pcm);
-  void LogExternalDevice(frc::PowerDistributionPanel& pdp);
-  void LogExternalDevice(frc::Compressor& pcm);
   void LogExternalDevice(rev::CANSparkMax& pcm);
   void LogExternalDevice(rev::ColorSensorV3& pcm);
   void LogExternalDevice(AHRS& pcm);

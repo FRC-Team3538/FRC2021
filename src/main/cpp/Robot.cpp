@@ -11,14 +11,18 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 void
-logToUDPLogger(UDPLogger& logger, ExternalDeviceProvider& provider)
+logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& loggables)
 {
   auto target =
     std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   logger.InitLogger();
   while (true) {
     logger.CheckForNewClient();
-    provider.PopulateLogBuffer(logger);
+
+    for (auto& loggable : loggables) {
+      loggable->Log(logger);
+    }
+
     logger.FlushLogBuffer();
     std::this_thread::sleep_until(target);
     target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
@@ -30,9 +34,9 @@ void Robot::RobotInit()
   auto time_point = std::chrono::system_clock::now();
   auto time = std::chrono::system_clock::to_time_t(time_point);
   IO.logger.SetTitle(std::ctime(&time));
-
-  logger = std::thread(
-    logToUDPLogger, std::ref(IO.logger), std::ref(IO.externalDeviceProvider));
+  
+  logger =
+    std::thread(logToUDPLogger, std::ref(IO.logger), std::ref(IO.loggables));
   logger.detach();
   
   IO.drivebase.ResetEncoders();

@@ -9,7 +9,8 @@ Drivebase::Configure()
 {
     // CTRE CAN
     motorLeft1.ConfigFactoryDefault();
-    motorLeft2.ConfigFactoryDefault();
+    motorLeft2.ConfigFactoryDefault();  ADIS16470_IMU imu{};
+
     motorRight1.ConfigFactoryDefault();
     motorRight2.ConfigFactoryDefault();
 
@@ -178,13 +179,13 @@ double Drivebase::GetEncoderPosition()
 // Gyro
 void Drivebase::ResetGyro()
 {
-    navx.ZeroYaw();
+    imu.Reset();
     forwardHeading = 0;
 }
 
 double Drivebase::GetGyroHeading()
 {
-    double yaw = -navx.GetYaw();
+    double yaw = imu.GetAngle();
     return yaw;
 }
 

@@ -10,13 +10,17 @@
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 // #include "rev/CANSparkMax.h"
-
-#include "ExternalDeviceProvider.hpp"
+#include <adi/ADIS16470_IMU.h>
 
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace frc;
 // using namespace rev;
+
+constexpr uint32_t kLeft1 = 0;
+constexpr uint32_t kLeft2 = 1;
+constexpr uint32_t kRight1 = 3;
+constexpr uint32_t kRight2 = 4;
 
 class Drivebase
 {
@@ -33,13 +37,14 @@ private:
   };
 
   // Talon
-  WPI_TalonFX &motorLeft1;
-  WPI_TalonFX &motorLeft2;
+  WPI_TalonFX motorLeft1{ kLeft1 };
+  WPI_TalonFX motorLeft2{ kLeft2 };
 
-  WPI_TalonFX &motorRight1;
-  WPI_TalonFX &motorRight2;
-
-  Solenoid &solenoidShifter;
+  WPI_TalonFX motorRight1{ kRight1 };
+  WPI_TalonFX motorRight2{ kRight2 };
+  
+  ADIS16470_IMU imu{};
+  Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
   const double kScaleFactor = 53.1875 / 52896;
@@ -84,13 +89,7 @@ private:
 
 public:
   // Default Constructor
-  Drivebase(ExternalDeviceProvider &xdp): 
-  motorLeft1(xdp.driveLeft1),
-  motorLeft2(xdp.driveLeft2),
-  motorRight1(xdp.driveRight1),
-  motorRight2(xdp.driveRight2),
-  solenoidShifter(xdp.solenoidShifter),
-  navx(xdp.navx)
+  Drivebase()
   {
     Configure();
   }
@@ -128,7 +127,6 @@ public:
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
-  AHRS &navx;
 
   //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
 };

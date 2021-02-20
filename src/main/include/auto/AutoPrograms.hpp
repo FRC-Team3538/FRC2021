@@ -4,7 +4,7 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 #include "auto/AutoInterface.hpp"
 #include <iostream>
 
@@ -12,8 +12,8 @@ class AutoPrograms
 {
 
   private:
-    // Get a referance to the robotmap
-    robotmap &IO;
+    // Get a referance to the RobotMap
+    RobotMap &IO;
 
     // Selected Auto Program
     AutoInterface* m_autoProgram;
@@ -24,7 +24,7 @@ class AutoPrograms
   public:
     // Constructor requires a reference to the RobotMap
     AutoPrograms() = delete;
-    AutoPrograms(robotmap &);
+    AutoPrograms(RobotMap &);
 
     // Choose a program to Initialize
     void Init();
