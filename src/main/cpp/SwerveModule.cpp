@@ -15,7 +15,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
                            const int turningEncoderChannel)
     : m_driveMotor(driveMotorChannel),
       m_turningMotor(turningMotorChannel, rev::CANSparkMaxLowLevel::MotorType::kBrushless),
-      m_analogInput(turningEncoderChannel)
+      m_turningEncoder(turningEncoderChannel)
 {
     // Drive Motor Configuration
     m_driveMotor.ConfigFactoryDefault();
@@ -32,26 +32,25 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
     m_turningMotor.BurnFlash();
 
     // Turning Encoder Config
-    m_turningEncoder.SetDistancePerRotation(2 * wpi::math::pi);
+    m_turningEncoder.ConfigFactoryDefault();
+    m_turningEncoder.SetPositionToAbsolute();
+    m_turningEncoder.ConfigAbsoluteSensorRange(AbsoluteSensorRange::Signed_PlusMinus180);
+    m_turningEncoder.ConfigSensorDirection(false);
+
+    m_angleOffsetPref += std::to_string(turningEncoderChannel);
+    m_turningEncoder.ConfigMagnetOffset(prefs->GetDouble(m_angleOffsetPref));
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
     m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                  units::radian_t(wpi::math::pi));
-
-    // Restore Offset from preferences
-    m_angleOffsetPref += std::to_string(turningEncoderChannel);
-    m_angleOffset = frc::Rotation2d(units::degree_t(prefs->GetDouble(m_angleOffsetPref)));
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
 {
     constexpr int pidIndex = 0;
     auto velocity = m_driveMotor.GetSelectedSensorVelocity(pidIndex) * kDriveScaleFactor / 100_ms;
-    auto angle = frc::Rotation2d(units::radian_t(m_turningEncoder.Get()));
-
-    angle += m_angleOffset;
-
+    auto angle = frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
     return {velocity, angle};
 }
 
@@ -125,10 +124,10 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder)
 
     builder.AddDoubleProperty(
         "Angle Offset",
-        [this] { return m_angleOffset.Degrees().value(); },
+        [this] { return prefs->GetDouble(m_angleOffsetPref); },
         [this](double value) {
             prefs->PutDouble(m_angleOffsetPref, value);
-            m_angleOffset = units::degree_t(value);
+            m_turningEncoder.ConfigMagnetOffset(value);
         });
 
     // Thermal

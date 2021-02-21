@@ -70,12 +70,10 @@ private:
     // Hardware
     WPI_TalonFX m_driveMotor;
     rev::CANSparkMax m_turningMotor;
-    frc::AnalogInput m_analogInput;
-    frc::AnalogEncoder m_turningEncoder{m_analogInput};
+    CANCoder m_turningEncoder;
 
     // Angle Offset
     std::string m_angleOffsetPref = "SwerveAngleOffset";
-    frc::Rotation2d m_angleOffset = 0_rad;
 
     // Control
     frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController{
