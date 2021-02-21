@@ -5,6 +5,7 @@
 #include "SwerveModule.h"
 
 #include <frc/geometry/Rotation2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <wpi/math>
 
 using namespace frc;
@@ -70,12 +71,6 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
     m_faultTermal = true;
   }
 
-  // Drive Command
-  m_drivePIDController.SetPID(
-      prefs->GetDouble(kPrefDriveKp, m_drivePIDController.GetP()),
-      prefs->GetDouble(kPrefDriveKi, m_drivePIDController.GetI()),
-      prefs->GetDouble(kPrefDriveKd, m_drivePIDController.GetD()));
-
   const auto driveOutput = m_drivePIDController.Calculate(
       GetState().speed,
       state.speed);
@@ -84,12 +79,6 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 
   m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
 
-  // Turn Command
-  m_turningPIDController.SetPID(
-      prefs->GetDouble(kPrefTurnKp, m_turningPIDController.GetP()),
-      prefs->GetDouble(kPrefTurnKi, m_turningPIDController.GetI()),
-      prefs->GetDouble(kPrefTurnKd, m_turningPIDController.GetD()));
-
   const auto turnOutput = m_turningPIDController.Calculate(
       GetState().angle.Radians(), state.angle.Radians());
 
@@ -97,4 +86,54 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
       m_turningPIDController.GetSetpoint().velocity);
 
   m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
+}
+
+void SwerveModule::InitSendable(frc::SendableBuilder &builder)
+{
+  builder.SetSmartDashboardType("SwerveModule");
+  builder.SetActuator(true);
+
+  // Drive Control
+  builder.AddDoubleProperty(
+      "Drive P", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
+  builder.AddDoubleProperty(
+      "Drive I", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
+  builder.AddDoubleProperty(
+      "Drive D", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
+  builder.AddDoubleProperty(
+      "Drive Goal",
+      [this] { return m_drivePIDController.GetGoal().velocity.value(); },
+      [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
+  builder.AddDoubleProperty(
+      "Velocity", [this] { return GetState().speed.value(); }, nullptr);
+
+  // Angle Control
+  builder.AddDoubleProperty(
+      "Angle P", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
+  builder.AddDoubleProperty(
+      "Angle I", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
+  builder.AddDoubleProperty(
+      "Angle D", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
+  builder.AddDoubleProperty(
+      "Angle Goal",
+      [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
+      [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
+  builder.AddDoubleProperty(
+      "Angle", [this] { return GetState().angle.Degrees().value(); }, nullptr);
+
+  builder.AddDoubleProperty(
+      "Angle Offset",
+      [this] { return m_angleOffset.Degrees().value(); },
+      [this](double value) {
+        prefs->PutDouble(m_angleOffsetPref, value);
+        m_angleOffset = units::degree_t(value);
+      });
+
+  // Thermal
+  builder.AddBooleanProperty(
+      "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
+  builder.AddDoubleProperty(
+      "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
+  builder.AddDoubleProperty(
+      "Angle Temp [C]", [this] { return m_turningMotor.GetMotorTemperature(); }, nullptr);
 }

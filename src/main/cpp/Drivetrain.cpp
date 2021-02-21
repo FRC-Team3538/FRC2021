@@ -4,7 +4,14 @@
 
 #include "Drivetrain.h"
 
-#include <frc2/Timer.h>
+Drivetrain::Drivetrain()
+{
+#ifdef __FRC_ROBORIO__
+  m_imu.Reset();
+#else
+  m_gyro.Reset();
+#endif
+}
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
@@ -15,9 +22,10 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
   frc::ChassisSpeeds cmd;
   if (fieldRelative)
   {
-    cmd = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                          xSpeed, ySpeed, rot, m_imu.GetRotation2d());
-  } else {
+    cmd = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, GetYaw());
+  }
+  else
+  {
     cmd = frc::ChassisSpeeds{xSpeed, ySpeed, rot};
   }
 
@@ -35,7 +43,27 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 
 void Drivetrain::UpdateOdometry()
 {
-  m_poseEstimator.Update(m_imu.GetRotation2d(), m_frontLeft.GetState(),
-                         m_frontRight.GetState(), m_backLeft.GetState(),
+  m_poseEstimator.Update(GetYaw(),
+                         m_frontLeft.GetState(),
+                         m_frontRight.GetState(),
+                         m_backLeft.GetState(),
                          m_backRight.GetState());
+}
+
+frc::Rotation2d Drivetrain::GetYaw()
+{
+
+#ifdef __FRC_ROBORIO__
+  return m_imu.GetRotation2d();
+#else
+  return m_gyro.GetRotation2d();
+#endif
+}
+
+void Drivetrain::Log()
+{
+  frc::SmartDashboard::PutData("SwerveFL", &m_frontLeft);
+  frc::SmartDashboard::PutData("SwerveFR", &m_frontRight);
+  frc::SmartDashboard::PutData("SwerveBL", &m_backLeft);
+  frc::SmartDashboard::PutData("SwerveBR", &m_backRight);
 }

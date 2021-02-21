@@ -20,11 +20,16 @@
 #include <units/temperature.h>
 #include <units/time.h>
 #include <wpi/math>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/Sendable.h>
+#include <frc/smartdashboard/SendableBuilder.h>
+#include <frc/smartdashboard/SendableHelper.h>
 
 #include "ctre/Phoenix.h"
 #include "rev/CANSparkMax.h"
 
-class SwerveModule
+class SwerveModule : public frc::Sendable,
+                     public frc::SendableHelper<SwerveModule>
 {
 public:
     SwerveModule(int driveMotorChannel,
@@ -32,6 +37,8 @@ public:
                  int turningEncoderChannel);
     frc::SwerveModuleState GetState();
     void SetDesiredState(const frc::SwerveModuleState &state);
+
+    void InitSendable(frc::SendableBuilder &builder) override;
 
 private:
     // Configuration
@@ -47,7 +54,7 @@ private:
 
     static constexpr auto kDriveScaleFactor =
         (2 * wpi::math::pi * kWheelRadius) / (kDriveGearboxRatio * kEncoderResolution);
-    
+
     static constexpr auto kTurningMotorVoltageNominal = 12.8_V;
 
     /********************************************************************************/
@@ -58,13 +65,7 @@ private:
     /********************************************************************************/
 
     // Preferences
-    frc::Preferences* prefs = frc::Preferences::GetInstance();
-    static constexpr auto kPrefDriveKp = "SwerveDriveKp";
-    static constexpr auto kPrefDriveKi = "SwerveDriveKi";
-    static constexpr auto kPrefDriveKd = "SwerveDriveKd";
-    static constexpr auto kPrefTurnKp = "SwerveTurnKp";
-    static constexpr auto kPrefTurnKi = "SwerveTurnKi";
-    static constexpr auto kPrefTurnKd = "SwerveTurnKd";
+    frc::Preferences *prefs = frc::Preferences::GetInstance();
 
     // Hardware
     WPI_TalonFX m_driveMotor;
@@ -77,7 +78,6 @@ private:
     frc::Rotation2d m_angleOffset = 0_rad;
 
     // Control
-    // TODO(Dereck): expose PID parameters for tuning
     frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController{
         1.0,
         0.0,
@@ -95,5 +95,4 @@ private:
 
     // Thermal Limit
     bool m_faultTermal = false;
-
 };

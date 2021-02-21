@@ -15,19 +15,28 @@ class Robot : public frc::TimedRobot
 public:
   void RobotInit() override
   {
+    // Flush NetworkTables every loop.
+    // This is probably not desireable for comp code, but good for debugging
+    SetNetworkTablesFlushEnabled(true);
+
+    // PS4 | xbox controller mapping
     m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
     m_chooser.AddOption(kAutoConstant, kAutoConstant);
     m_chooser.AddOption(kAutoToggle, kAutoToggle);
-    m_chooser.AddOption(kAutoSlew, kAutoSlew);
+    m_chooser.AddOption(kAutoSweep, kAutoSweep);
     frc::SmartDashboard::PutData(&m_chooser);
   }
 
   void RobotPeriodic() override
   {
     m_swerve.UpdateOdometry();
+
+    m_swerve.Log();
+
+
   }
 
   void AutonomousInit() override
@@ -47,7 +56,7 @@ public:
     auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("autoY2", 0.0));
     auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("autoR2", 0.0));
 
-    auto t = units::second_t(frc::SmartDashboard::GetNumber("autoT", 3.0));
+    auto t = units::second_t(frc::SmartDashboard::GetNumber("autoT", 4.0));
     auto autoTime = units::second_t(m_autoTimer.Get());
 
     //
@@ -66,7 +75,7 @@ public:
     else if (program == kAutoToggle)
     {
       // Toggle between two setpoints
-      if(units::second_t(m_autoTimer.Get()) > t)
+      if(autoTime > t/2)
       {
         m_swerve.Drive(x1, y1, r1, m_fieldRelative);
       } else {
@@ -74,17 +83,14 @@ public:
       }
 
       // Loop
-      if(units::second_t(m_autoTimer.Get()) > 2*t) m_autoTimer.Reset();
+      if(autoTime >= t) m_autoTimer.Reset();
     }
-    else if (program == kAutoSlew)
+    else if (program == kAutoSweep)
     {
-      // Sweep between two setpoints
-      auto T = units::second_t(m_autoTimer.Get());
-
       // Protect div0
       if(t <= 0.0_s) return;
 
-      auto a = units::math::abs(autoTime/t - 0.5);
+      auto a = units::math::abs(autoTime/t - 0.5) * 2.0;
       auto x = a * x1 + (1.0 - a) * x2;
       auto y = a * y1 + (1.0 - a) * y2;
       auto r = a * r1 + (1.0 - a) * r2;
@@ -93,6 +99,8 @@ public:
 
       // Loop
       if(autoTime >= t) m_autoTimer.Reset();
+
+      frc::SmartDashboard::PutNumber("Auto-a", a);
     }
 
   }
@@ -126,7 +134,7 @@ private:
   static constexpr auto kAutoNone = "0 - None";
   static constexpr auto kAutoConstant = "1 - Constant";
   static constexpr auto kAutoToggle = "2 - Toggle";
-  static constexpr auto kAutoSlew = "3 - Slew";
+  static constexpr auto kAutoSweep = "3 - Sweep";
 
   // Auto State
   frc::Timer m_autoTimer;
