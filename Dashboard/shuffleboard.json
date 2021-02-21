@@ -1,0 +1,609 @@
+{
+  "tabPane": [
+    {
+      "title": "DriveTeam",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 64.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "0,0": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/SendableChooser[0]",
+              "_title": "SmartDashboard/SendableChooser[0]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Pit",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 64.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {}
+      }
+    },
+    {
+      "title": "Swerve",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 64.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "6,0": {
+            "size": [
+              3,
+              8
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Rear Left",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle",
+                  "_title": "Angle"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle Goal",
+                  "_title": "Angle Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle Offset",
+                  "_title": "Angle Offset"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle P",
+                  "_title": "Angle P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle I",
+                  "_title": "Angle I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle D",
+                  "_title": "Angle D"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Velocity",
+                  "_title": "Velocity"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Drive Goal",
+                  "_title": "Drive Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Drive P",
+                  "_title": "Drive P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Drive I",
+                  "_title": "Drive I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Drive D",
+                  "_title": "Drive D"
+                },
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Thermal Fault",
+                  "_title": "Thermal Fault",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#00FF00FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Angle Temp [C]",
+                  "_title": "Angle Temp [C]"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBL/Drive Temp [C]",
+                  "_title": "Drive Temp [C]"
+                }
+              ]
+            }
+          },
+          "0,0": {
+            "size": [
+              3,
+              8
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Front Left",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle",
+                  "_title": "Angle"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Goal",
+                  "_title": "Angle Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Offset",
+                  "_title": "Angle Offset"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle P",
+                  "_title": "Angle P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle I",
+                  "_title": "Angle I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle D",
+                  "_title": "Angle D"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Velocity",
+                  "_title": "Velocity"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive Goal",
+                  "_title": "Drive Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive P",
+                  "_title": "Drive P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive I",
+                  "_title": "Drive I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive D",
+                  "_title": "Drive D"
+                },
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Thermal Fault",
+                  "_title": "Thermal Fault",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#00FF00FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Temp [C]",
+                  "_title": "Angle Temp [C]"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive Temp [C]",
+                  "_title": "Drive Temp [C]"
+                }
+              ]
+            }
+          },
+          "3,0": {
+            "size": [
+              3,
+              8
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Front Right",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle",
+                  "_title": "Angle"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle Goal",
+                  "_title": "Angle Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle Offset",
+                  "_title": "Angle Offset"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle P",
+                  "_title": "Angle P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle I",
+                  "_title": "Angle I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle D",
+                  "_title": "Angle D"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Velocity",
+                  "_title": "Velocity"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Drive Goal",
+                  "_title": "Drive Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Drive P",
+                  "_title": "Drive P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Drive I",
+                  "_title": "Drive I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Drive D",
+                  "_title": "Drive D"
+                },
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Thermal Fault",
+                  "_title": "Thermal Fault",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#00FF00FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Angle Temp [C]",
+                  "_title": "Angle Temp [C]"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFR/Drive Temp [C]",
+                  "_title": "Drive Temp [C]"
+                }
+              ]
+            }
+          },
+          "9,0": {
+            "size": [
+              3,
+              8
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Rear Right",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle",
+                  "_title": "Angle"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle Goal",
+                  "_title": "Angle Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle Offset",
+                  "_title": "Angle Offset"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle P",
+                  "_title": "Angle P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle I",
+                  "_title": "Angle I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle D",
+                  "_title": "Angle D"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Velocity",
+                  "_title": "Velocity"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Drive Goal",
+                  "_title": "Drive Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Drive P",
+                  "_title": "Drive P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Drive I",
+                  "_title": "Drive I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Drive D",
+                  "_title": "Drive D"
+                },
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Thermal Fault",
+                  "_title": "Thermal Fault",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#00FF00FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Angle Temp [C]",
+                  "_title": "Angle Temp [C]"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveBR/Drive Temp [C]",
+                  "_title": "Drive Temp [C]"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "SwerveFL",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 64.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "0,0": {
+            "size": [
+              3,
+              8
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Module Data",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle",
+                  "_title": "Angle"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Goal",
+                  "_title": "Angle Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Offset",
+                  "_title": "Angle Offset"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle P",
+                  "_title": "Angle P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle I",
+                  "_title": "Angle I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle D",
+                  "_title": "Angle D"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Velocity",
+                  "_title": "Velocity"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive Goal",
+                  "_title": "Drive Goal"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive P",
+                  "_title": "Drive P"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive I",
+                  "_title": "Drive I"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive D",
+                  "_title": "Drive D"
+                },
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Thermal Fault",
+                  "_title": "Thermal Fault",
+                  "Colors/Color when true": "#FF0000FF",
+                  "Colors/Color when false": "#00FF00FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Temp [C]",
+                  "_title": "Angle Temp [C]"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/SwerveFL/Drive Temp [C]",
+                  "_title": "Drive Temp [C]"
+                }
+              ]
+            }
+          },
+          "3,0": {
+            "size": [
+              10,
+              4
+            ],
+            "content": {
+              "_type": "Graph",
+              "_source0": "network_table:///SmartDashboard/SwerveFL/Angle Goal",
+              "_source1": "network_table:///SmartDashboard/SwerveFL/Angle",
+              "_title": "Angle",
+              "Graph/Visible time": 30.0,
+              "Graph/X-axis auto scrolling": true,
+              "Y-axis/Automatic bounds": true,
+              "Y-axis/Upper bound": 1.0,
+              "Y-axis/Lower bound": -1.0,
+              "Y-axis/Unit": "Degrees",
+              "Visible data/SmartDashboard/SwerveFL/Angle": true,
+              "Visible data/SmartDashboard/SwerveFL/Angle Goal": true
+            }
+          },
+          "3,4": {
+            "size": [
+              10,
+              4
+            ],
+            "content": {
+              "_type": "Graph",
+              "_source0": "network_table:///SmartDashboard/SwerveFL/Drive Goal",
+              "_source1": "network_table:///SmartDashboard/SwerveFL/Velocity",
+              "_title": "Velocity",
+              "Graph/Visible time": 30.0,
+              "Graph/X-axis auto scrolling": true,
+              "Y-axis/Automatic bounds": true,
+              "Y-axis/Upper bound": 1.0,
+              "Y-axis/Lower bound": -1.0,
+              "Y-axis/Unit": "m/s",
+              "Visible data/SmartDashboard/SwerveFL/Drive Goal": true,
+              "Visible data/SmartDashboard/SwerveFL/Velocity": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Auto",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 64.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "6,0": {
+            "size": [
+              3,
+              7
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Auto Tune",
+              "Layout/Label position": "RIGHT",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/T",
+                  "_title": "Time"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/X1",
+                  "_title": "X1"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/Y1",
+                  "_title": "Y1"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/R1",
+                  "_title": "R1"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/X2",
+                  "_title": "X2"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/Y2",
+                  "_title": "Y2"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/auto/R2",
+                  "_title": "R2"
+                }
+              ]
+            }
+          },
+          "0,0": {
+            "size": [
+              4,
+              1
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/SendableChooser[0]",
+              "_title": "Program Selection"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "windowGeometry": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 1084.0,
+    "height": 804.0
+  }
+}

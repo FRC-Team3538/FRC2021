@@ -11,6 +11,11 @@ Drivetrain::Drivetrain()
 #else
   m_gyro.Reset();
 #endif
+
+  frc::SmartDashboard::PutData("SwerveFL", &m_frontLeft);
+  frc::SmartDashboard::PutData("SwerveFR", &m_frontRight);
+  frc::SmartDashboard::PutData("SwerveBL", &m_backLeft);
+  frc::SmartDashboard::PutData("SwerveBR", &m_backRight);
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
@@ -62,8 +67,4 @@ frc::Rotation2d Drivetrain::GetYaw()
 
 void Drivetrain::Log()
 {
-  frc::SmartDashboard::PutData("SwerveFL", &m_frontLeft);
-  frc::SmartDashboard::PutData("SwerveFR", &m_frontRight);
-  frc::SmartDashboard::PutData("SwerveBL", &m_backLeft);
-  frc::SmartDashboard::PutData("SwerveBR", &m_backRight);
 }

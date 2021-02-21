@@ -28,15 +28,20 @@ public:
     m_chooser.AddOption(kAutoToggle, kAutoToggle);
     m_chooser.AddOption(kAutoSweep, kAutoSweep);
     frc::SmartDashboard::PutData(&m_chooser);
+
+    // Smartdash
+    frc::SmartDashboard::SetDefaultNumber("auto/X1", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/Y1", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/R1", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/X2", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/Y2", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/R2", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/T", 4.0);
   }
 
   void RobotPeriodic() override
   {
     m_swerve.UpdateOdometry();
-
-    m_swerve.Log();
-
-
   }
 
   void AutonomousInit() override
@@ -48,15 +53,15 @@ public:
   void AutonomousPeriodic() override
   {
     // Shared Smartdash Inputs
-    auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("autoX1", 0.0));
-    auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("autoY1", 0.0));
-    auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("autoR1", 0.0));
+    auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X1", 0.0));
+    auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y1", 0.0));
+    auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R1", 0.0));
 
-    auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("autoX2", 0.0));
-    auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("autoY2", 0.0));
-    auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("autoR2", 0.0));
+    auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X2", 0.0));
+    auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y2", 0.0));
+    auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R2", 0.0));
 
-    auto t = units::second_t(frc::SmartDashboard::GetNumber("autoT", 4.0));
+    auto t = units::second_t(frc::SmartDashboard::GetNumber("auto/T", 4.0));
     auto autoTime = units::second_t(m_autoTimer.Get());
 
     //
