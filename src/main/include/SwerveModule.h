@@ -45,6 +45,7 @@ private:
     static constexpr auto kWheelRadius = 3_in;
     static constexpr int kEncoderResolution = 2048;
     static constexpr double kDriveGearboxRatio = 5.25;
+    static constexpr double kEncoderGearboxRatio = 5.33 * 2.89 * 3.61;
 
     static constexpr auto kMaxLinearAcceleration = 6.0_mps_sq;
     static constexpr auto kMaxLinearJerk = 12.0_mps_sq / 1_s;
@@ -71,6 +72,7 @@ private:
     WPI_TalonFX m_driveMotor;
     rev::CANSparkMax m_turningMotor;
     CANCoder m_turningEncoder;
+    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42 * kEncoderGearboxRatio); 
 
     // Angle Offset
     std::string m_angleOffsetPref = "SwerveAngleOffset";

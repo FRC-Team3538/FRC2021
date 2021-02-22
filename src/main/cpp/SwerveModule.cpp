@@ -20,12 +20,12 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
     // Drive Motor Configuration
     m_driveMotor.ConfigFactoryDefault();
     m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
-    m_driveMotor.SetInverted(false);
+    m_driveMotor.SetInverted(false); // Remember: forward-positive!
     m_driveMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
 
     // Turning Motor Configuration
     m_turningMotor.RestoreFactoryDefaults();
-    m_turningMotor.SetInverted(false);
+    m_turningMotor.SetInverted(false); // Remember: counter-clockwise-positive!
     m_turningMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     m_turningMotor.SetSmartCurrentLimit(kTurningMotorCurrentLimit.value());
     m_turningMotor.EnableVoltageCompensation(kTurningMotorVoltageNominal.value());
@@ -35,10 +35,19 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
     m_turningEncoder.ConfigFactoryDefault();
     m_turningEncoder.SetPositionToAbsolute();
     m_turningEncoder.ConfigAbsoluteSensorRange(AbsoluteSensorRange::Signed_PlusMinus180);
-    m_turningEncoder.ConfigSensorDirection(false);
+    m_turningEncoder.ConfigSensorDirection(false); // Remember: counter-clockwise-positive!
 
     m_angleOffsetPref += std::to_string(turningEncoderChannel);
-    m_turningEncoder.ConfigMagnetOffset(prefs->GetDouble(m_angleOffsetPref));
+    m_turningEncoder.ConfigMagnetOffset(prefs->GetDouble(m_angleOffsetPref), 50);
+
+    // TODO(Dereck): Is it safe to call at this point (race condition)? 
+    auto startAngle = frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
+
+    // Neo550 Encoder
+    m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42 * kEncoderGearboxRatio); 
+    m_neoEncoder.SetInverted(false); // Remember: counter-clockwise-positive!
+    m_neoEncoder.SetPositionConversionFactor((42 * kEncoderGearboxRatio) / (2.0 * wpi::math::pi));
+    m_neoEncoder.SetPosition(startAngle.Radians().value());
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -50,7 +59,10 @@ frc::SwerveModuleState SwerveModule::GetState()
 {
     constexpr int pidIndex = 0;
     auto velocity = m_driveMotor.GetSelectedSensorVelocity(pidIndex) * kDriveScaleFactor / 100_ms;
-    auto angle = frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
+
+    auto angle = frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition()));
+    //auto angle = frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
+
     return {velocity, angle};
 }
 
@@ -129,6 +141,12 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder)
             prefs->PutDouble(m_angleOffsetPref, value);
             m_turningEncoder.ConfigMagnetOffset(value);
         });
+
+    // Turning Encoders
+    builder.AddDoubleProperty(
+        "Encoder Neo", [this] { return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition())).Degrees().value(); }, nullptr);
+    builder.AddDoubleProperty(
+        "Encoder CTRE", [this] { return frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition())).Degrees().value(); }, nullptr);
 
     // Thermal
     builder.AddBooleanProperty(
