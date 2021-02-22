@@ -43,10 +43,10 @@ private:
     frc::Translation2d m_backRightLocation{-m_dist, -m_dist};
 
     // Swerve Modules
-    SwerveModule m_frontLeft{1, 2, 4};
-    SwerveModule m_frontRight{3, 4, 5};
-    SwerveModule m_backLeft{5, 6, 6};
-    SwerveModule m_backRight{7, 8, 7};
+    SwerveModule m_frontLeft{1, 2, 3};
+    SwerveModule m_frontRight{1, 5, 6};
+    SwerveModule m_backLeft{6, 8, 9};
+    SwerveModule m_backRight{10, 11, 12};
 
     // Gyro / IMU
 #ifdef __FRC_ROBORIO__
