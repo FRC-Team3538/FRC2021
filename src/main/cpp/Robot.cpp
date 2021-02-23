@@ -2,13 +2,17 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include <cmath>
+
 #include <frc/SlewRateLimiter.h>
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/kinematics/SwerveModuleState.h>
 
-#include "Drivetrain.h"
-#include "UniversalController.hpp"
+#include "subsystems/Drivetrain.h"
+#include "subsystems/SwerveModule.h"
+#include "lib/UniversalController.hpp"
 
 class Robot : public frc::TimedRobot
 {
@@ -107,7 +111,6 @@ public:
 
       frc::SmartDashboard::PutNumber("Auto-a", a);
     }
-
   }
 
   void TeleopPeriodic() override
@@ -118,6 +121,13 @@ public:
     const auto rot = -m_rotLimiter.Calculate(m_controller.GetX(frc::GenericHID::kRightHand)) * Drivetrain::kMaxAngularSpeed;
     m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
+    // const auto drive = m_controller.GetY(frc::GenericHID::kLeftHand) * Drivetrain::kMaxSpeed;
+    // const auto rot_x = units::meter_t(m_controller.GetX(frc::GenericHID::kRightHand));
+    // const auto rot_y = units::meter_t(m_controller.GetY(frc::GenericHID::kRightHand));
+    // const auto ang = units::math::atan2(rot_y, rot_x);
+    // frc::SwerveModuleState state{drive, frc::Rotation2d(ang)};
+    // module.SetDesiredState(state);
+
     // Toggle Drive mode (Field | Robot Relative)
     if(m_controller.GetOptionsButtonPressed()) m_fieldRelative = !m_fieldRelative;
   }
@@ -125,6 +135,7 @@ public:
 private:
   frc::UniversalController m_controller{0};
   Drivetrain m_swerve;
+  // SwerveModule module{1, 2, 3};
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s};

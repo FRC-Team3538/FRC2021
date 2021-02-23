@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "PS4Controller.hpp"
+#include "lib/PS4Controller.hpp"
 
 #include "hal/FRCUsageReporting.h"
 

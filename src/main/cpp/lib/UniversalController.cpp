@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "UniversalController.hpp"
+#include "lib/UniversalController.hpp"
 
 #include "hal/FRCUsageReporting.h"
 

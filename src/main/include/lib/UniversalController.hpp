@@ -9,7 +9,7 @@
 
 #include <frc/GenericHID.h>
 #include <frc/XboxController.h>
-#include "PS4Controller.hpp"
+#include "lib/PS4Controller.hpp"
 
 namespace frc {
 

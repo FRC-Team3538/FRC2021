@@ -10,7 +10,7 @@
 #include <frc/AnalogGyro.h>
 #include <wpi/math>
 
-#include "SwerveModule.h"
+#include "subsystems/SwerveModule.h"
 #include "adi/ADIS16470_IMU.h"
 
 /**
@@ -44,8 +44,8 @@ private:
 
     // Swerve Modules
     SwerveModule m_frontLeft{1, 2, 3};
-    SwerveModule m_frontRight{1, 5, 6};
-    SwerveModule m_backLeft{6, 8, 9};
+    SwerveModule m_frontRight{4, 5, 6};
+    SwerveModule m_backLeft{7, 8, 9};
     SwerveModule m_backRight{10, 11, 12};
 
     // Gyro / IMU

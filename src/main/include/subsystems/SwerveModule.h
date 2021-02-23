@@ -37,12 +37,15 @@ public:
                  int turningEncoderChannel);
     frc::SwerveModuleState GetState();
     void SetDesiredState(const frc::SwerveModuleState &state);
+    frc::Rotation2d GetAngle();
 
     void InitSendable(frc::SendableBuilder &builder) override;
 
+    void Set(double drive, double azimuth);
+
 private:
     // Configuration
-    static constexpr auto kWheelRadius = 3_in;
+    static constexpr auto kWheelRadius = 1.5_in;
     static constexpr int kEncoderResolution = 2048;
     static constexpr double kDriveGearboxRatio = 5.25;
     static constexpr double kEncoderGearboxRatio = 5.33 * 2.89 * 3.61;
@@ -50,19 +53,19 @@ private:
     static constexpr auto kMaxLinearAcceleration = 6.0_mps_sq;
     static constexpr auto kMaxLinearJerk = 12.0_mps_sq / 1_s;
 
-    static constexpr auto kMaxAngularVelocity = wpi::math::pi * 1_rad_per_s;
-    static constexpr auto kMaxAngularAcceleration = wpi::math::pi * 2_rad_per_s_sq;
+    static constexpr auto kMaxAngularVelocity = wpi::math::pi * 4_rad_per_s;
+    static constexpr auto kMaxAngularAcceleration = wpi::math::pi * 8_rad_per_s_sq;
 
     static constexpr auto kDriveScaleFactor =
         (2 * wpi::math::pi * kWheelRadius) / (kDriveGearboxRatio * kEncoderResolution);
-
+    
     static constexpr auto kTurningMotorVoltageNominal = 12.8_V;
 
     /********************************************************************************/
     /* Post in slack #controls-software if you change these!                        */
     /********************************************************************************/
     static constexpr auto kTurningMotorCurrentLimit = 20_A;
-    static constexpr auto kTurningMotorTemperatureMax = 45_degC;
+    static constexpr auto kTurningMotorTemperatureMax = units::celsius_t(45);
     /********************************************************************************/
 
     // Preferences
@@ -71,27 +74,31 @@ private:
     // Hardware
     WPI_TalonFX m_driveMotor;
     rev::CANSparkMax m_turningMotor;
-    CANCoder m_turningEncoder;
-    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42 * kEncoderGearboxRatio); 
+    // CANCoder m_turningEncoder;
+    // encoder returns position in turns, so no need to use the internal ticks for added precision
+    // here we convert motor turns to wheel radians
+    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42.0 * kEncoderGearboxRatio); 
+    rev::CANPIDController m_neoPIDController = m_turningMotor.GetPIDController();
 
     // Angle Offset
     std::string m_angleOffsetPref = "SwerveAngleOffset";
 
     // Control
+    // TODO: Determine these values for actual-weight
     frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController{
-        1.0,
+        1.08,
         0.0,
         0.0,
         {kMaxLinearAcceleration, kMaxLinearJerk}};
 
     frc::ProfiledPIDController<units::radians> m_turningPIDController{
-        1.0,
-        0.0,
+        13.5,
+        1.54,
         0.0,
         {kMaxAngularVelocity, kMaxAngularAcceleration}};
 
-    frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward{1_V, 3_V / 1_mps};
-    frc::SimpleMotorFeedforward<units::radians> m_turnFeedforward{1_V, 0.5_V / 1_rad_per_s};
+    frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward{0.671_V, 2.32_V / 1_mps, 0.0452_V / 1_mps_sq};
+    frc::SimpleMotorFeedforward<units::radians> m_turnFeedforward{0.196_V, 0.534_V / 1_rad_per_s, 0.0348_V / 1_rad_per_s_sq};
 
     // Thermal Limit
     bool m_faultTermal = false;
