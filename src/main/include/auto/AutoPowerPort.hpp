@@ -2,11 +2,12 @@
 
 #include <string>
 
-#include <frc/Timer.h>
+#include <frc2/Timer.h>
+
+#include <units/velocity.h>
 
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
-
 
 class AutoPowerPort : public AutoInterface
 {
@@ -20,7 +21,7 @@ private:
 
    // State Variables
    int m_state;
-   Timer m_autoTimer;
+   frc2::Timer m_autoTimer;
 
    vision::RJVisionPipeline::visionData data;
    int tpCt = 0;
@@ -30,6 +31,10 @@ private:
 
    void NextState();
 
+   frc::Trajectory m_trajectory;
+   frc::Trajectory m_trajectory_rev;
+   frc::RamseteController m_ramsete;
+
 public:
    // Constructor requires a reference to the RobotMap
    AutoPowerPort() = delete;
@@ -37,6 +42,7 @@ public:
    ~AutoPowerPort();
 
    // Auto Program Logic
+   void Init();
    void Run();
    void UpdateSmartDash();
 };

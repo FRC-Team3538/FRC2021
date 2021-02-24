@@ -12,11 +12,6 @@
 #include "auto/AutoPrograms.hpp"
 #include <string>
 #include "robotmap.hpp"
-#include <frc/TimedRobot.h>
-#include <frc/smartdashboard/SendableChooser.h>
-#include <opencv2/videoio.hpp>
-#include <frc/PowerDistributionPanel.h>
-#include <frc/Timer.h>
 
 using namespace cv;
 

@@ -177,13 +177,13 @@ double Drivebase::GetEncoderPosition()
 // Gyro
 void Drivebase::ResetGyro()
 {
-    navx.ZeroYaw();
+    m_imu.Reset();
     forwardHeading = 0;
 }
 
 double Drivebase::GetGyroHeading()
 {
-    double yaw = -navx.GetYaw();
+    double yaw = m_imu.GetAngle();
     return yaw;
 }
 
@@ -319,11 +319,11 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
     {
         driveCommandRotation = -maxoutput;
     }
-    if((abs(errorRot) > 0.4) && (driveCommandRotation < 0.085 && driveCommandRotation > 0.0))
+    if ((abs(errorRot) > 0.4) && (driveCommandRotation < 0.085 && driveCommandRotation > 0.0))
     {
         driveCommandRotation = 0.09; //Minimum drive gain was 0.1
     }
-    else if((abs(errorRot) > 0.4) && (driveCommandRotation > -0.085 && driveCommandRotation < 0.0))
+    else if ((abs(errorRot) > 0.4) && (driveCommandRotation > -0.085 && driveCommandRotation < 0.0))
     {
         driveCommandRotation = -0.09;
     }
@@ -402,6 +402,58 @@ void Drivebase::SensorOverride(bool active)
     }
 
     // TODO: Check if there are more settings that should be changed.
+}
+
+void Drivebase::UpdateOdometry()
+{
+    auto left = units::inch_t(GetEncoderPositionLeft());
+    auto right = units::inch_t(GetEncoderPositionRight());
+    m_odometry.Update(m_imu.GetRotation2d(),
+                      units::meter_t(left),
+                      units::meter_t(right));
+}
+
+void Drivebase::ResetOdometry(const frc::Pose2d &pose)
+{
+    ResetEncoders();
+
+    m_odometry.ResetPosition(pose, pose.Rotation());
+}
+
+void Drivebase::MeasuredDrive(units::meters_per_second_t xSpeed,
+                              units::radians_per_second_t rot)
+{
+    SetSpeeds(m_kinematics.ToWheelSpeeds({xSpeed, 0_mps, rot}));
+}
+
+void Drivebase::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
+{
+    auto leftFeedforward = m_feedforward.Calculate(speeds.left);
+    auto rightFeedforward = m_feedforward.Calculate(speeds.right);
+
+    double leftRate = 0.0;
+    double rightRate = 0.0;
+
+    leftRate = motorLeft1.GetSelectedSensorVelocity(0) * kScaleFactor * 10.0;
+    rightRate = motorRight1.GetSelectedSensorVelocity(0) * kScaleFactor * 10.0;
+
+    double leftOutput = m_leftPIDController.Calculate(
+        leftRate,
+        speeds.left.to<double>());
+
+    double rightOutput = m_rightPIDController.Calculate(
+        rightRate,
+        speeds.right.to<double>());
+
+    motorLeft1.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+    motorLeft2.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+    motorRight1.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+    motorRight2.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+
+    motorLeft1.SetVoltage(leftFeedforward);
+    motorLeft2.SetVoltage(leftFeedforward);
+    motorRight1.SetVoltage(rightFeedforward);
+    motorRight2.SetVoltage(rightFeedforward);
 }
 
 // SmartDash updater

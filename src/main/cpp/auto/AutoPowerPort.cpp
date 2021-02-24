@@ -31,14 +31,39 @@ void AutoPowerPort::NextState()
     shotCounter = 0;
 }
 
+void AutoPowerPort::Init()
+{
+    wpi::json j;
+
+    frc::Pose2d shoot{0_in, 0_in, 0_deg};
+    frc::Pose2d load{-120_in, 0_in, 0_deg};
+    frc::TrajectoryConfig config(3_fps, 3_fps_sq);
+
+    // Go to Load
+    m_trajectory_rev = frc::TrajectoryGenerator::GenerateTrajectory(
+        load,
+        {},
+        shoot,
+        config);
+
+    // Go To Shoot
+    config.SetReversed(true);
+    m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+        shoot,
+        {},
+        load,
+        config);
+}
+
 // Execute the program
 void AutoPowerPort::Run()
 {
+
     switch (m_state)
     {
     case 0:
     {
-        //IO.shooter.IntakeDeploy();
+        IO.shooter.IntakeDeploy();
         data = IO.RJV.Run(0.0);
 
         IO.shooter.SetVelocity(3000.0);
@@ -75,7 +100,7 @@ void AutoPowerPort::Run()
         if (shotCounter >= 3)
             NextState();
 
-        if (m_autoTimer.Get() > 6.0)
+        if (m_autoTimer.Get().value() > 6.0)
         {
             NextState();
         }
@@ -87,8 +112,19 @@ void AutoPowerPort::Run()
         IO.shooter.SetFeeder(0.0);
         IO.shooter.SetIndexer(0.0);
         IO.shooter.SetIntake(0.0);
-        IO.drivebase.DriveForward(-165.0, 0.75);
-        if (IO.drivebase.GetEncoderPosition() <= -162.0)
+        auto elapsed = m_autoTimer.Get();
+        auto reference = m_trajectory.Sample(elapsed);
+
+        wpi::json j;
+        frc::to_json(j, reference);
+        auto reference_json = j.dump(0);
+
+        frc::SmartDashboard::PutString("Reference", reference_json);
+
+        auto speeds = m_ramsete.Calculate(IO.drivebase.GetPose(), reference);
+        IO.drivebase.MeasuredDrive(speeds.vx, speeds.omega);
+
+        if (elapsed > (m_trajectory.TotalTime()))
         {
             NextState();
         }
@@ -100,7 +136,7 @@ void AutoPowerPort::Run()
         IO.shooter.SetIndexer(1.0);
         IO.shooter.SetIntake(1.0);
 
-        if (m_autoTimer.Get() > SmartDashboard::GetNumber("PowerPort Delay", 7.0))
+        if (m_autoTimer.Get().value() > SmartDashboard::GetNumber("PowerPort Delay", 7.0))
         {
             NextState();
         }
@@ -112,8 +148,13 @@ void AutoPowerPort::Run()
         IO.shooter.SetFeeder(0.0);
         IO.shooter.SetIndexer(0.0);
         IO.shooter.SetIntake(0.0);
-        IO.drivebase.DriveForward(0.0, 0.75);
-        if (IO.drivebase.GetEncoderPosition() >= -4.0)
+        auto elapsed = m_autoTimer.Get();
+        auto reference = m_trajectory_rev.Sample(elapsed);
+
+        auto speeds = m_ramsete.Calculate(IO.drivebase.GetPose(), reference);
+        IO.drivebase.MeasuredDrive(speeds.vx, speeds.omega);
+
+        if (elapsed > (m_trajectory_rev.TotalTime()))
         {
             NextState();
         }

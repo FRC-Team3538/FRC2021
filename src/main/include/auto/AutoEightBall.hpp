@@ -34,6 +34,7 @@ public:
    ~AutoEightBall();
 
    // Auto Program Logic
+   void Init(){};
    void Run();
    void UpdateSmartDash();
 };

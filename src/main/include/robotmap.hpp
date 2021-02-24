@@ -7,6 +7,19 @@
 #include <subsystem/ColorWheel.hpp>
 #include <subsystem/RJVisionPipeline.hpp>
 #include <subsystem/Logging.hpp>
+#include <frc/TimedRobot.h>
+#include <frc/smartdashboard/SendableChooser.h>
+#include <opencv2/videoio.hpp>
+#include <frc/PowerDistributionPanel.h>
+#include <frc/Timer.h>
+#include <frc/controller/RamseteController.h>
+#include <frc/Preferences.h>
+#include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/Filesystem.h>
+#include <frc/trajectory/TrajectoryUtil.h>
+#include <wpi/Path.h>
+#include <wpi/SmallString.h>
+#include <wpi/json.h>
 
 class robotmap
 {
@@ -19,4 +32,3 @@ public:
   vision::RJVisionPipeline RJV;
   Logging log;
 };
-

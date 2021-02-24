@@ -5,10 +5,22 @@
 #include <ctre/Phoenix.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/PWMTalonSRX.h>
-#include <AHRS.h>
 #include <iostream>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
+#include "adi/ADIS16470_IMU.h"
+#include <frc/system/plant/LinearSystemId.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
+#include <units/length.h>
+#include <units/velocity.h>
+#include <frc/controller/PIDController.h>
+#include <frc/controller/SimpleMotorFeedforward.h>
+#include <frc/kinematics/DifferentialDriveKinematics.h>
+#include <frc/kinematics/DifferentialDriveOdometry.h>
+#include <frc/simulation/AnalogGyroSim.h>
+#include <frc/simulation/DifferentialDrivetrainSim.h>
+#include <frc/Encoder.h>
 // #include "rev/CANSparkMax.h"
 
 using namespace ctre::phoenix::motorcontrol::can;
@@ -40,7 +52,7 @@ private:
   Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  const double kScaleFactor = 240.0 / 258824.5;//53.1875 / 52896;
+  const double kScaleFactor = 240.0 / 258824.5; //53.1875 / 52896;
 
   enum slots
   {
@@ -66,7 +78,7 @@ private:
 
 #define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.022))
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
-#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))    //15
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015)) //15
 
 #define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021)) //0.021
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
@@ -80,9 +92,34 @@ private:
   const std::string sLimited = "Normal";
   const std::string sUnlimited = "Override";
 
+  static constexpr units::meter_t kTrackWidth = 24.19872_in;
+  static constexpr units::meter_t kWheelRadius = 3_in;
+  static constexpr double kGearRatio = 10.24;
+
+  decltype(1_V) kStatic{0.668};
+  decltype(1_V / 1_fps) kVlinear{0.686};
+  decltype(1_V / 1_fps_sq) kAlinear{0.124};
+  decltype(1_V / 1_rad_per_s) kVangular{0.717};
+  decltype(1_V / 1_rad_per_s_sq) kAangular{0.092};
+
+  frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0};
+  frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
+
+  frc::ADIS16470_IMU m_imu{
+      frc::ADIS16470_IMU::IMUAxis::kX,
+      frc::SPI::Port::kOnboardCS0,
+      frc::ADIS16470CalibrationTime::_4s};
+
+  frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
+  frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d()};
+  frc::SimpleMotorFeedforward<units::meters> m_feedforward{kStatic, kVlinear, kAlinear};
+
 public:
   // Default Constructor
   Drivebase();
+
+  static constexpr units::feet_per_second_t kMaxSpeed{10.0};
+  static constexpr units::degrees_per_second_t kMaxAngularSpeed{180.0};
 
   bool sensorOverride = false;
   double forwardHeading = 0;
@@ -115,7 +152,12 @@ public:
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
-  AHRS navx{SPI::Port::kMXP, 200};
+  void UpdateOdometry();
+  void ResetOdometry(const frc::Pose2d &pose);
+  void MeasuredDrive(units::meters_per_second_t xSpeed,
+                     units::radians_per_second_t rot);
+  void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
+  frc::Pose2d GetPose() const { return m_odometry.GetPose(); }
 
   //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
 };
