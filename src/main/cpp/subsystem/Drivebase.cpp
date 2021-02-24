@@ -445,10 +445,10 @@ void Drivebase::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
         rightRate,
         speeds.right.to<double>());
 
-    motorLeft1.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
-    motorLeft2.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
-    motorRight1.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
-    motorRight2.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+    // motorLeft1.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+    // motorLeft2.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
+    // motorRight1.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+    // motorRight2.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
 
     motorLeft1.SetVoltage(leftFeedforward);
     motorLeft2.SetVoltage(leftFeedforward);
