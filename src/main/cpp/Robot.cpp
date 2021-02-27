@@ -9,6 +9,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/kinematics/SwerveModuleState.h>
+#include <frc/livewindow/LiveWindow.h>
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
@@ -45,7 +46,9 @@ public:
   {
     // Flush NetworkTables every loop.
     // This is probably not desireable for comp code, but good for debugging
-    SetNetworkTablesFlushEnabled(true);
+    SetNetworkTablesFlushEnabled(false);
+    frc::LiveWindow::GetInstance()->DisableAllTelemetry();
+    frc::LiveWindow::GetInstance()->SetEnabled(false);
 
     // PS4 | xbox controller mapping
     m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);

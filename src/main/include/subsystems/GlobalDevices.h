@@ -8,11 +8,11 @@
 class GlobalDevices: public rj::Loggable
 {
   frc::PowerDistributionPanel pdp;
-  frc::Compressor pcm;
+  // frc::Compressor pcm;
     
   void Log(UDPLogger& logger)
   {
     logger.LogExternalDevice(pdp);
-    logger.LogExternalDevice(pcm);
+    // logger.LogExternalDevice(pcm);
   }
 };

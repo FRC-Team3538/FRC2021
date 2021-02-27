@@ -52,17 +52,17 @@ private:
     frc::Translation2d m_backRightLocation{-m_dist, -m_dist};
 
     // Swerve Modules
-    SwerveModule m_frontLeft{1, 2, 3};
-    SwerveModule m_frontRight{4, 5, 6};
-    SwerveModule m_backLeft{7, 8, 9};
-    SwerveModule m_backRight{10, 11, 12};
+    SwerveModule m_frontLeft{1, 2, 3, m_frontLeftConfig};
+    SwerveModule m_frontRight{4, 5, 6, m_frontRightConfig};
+    SwerveModule m_backLeft{7, 8, 9, m_backLeftConfig};
+    SwerveModule m_backRight{10, 11, 12, m_backRightConfig};
 
     // Gyro / IMU
 #ifdef __FRC_ROBORIO__
     frc::ADIS16470_IMU m_imu{
         frc::ADIS16470_IMU::IMUAxis::kZ,
-        frc::SPI::Port::kMXP,
-        frc::ADIS16470CalibrationTime::_512ms};
+        frc::SPI::Port::kOnboardCS0,
+        frc::ADIS16470CalibrationTime::_4s};
 #else
     // The ADI gyro is not simulator compatible on linux
     frc::AnalogGyro m_gyro{0};
@@ -79,4 +79,77 @@ private:
         m_kinematics,
         frc::Rotation2d(),
         frc::Pose2d()};
+
+    // Control
+    static constexpr auto kMaxModuleLinearAcceleration = 6.0_mps_sq;
+    static constexpr auto kMaxModuleLinearJerk = 12.0_mps_sq / 1_s;
+
+    static constexpr auto kMaxModuleAngularVelocity = wpi::math::pi * 4_rad_per_s;
+    static constexpr auto kMaxModuleAngularAcceleration = wpi::math::pi * 8_rad_per_s_sq;
+
+    const SwerveModuleConfig m_frontLeftConfig{
+        145.547_deg,
+        {
+            3.26,
+            0.0,
+            0.0,
+            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+        {
+            9.73,
+            0.0,
+            3.9,
+            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
+        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
+        {0.976_V, 3.61_V / 1_rad_per_s, 0.257_V / 1_rad_per_s_sq}
+    };
+    
+    const SwerveModuleConfig m_frontRightConfig{
+        -60.469_deg,
+        {
+            3.26,
+            0.0,
+            0.0,
+            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+        {
+            9.61,
+            0.0,
+            3.72,
+            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
+        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
+        {0.656_V, 3.7_V / 1_rad_per_s, 0.237_V / 1_rad_per_s_sq}
+    };
+
+    const SwerveModuleConfig m_backLeftConfig{
+        98.789_deg,
+        {
+            3.26,
+            0.0,
+            0.0,
+            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+        {
+            9.34,
+            0.0,
+            3.54,
+            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
+        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
+        {0.777_V, 3.62_V / 1_rad_per_s, 0.209_V / 1_rad_per_s_sq}
+    };
+
+    const SwerveModuleConfig m_backRightConfig{
+        126.387_deg,
+        {
+            3.26,
+            0.0,
+            0.0,
+            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+        {
+            9.77,
+            0.0,
+            3.98,
+            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
+        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
+        {0.764_V, 3.54_V / 1_rad_per_s, 0.264_V / 1_rad_per_s_sq}
+    };
+
+
 };

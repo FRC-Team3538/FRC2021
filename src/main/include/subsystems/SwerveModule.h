@@ -29,6 +29,15 @@
 #include "ctre/Phoenix.h"
 #include "rev/CANSparkMax.h"
 
+struct SwerveModuleConfig
+{
+    const units::degree_t angleOffset;
+    const frc::ProfiledPIDController<units::meters_per_second> drivePID;
+    const frc::ProfiledPIDController<units::radians> turningPID;
+    const frc::SimpleMotorFeedforward<units::meters> driveFf;
+    const frc::SimpleMotorFeedforward<units::radians> turnFf;
+};
+
 class SwerveModule : public frc::Sendable,
                      public frc::SendableHelper<SwerveModule>,
                      public rj::Loggable
@@ -36,7 +45,8 @@ class SwerveModule : public frc::Sendable,
 public:
     SwerveModule(int driveMotorChannel,
                  int turningMotorChannel,
-                 int turningEncoderChannel);
+                 int turningEncoderChannel,
+                 SwerveModuleConfig config);
     frc::SwerveModuleState GetState();
     void SetDesiredState(const frc::SwerveModuleState &state);
     frc::Rotation2d GetAngle();
@@ -83,31 +93,21 @@ private:
     // Hardware
     WPI_TalonFX m_driveMotor;
     rev::CANSparkMax m_turningMotor;
-    // CANCoder m_turningEncoder;
+    CANCoder m_turningEncoder;
     // encoder returns position in turns, so no need to use the internal ticks for added precision
     // here we convert motor turns to wheel radians
     rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42.0 * kEncoderGearboxRatio); 
     rev::CANPIDController m_neoPIDController = m_turningMotor.GetPIDController();
 
     // Angle Offset
-    std::string m_angleOffsetPref = "SwerveAngleOffset";
+    // std::string m_angleOffsetPref = "SwerveAngleOffset";
 
     // Control
-    // TODO: Determine these values for actual-weight
-    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController{
-        1.08,
-        0.0,
-        0.0,
-        {kMaxLinearAcceleration, kMaxLinearJerk}};
+    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;;
+    frc::ProfiledPIDController<units::radians> m_turningPIDController;
 
-    frc::ProfiledPIDController<units::radians> m_turningPIDController{
-        13.5,
-        1.54,
-        0.0,
-        {kMaxAngularVelocity, kMaxAngularAcceleration}};
-
-    frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward{0.671_V, 2.32_V / 1_mps, 0.0452_V / 1_mps_sq};
-    frc::SimpleMotorFeedforward<units::radians> m_turnFeedforward{0.196_V, 0.534_V / 1_rad_per_s, 0.0348_V / 1_rad_per_s_sq};
+    frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward;
+    frc::SimpleMotorFeedforward<units::radians> m_turnFeedforward;
 
     // Thermal Limit
     bool m_faultTermal = false;
