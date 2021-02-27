@@ -16,7 +16,31 @@
 #include <wpi/SmallString.h>
 #include <wpi/json.h>
 
-#include "Drivetrain.h"
+#include "subsystems/Drivetrain.h"
+#include "subsystems/GlobalDevices.h"
+#include <UDPLogger.hpp>
+
+#include <memory>
+#include <thread>
+
+void
+logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& loggables)
+{
+  auto target =
+    std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+  logger.InitLogger();
+  while (true) {
+    logger.CheckForNewClient();
+
+    for (auto& loggable : loggables) {
+      loggable->Log(logger);
+    }
+
+    logger.FlushLogBuffer();
+    std::this_thread::sleep_until(target);
+    target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+  }
+}
 
 class Robot : public frc::TimedRobot
 {
@@ -49,6 +73,13 @@ public:
     frc::SmartDashboard::PutNumber("Right Rate", 0.0);
     frc::SmartDashboard::PutString("Reference", "");
     frc::SmartDashboard::PutString("Pose", "");
+
+    auto time_point = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(time_point);
+    m_udp_logger.SetTitle(std::ctime(&time));
+    m_logging_thread =
+      std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
+    m_logging_thread.detach();
   }
 
   void RobotPeriodic() override
@@ -497,11 +528,21 @@ private:
   // TODO(Dereck): Change to PS4 controller
   frc::XboxController m_controller{0};
 
+  UDPLogger m_udp_logger;
+  std::thread m_logging_thread;
+
+  std::vector<std::shared_ptr<rj::Loggable>> loggables{
+    std::shared_ptr<rj::Loggable>(&m_globals),
+    std::shared_ptr<rj::Loggable>(&m_drive),
+  };
+
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   frc::SlewRateLimiter<units::scalar> m_speedLimiter{3 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
 
   Drivetrain m_drive{IsSimulation()};
+  GlobalDevices m_globals;
+
 
   frc::Trajectory m_trajectory;
   frc::Trajectory m_trajectory_PP;
