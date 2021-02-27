@@ -70,7 +70,9 @@ void Robot::AutonomousInit()
   IO.drivebase.ResetEncoders();
   IO.drivebase.ResetGyro();
   IO.shooter.Init();
+  IO.drivebase.Stop(); 
   autoPrograms.Init();
+  IO.drivebase.Stop(); 
   IO.drivebase.SetBrake();
 }
 
@@ -628,6 +630,18 @@ void Robot::TeleopPeriodic()
   {
     IO.colorWheel.AutoColorWheel();
   }
+}
+
+void Robot::SimulationInit()
+{
+    // Flush NetworkTables every loop. This ensures that robot pose and other
+    // values are sent during every iteration.
+    SetNetworkTablesFlushEnabled(true);
+}
+
+void Robot::SimulationPeriodic()
+{
+  IO.drivebase.SimulationPeriodic();
 }
 
 double Robot::Deadband(double input, double deadband)

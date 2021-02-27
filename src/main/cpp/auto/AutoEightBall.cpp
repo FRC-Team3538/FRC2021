@@ -13,7 +13,7 @@ AutoEightBall::AutoEightBall(robotmap &IO) : IO(IO)
     m_state = 0;
     m_autoTimer.Reset();
     m_autoTimer.Start();
-    IO.drivebase.Stop();
+    //IO.drivebase.Stop(); 
 }
 
 AutoEightBall::~AutoEightBall() {}

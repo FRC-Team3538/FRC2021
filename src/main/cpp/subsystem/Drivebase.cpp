@@ -3,6 +3,7 @@
 
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/RobotController.h>
 
 Drivebase::Drivebase()
 {
@@ -99,25 +100,35 @@ void Drivebase::Arcade(double forward, double turn)
         turn /= std::abs(turn);
     }
 
+    auto l = forward - turn;
+    auto r = forward + turn;
+
     // CAN
-    motorLeft1.Set(forward - turn);
-    motorLeft2.Set(forward - turn);
-    motorRight1.Set(forward + turn);
-    motorRight2.Set(forward + turn);
+    motorLeft1.Set(l);
+    motorLeft2.Set(l);
+    motorRight1.Set(r);
+    motorRight2.Set(r);
+
+    // Simulation Inputs (Motor Voltages)
+    m_drivetrainSimulator.SetInputs(units::volt_t{frc::RobotController::GetInputVoltage()} * l,
+                                    units::volt_t{frc::RobotController::GetInputVoltage()} * r);
 }
 
 // Stop! Hammer Time....
 void Drivebase::Stop()
-{
+{   
     motorLeft1.Set(0.0);
     motorLeft2.Set(0.0);
     motorRight1.Set(0.0);
     motorRight2.Set(0.0);
-    // CAN
+
     motorLeft1.StopMotor();
     motorLeft2.StopMotor();
     motorRight1.StopMotor();
     motorRight2.StopMotor();
+
+    // Simulation Inputs (Motor Voltages)
+    m_drivetrainSimulator.SetInputs(0_V, 0_V);
 }
 
 // Shift to High Gear
@@ -161,11 +172,21 @@ void Drivebase::ResetEncoders()
 
 double Drivebase::GetEncoderPositionLeft()
 {
+    if(m_isSimulation)
+    {
+        return units::inch_t(m_drivetrainSimulator.GetLeftPosition()).value();
+    }
+
     return motorLeft1.GetSelectedSensorPosition(0) * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPositionRight()
 {
+    if(m_isSimulation)
+    {
+        return units::inch_t(m_drivetrainSimulator.GetRightPosition()).value();
+    }
+
     return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor;
 }
 
@@ -183,6 +204,11 @@ void Drivebase::ResetGyro()
 
 double Drivebase::GetGyroHeading()
 {
+    if(m_isSimulation)
+    {
+        return m_drivetrainSimulator.GetHeading().Degrees().value();
+    }
+
     double yaw = m_imu.GetAngle();
     return yaw;
 }
@@ -408,7 +434,7 @@ void Drivebase::UpdateOdometry()
 {
     auto left = units::inch_t(GetEncoderPositionLeft());
     auto right = units::inch_t(GetEncoderPositionRight());
-    m_odometry.Update(m_imu.GetRotation2d(),
+    m_odometry.Update(frc::Rotation2d(units::degree_t(GetGyroHeading())),
                       units::meter_t(left),
                       units::meter_t(right));
 }
@@ -418,6 +444,7 @@ void Drivebase::ResetOdometry(const frc::Pose2d &pose)
     ResetEncoders();
 
     m_odometry.ResetPosition(pose, pose.Rotation());
+    m_drivetrainSimulator.SetPose(pose);
 }
 
 void Drivebase::MeasuredDrive(units::meters_per_second_t xSpeed,
@@ -454,12 +481,25 @@ void Drivebase::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
     motorLeft2.SetVoltage(leftFeedforward);
     motorRight1.SetVoltage(rightFeedforward);
     motorRight2.SetVoltage(rightFeedforward);
+
+    // Simulation Inputs (Motor Voltages)
+    m_drivetrainSimulator.SetInputs(leftFeedforward, rightFeedforward);
+}
+
+void Drivebase::SimulationPeriodic()
+{
+    m_isSimulation = true;
+    m_drivetrainSimulator.Update(20_ms);
+
+    // 2D Field Pose Display
+    //m_fieldSim.SetRobotPose(m_drivetrainSimulator.GetPose());
+    m_fieldSim.SetRobotPose(m_odometry.GetPose());
+    frc::SmartDashboard::PutData("Field", &m_fieldSim);
 }
 
 // SmartDash updater
 void Drivebase::UpdateSmartdash()
 {
-
     SmartDashboard::PutNumber("Drive L1", motorLeft1.Get());
     //SmartDashboard::PutNumber("Drive L2", motorLeft2.Get());
     //SmartDashboard::PutNumber("Drive L3", motorLeft3.Get());

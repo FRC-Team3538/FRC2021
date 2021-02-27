@@ -28,6 +28,8 @@ public:
   void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
+  void SimulationInit() override;
+  void SimulationPeriodic() override;
 
 private:
   double Deadband(double input, double deadband);

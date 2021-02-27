@@ -22,6 +22,8 @@
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/Encoder.h>
 #include <frc/AnalogGyro.h>
+#include <frc/simulation/EncoderSim.h>
+#include <frc/smartdashboard/Field2d.h>
 // #include "rev/CANSparkMax.h"
 
 using namespace ctre::phoenix::motorcontrol::can;
@@ -95,7 +97,8 @@ private:
 
   static constexpr units::meter_t kTrackWidth = 24.19872_in;
   static constexpr units::meter_t kWheelRadius = 3_in;
-  static constexpr double kGearRatio = 10.24;
+  static constexpr double kGearRatio = 7.09;
+  static constexpr auto kMotorCount = 3;
 
   decltype(1_V) kStatic{0.668};
   decltype(1_V / 1_fps) kVlinear{0.686};
@@ -112,7 +115,7 @@ private:
       frc::SPI::Port::kOnboardCS0,
       frc::ADIS16470CalibrationTime::_4s};
 #else
-  frc::AnalogGyro m_imu{0};
+  frc::AnalogGyro m_imu{1};
 #endif
 
   frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
@@ -165,4 +168,29 @@ public:
   frc::Pose2d GetPose() const { return m_odometry.GetPose(); }
 
   //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
+
+  //
+  // Simulation
+  //
+private:
+//#ifndef __FRC_ROBORIO__
+  frc::LinearSystem<2, 2, 2> m_drivetrainSystem =
+      frc::LinearSystemId::IdentifyDrivetrainSystem(
+          kVlinear, kAlinear,
+          kVangular, kAangular);
+
+  frc::sim::DifferentialDrivetrainSim m_drivetrainSimulator{
+      m_drivetrainSystem,
+      kTrackWidth,
+      frc::DCMotor::Falcon500(kMotorCount),
+      kGearRatio,
+      kWheelRadius};
+
+  frc::Field2d m_fieldSim;
+
+  bool m_isSimulation = false;
+//#endif
+public:
+    void SimulationPeriodic();
+
 };
