@@ -21,6 +21,7 @@
 #include <frc/simulation/AnalogGyroSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/Encoder.h>
+#include <frc/AnalogGyro.h>
 // #include "rev/CANSparkMax.h"
 
 using namespace ctre::phoenix::motorcontrol::can;
@@ -49,7 +50,7 @@ private:
   WPI_TalonFX motorRight1{motors::R1};
   WPI_TalonFX motorRight2{motors::R2};
 
-  Solenoid solenoidShifter{8};
+  Solenoid solenoidShifter{7};
 
   // Encoder Scale Factor (Inches)/(Pulse)
   const double kScaleFactor = 240.0 / 258824.5; //53.1875 / 52896;
@@ -105,10 +106,14 @@ private:
   frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0};
   frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
 
+#ifdef __FRC_ROBORIO__
   frc::ADIS16470_IMU m_imu{
       frc::ADIS16470_IMU::IMUAxis::kX,
       frc::SPI::Port::kOnboardCS0,
       frc::ADIS16470CalibrationTime::_4s};
+#else
+  frc::AnalogGyro m_imu{0};
+#endif
 
   frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
   frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d()};

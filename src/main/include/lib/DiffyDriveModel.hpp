@@ -61,18 +61,18 @@ public:
         auto wheel_accel = WheelAccel(force_on_surface);
         auto downforce_required = RequiredDownforce(force_on_surface);
         auto vacuum_required = RequiredVacuum(downforce_required);
-        return DiffyDriveState {
-            .time = time,
-            .wheel_speed = wheel_speed,
-            .motor_speed = motor_speed,
-            .requested_current = requested_current,
-            .drawn_current = drawn_current,
-            .battery_voltage = battery_voltage,
-            .motor_torque = motor_torque,
-            .force_on_surface = force_on_surface,
-            .wheel_acceleration = wheel_accel,
-            .required_downforce = downforce_required,
-            .required_vacuum = vacuum_required,
+        return {
+            time,
+            wheel_speed,
+            motor_speed,
+            requested_current,
+            drawn_current,
+            battery_voltage,
+            motor_torque,
+            force_on_surface,
+            wheel_accel,
+            downforce_required,
+            vacuum_required
         };
     }
 
