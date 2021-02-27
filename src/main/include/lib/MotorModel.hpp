@@ -1,3 +1,5 @@
+#pragma once
+
 #include <units/angular_velocity.h>
 #include <units/current.h>
 #include <units/power.h>

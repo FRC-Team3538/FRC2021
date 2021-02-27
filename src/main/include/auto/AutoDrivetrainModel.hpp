@@ -1,3 +1,5 @@
+#pragma once
+
 #include <lib/DiffyDriveTrajectoryConstraint.hpp>
 
 // Source: motors.vex.com
