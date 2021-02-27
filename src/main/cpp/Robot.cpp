@@ -11,8 +11,32 @@
 #include <frc/kinematics/SwerveModuleState.h>
 
 #include "subsystems/Drivetrain.h"
+#include "subsystems/GlobalDevices.h"
 #include "subsystems/SwerveModule.h"
 #include "lib/UniversalController.hpp"
+#include <UDPLogger.hpp>
+
+#include <memory>
+#include <thread>
+
+void
+logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& loggables)
+{
+  auto target =
+    std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+  logger.InitLogger();
+  while (true) {
+    logger.CheckForNewClient();
+
+    for (auto& loggable : loggables) {
+      loggable->Log(logger);
+    }
+
+    logger.FlushLogBuffer();
+    std::this_thread::sleep_until(target);
+    target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+  }
+}
 
 class Robot : public frc::TimedRobot
 {
@@ -41,6 +65,13 @@ public:
     frc::SmartDashboard::SetDefaultNumber("auto/Y2", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/R2", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/T", 4.0);
+
+    auto time_point = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(time_point);
+    m_udp_logger.SetTitle(std::ctime(&time));
+    m_logging_thread =
+      std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
+    m_logging_thread.detach();
   }
 
   void RobotPeriodic() override
@@ -135,6 +166,18 @@ public:
 private:
   frc::UniversalController m_controller{0};
   Drivetrain m_swerve;
+  GlobalDevices m_globals;
+
+  UDPLogger m_udp_logger;
+  std::thread m_logging_thread;
+
+  std::vector<std::shared_ptr<rj::Loggable>> loggables{
+    std::shared_ptr<rj::Loggable>(&m_globals),
+    std::shared_ptr<rj::Loggable>(&m_swerve),
+  };
+
+
+
   // SwerveModule module{1, 2, 3};
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.

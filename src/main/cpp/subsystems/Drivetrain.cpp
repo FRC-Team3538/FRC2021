@@ -64,7 +64,3 @@ frc::Rotation2d Drivetrain::GetYaw()
   return m_gyro.GetRotation2d();
 #endif
 }
-
-void Drivetrain::Log()
-{
-}

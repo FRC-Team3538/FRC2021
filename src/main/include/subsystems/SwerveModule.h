@@ -24,12 +24,14 @@
 #include <frc/smartdashboard/Sendable.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <frc/smartdashboard/SendableHelper.h>
+#include <lib/Loggable.hpp>
 
 #include "ctre/Phoenix.h"
 #include "rev/CANSparkMax.h"
 
 class SwerveModule : public frc::Sendable,
-                     public frc::SendableHelper<SwerveModule>
+                     public frc::SendableHelper<SwerveModule>,
+                     public rj::Loggable
 {
 public:
     SwerveModule(int driveMotorChannel,
@@ -42,6 +44,13 @@ public:
     void InitSendable(frc::SendableBuilder &builder) override;
 
     void Set(double drive, double azimuth);
+
+    void Log(UDPLogger &logger)
+    {
+      logger.LogExternalDevice(m_driveMotor);
+      logger.LogExternalDevice(m_turningMotor);
+      // logger.LogExternalDevice(m_turningEncoder);
+    }
 
 private:
     // Configuration

@@ -16,7 +16,7 @@
 /**
  * Represents a swerve drive style drivetrain.
  */
-class Drivetrain
+class Drivetrain: public rj::Loggable
 {
 public:
     Drivetrain();
@@ -29,7 +29,16 @@ public:
 
     frc::Rotation2d GetYaw();
 
-    void Log();
+    void Log(UDPLogger &logger)
+    {
+      m_frontLeft.Log(logger);
+      m_frontRight.Log(logger);
+      m_backLeft.Log(logger);
+      m_backRight.Log(logger);
+#ifdef __FRC_ROBORIO__
+      logger.LogExternalDevice(m_imu);
+#endif // __FRC_ROBORIO__
+    }
 
     static constexpr auto kMaxSpeed = 10_fps;
     static constexpr auto kMaxAngularSpeed = wpi::math::pi * 1_rad_per_s;
