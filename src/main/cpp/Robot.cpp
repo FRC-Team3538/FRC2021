@@ -17,22 +17,24 @@
 #include <wpi/json.h>
 
 #include "subsystems/Drivetrain.h"
+#include "lib/UniversalController.hpp"
 #include "subsystems/GlobalDevices.h"
 #include <UDPLogger.hpp>
 
 #include <memory>
 #include <thread>
 
-void
-logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& loggables)
+void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>> &loggables)
 {
   auto target =
-    std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+      std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   logger.InitLogger();
-  while (true) {
+  while (true)
+  {
     logger.CheckForNewClient();
 
-    for (auto& loggable : loggables) {
+    for (auto &loggable : loggables)
+    {
       loggable->Log(logger);
     }
 
@@ -78,7 +80,7 @@ public:
     auto time = std::chrono::system_clock::to_time_t(time_point);
     m_udp_logger.SetTitle(std::ctime(&time));
     m_logging_thread =
-      std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
+        std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
     m_logging_thread.detach();
   }
 
@@ -420,7 +422,7 @@ public:
       wpi::json j;
       frc::to_json(j, reference);
       auto reference_json = j.dump(0);
-      
+
       frc::SmartDashboard::PutString("Reference", reference_json);
     }
   }
@@ -428,12 +430,12 @@ public:
   void TeleopPeriodic() override
   {
     auto xSpeed = -m_speedLimiter.Calculate(
-                      deadband(m_controller.GetRawAxis(1))) *
+                      deadband(m_controller.GetY(frc::GenericHID::kLeftHand))) *
                   Drivetrain::kMaxSpeed;
 
     auto rot = -m_rotLimiter.Calculate(
-                   deadband(m_controller.GetRawAxis(2))) *
-               Drivetrain::kMaxAngularSpeed; //3
+                   deadband(m_controller.GetX(frc::GenericHID::kRightHand))) *
+               Drivetrain::kMaxAngularSpeed; 
 
     m_drive.Drive(xSpeed, rot);
   }
@@ -526,14 +528,14 @@ public:
 
 private:
   // TODO(Dereck): Change to PS4 controller
-  frc::XboxController m_controller{0};
+  frc::UniversalController m_controller{0};
 
   UDPLogger m_udp_logger;
   std::thread m_logging_thread;
 
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
-    std::shared_ptr<rj::Loggable>(&m_globals),
-    std::shared_ptr<rj::Loggable>(&m_drive),
+      std::shared_ptr<rj::Loggable>(&m_globals),
+      std::shared_ptr<rj::Loggable>(&m_drive),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
@@ -542,7 +544,6 @@ private:
 
   Drivetrain m_drive{IsSimulation()};
   GlobalDevices m_globals;
-
 
   frc::Trajectory m_trajectory;
   frc::Trajectory m_trajectory_PP;
