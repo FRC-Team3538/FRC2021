@@ -1,7 +1,7 @@
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2021.1.2"
+    id "edu.wpi.first.GradleRIO" version "2021.2.1"
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -41,7 +41,7 @@ deploy {
 def includeSrcInIncludeRoot = false
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = false
+def includeDesktopSupport = true
 
 // Enable simulation gui support. Must check the box in vscode to enable support
 // upon debugging
@@ -52,12 +52,6 @@ dependencies {
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, true)
     // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, true)
-}
-
-// Simulation configuration (e.g. environment variables).
-sim {
-    // Sets the websocket client remote host.
-    // envVar "HALSIMWS_HOST", "10.0.0.2"
 }
 
 model {
@@ -86,20 +80,20 @@ model {
             wpi.deps.wpilib(it)
         }
     }
-    testSuites {
-        frcUserProgramTest(GoogleTestTestSuiteSpec) {
-            testing $.components.frcUserProgram
+   // testSuites {
+   //     frcUserProgramTest(GoogleTestTestSuiteSpec) {
+   //         testing $.components.frcUserProgram
+   
+   //         sources.cpp {
+   //             source {
+   //                srcDir 'src/test/cpp'
+   //                 include '**/*.cpp'
+   //             }
+   //         }
 
-            sources.cpp {
-                source {
-                    srcDir 'src/test/cpp'
-                    include '**/*.cpp'
-                }
-            }
-
-            wpi.deps.vendor.cpp(it)
-            wpi.deps.wpilib(it)
-            wpi.deps.googleTest(it)
-        }
-    }
+   //        wpi.deps.vendor.cpp(it)
+   //         wpi.deps.wpilib(it)
+   //         wpi.deps.googleTest(it)
+   //     }
+   // }
 }
