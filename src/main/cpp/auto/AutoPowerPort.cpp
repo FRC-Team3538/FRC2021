@@ -39,11 +39,24 @@ void AutoPowerPort::Init()
     frc::Pose2d load{-120_in, 0_in, 0_deg};
     frc::TrajectoryConfig config(3_fps, 3_fps_sq);
 
+    config.AddConstraint(m_drivetrain_constraint);
+
+    // NOTE: These must be in meters but Spline<> takes doubles so we ignore typing
+    std::vector<frc::Spline<5>::ControlVector> points
+    {    
+        {
+            {1.6197307137707282, 0.7874091564527756, 0}, //x
+            {-2.216777217015141, 0.969118961788032, 0} //y
+        },
+        {
+            {2.260041456380678, 0.01730569574621521, 0}, //x
+            {-1.2303525594808942, 0.6749221341023793, 0} //y
+        }
+    };
+
     // Go to Load
     m_trajectory_rev = frc::TrajectoryGenerator::GenerateTrajectory(
-        load,
-        {},
-        shoot,
+        points,
         config);
 
     // Go To Shoot
