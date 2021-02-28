@@ -29,6 +29,12 @@ void UDPLogger::FlushLogBuffer()
 
 #else
 
+// Helper to compare client socket addresses
+inline bool operator==(const sockaddr_in &lhs, const sockaddr_in &rhs)
+{
+  return (lhs.sin_family == rhs.sin_family) && (lhs.sin_port == rhs.sin_port) && (lhs.sin_addr.s_addr == rhs.sin_addr.s_addr);
+}
+
 void UDPLogger::InitLogger()
 {
   sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
@@ -39,7 +45,7 @@ void UDPLogger::InitLogger()
   }
 
   address.sin_family = AF_INET;
-  address.sin_port = htons(3538);
+  address.sin_port = htons(m_udpPort);
 
   if (inet_aton("0.0.0.0", &address.sin_addr) == 0)
   {
@@ -67,39 +73,41 @@ int sendLog(int sockfd,
   return sendto(sockfd, data, size, 0, (const struct sockaddr *)&address, sizeof(address));
 }
 
-// Need to lock at this level so we don't cause iterator invalidation on `clients`
+// Need to lock at this level so we don't cause iterator invalidation on `m_clients`
 void UDPLogger::FlushLogBuffer()
 {
-  // TODO(Dereck): Change to scoped_lock?
-  mut.lock();
-  for (struct sockaddr_in addr : clients)
+  std::scoped_lock lock{mut};
+
+  for (struct sockaddr_in client : m_clients)
   {
-    if (sendLog(sockfd, buf, bufsize, addr) == -1)
+    if (sendLog(sockfd, buf, bufsize, client) == -1)
     {
       std::cout << "sendLog failed! " << strerror(errno) << std::endl;
     }
   }
   bufsize = 0;
-  mut.unlock();
 }
 
 void UDPLogger::CheckForNewClient()
 {
+  constexpr size_t bufferSz = 300;
   struct sockaddr_in client;
   socklen_t client_len = sizeof(struct sockaddr_in);
-  char buf[RECV_BUF_SIZE];
-  buf[2] = 0x00;
+  char buf[bufferSz];
   ssize_t res_len = recvfrom(sockfd,
                              (void *)buf,
-                             RECV_BUF_SIZE,
+                             bufferSz - 1,
                              0,
                              (struct sockaddr *)&client,
                              &client_len);
 
-  if (res_len == 2 && strcmp(buf, "Hi") == 0)
+  buf[res_len] = '\n';
+  auto sBuf = std::string(buf);
+
+  if (sBuf.find("Hi") == 0)
   {
-    mut.lock();
-    clients.push_back(client);
+    // Connect
+    std::cout << "RJ: UDP Client Connected!" << std::endl;
 
     fbb.Reset();
     auto greeting = rj::CreateInitializeStatusFrameDirect(fbb, title.c_str());
@@ -114,10 +122,22 @@ void UDPLogger::CheckForNewClient()
 
     sendLog(sockfd, buffer.data(), buffer.size(), client);
 
-    mut.unlock();
+    {
+      std::scoped_lock lock{mut};
+      m_clients.push_back(client);
+    }
+  }
+  else if (sBuf.find("Bye") == 0)
+  {
+    // Disconnect
+    {
+      std::scoped_lock lock{mut};
+      m_clients.erase(std::remove(m_clients.begin(), m_clients.end(), client), m_clients.end());
+    }
+
+    std::cout << "RJ: UDP Client Disconnected!" << std::endl;
   }
 }
-
 #endif // defined(_WIN32)
 
 void UDPLogger::Log(uint8_t *data, size_t size)
@@ -138,36 +158,7 @@ void UDPLogger::SetTitle(std::string str)
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor, 
-                          rj::StatusFrame& frameType)
-{
-  frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
-
-  Faults faults;
-  motor.GetFaults(faults);
-
-  return rj::CreateCTREMotorStatusFrame(
-      fbb, motor.GetFirmwareVersion(), motor.GetBaseID(), motor.GetDeviceID(),
-      motor.GetOutputCurrent(), motor.GetBusVoltage(),
-      motor.GetMotorOutputPercent(), motor.GetMotorOutputVoltage(),
-      motor.GetTemperature(), motor.GetSelectedSensorPosition(),
-      motor.GetSelectedSensorVelocity(), motor.GetClosedLoopError(),
-      motor.GetIntegralAccumulator(), motor.GetErrorDerivative(),
-      0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryPosition(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryVelocity(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryArbFeedFwd(),
-      faults.ToBitfield(), motor.HasResetOccurred(), motor.GetLastError(),
-      static_cast<int32_t>(motor.GetControlMode()), motor.GetStatorCurrent(),
-      motor.GetSupplyCurrent(), motor.IsFwdLimitSwitchClosed(),
-      motor.IsRevLimitSwitchClosed());
-}
-
-flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
@@ -196,7 +187,36 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor,
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, VictorSPX &motor, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor,
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
+
+  Faults faults;
+  motor.GetFaults(faults);
+
+  return rj::CreateCTREMotorStatusFrame(
+      fbb, motor.GetFirmwareVersion(), motor.GetBaseID(), motor.GetDeviceID(),
+      motor.GetOutputCurrent(), motor.GetBusVoltage(),
+      motor.GetMotorOutputPercent(), motor.GetMotorOutputVoltage(),
+      motor.GetTemperature(), motor.GetSelectedSensorPosition(),
+      motor.GetSelectedSensorVelocity(), motor.GetClosedLoopError(),
+      motor.GetIntegralAccumulator(), motor.GetErrorDerivative(),
+      0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
+      0, // TODO: only call this for valid modes.
+         // motor.GetActiveTrajectoryPosition(),
+      0, // TODO: only call this for valid modes.
+         // motor.GetActiveTrajectoryVelocity(),
+      0, // TODO: only call this for valid modes.
+         // motor.GetActiveTrajectoryArbFeedFwd(),
+      faults.ToBitfield(), motor.HasResetOccurred(), motor.GetLastError(),
+      static_cast<int32_t>(motor.GetControlMode()), motor.GetStatorCurrent(),
+      motor.GetSupplyCurrent(), motor.IsFwdLimitSwitchClosed(),
+      motor.IsRevLimitSwitchClosed());
+}
+
+flatbuffers::Offset<rj::CTREMotorStatusFrame>
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, VictorSPX &motor,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
@@ -341,7 +361,7 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, rev::CANSparkMax 
 
 flatbuffers::Offset<rj::PDPStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
-                          frc::PowerDistributionPanel &device, 
+                          frc::PowerDistributionPanel &device,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_PDPStatusFrame;
@@ -361,7 +381,7 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
 }
 
 flatbuffers::Offset<rj::PCMStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Compressor &device, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Compressor &device,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_PCMStatusFrame;
@@ -458,8 +478,8 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx,
 
 #ifdef __FRC_ROBORIO__
 flatbuffers::Offset<rj::ADIS16470StatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu, 
-                          rj::StatusFrame& frameType)
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu,
+                          rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_ADIS16470StatusFrame;
 
@@ -482,7 +502,7 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IM
 #endif
 
 flatbuffers::Offset<rj::WPIDigitalInput>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_WPIDigitalInput;
@@ -495,7 +515,7 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput
 }
 
 flatbuffers::Offset<rj::WPIEncoder>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_WPIEncoder;
@@ -517,8 +537,8 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &enc
 }
 
 flatbuffers::Offset<rj::WPIDutyCycleEncoder>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, 
-                          frc::DutyCycleEncoder &encoder, 
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                          frc::DutyCycleEncoder &encoder,
                           rj::StatusFrame &frameType)
 {
   frameType = rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder;

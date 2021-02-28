@@ -89,7 +89,7 @@ public:
     auto time = std::chrono::system_clock::to_time_t(time_point);
     auto robotName = prefs->GetString("RioName", "Robot");
     auto bootnum = prefs->GetInt("BootNumber");
-    prefs->PutInt("BootNum", bootnum + 1);
+    prefs->PutInt("BootNumber", bootnum + 1);
     auto logTitle = robotName + "(" + std::to_string(bootnum) + ") - " + std::ctime(&time);
     std::cout << logTitle << std::endl;
     m_udp_logger.SetTitle(logTitle);

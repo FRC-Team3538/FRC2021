@@ -26,11 +26,12 @@
 using namespace std;
 
 #define FLATBUFFER_SIZE 4096
-#define RECV_BUF_SIZE 3
 
 class UDPLogger
 {
 private:
+  uint m_udpPort = 3538;
+
   flatbuffers::FlatBufferBuilder fbb{FLATBUFFER_SIZE};
   uint8_t buf[FLATBUFFER_SIZE]; // 4KB
   size_t bufsize;
@@ -38,9 +39,9 @@ private:
   int sockfd;
 #if !defined(_WIN32)
   struct sockaddr_in address;
-  std::vector<struct sockaddr_in> clients;
+  std::vector<struct sockaddr_in> m_clients;
 #endif
-  std::recursive_mutex mut;
+  std::mutex mut;
   std::string title;
 
   //
