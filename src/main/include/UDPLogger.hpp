@@ -65,7 +65,6 @@ private:
 
   // rj::BoardYawAxis GetBoardYawAxis(AHRS::BoardYawAxis &yaw);
   // flatbuffers::Offset<rj::NavXStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx);
-  flatbuffers::Offset<rj::ADIS16470StatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu);
 
   flatbuffers::Offset<rj::WPIDigitalInput> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input);
   flatbuffers::Offset<rj::WPIEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder);
@@ -79,10 +78,14 @@ private:
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, rev::CANSparkMax& pcm);
   // void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, rev::ColorSensorV3& pcm);
   // void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, AHRS& pcm);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::ADIS16470_IMU& pcm);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DigitalInput& pcm);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::Encoder& pcm);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DutyCycleEncoder& pcm);
+
+#ifdef __FRC_ROBORIO__
+  flatbuffers::Offset<rj::ADIS16470StatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu);
+  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::ADIS16470_IMU& pcm);
+#endif
 
 public:
   void InitLogger();
@@ -99,8 +102,11 @@ public:
   void LogExternalDevice(rev::CANSparkMax& pcm);
   // void LogExternalDevice(rev::ColorSensorV3& pcm);
   // void LogExternalDevice(AHRS& pcm);
-  void LogExternalDevice(frc::ADIS16470_IMU& pcm);
   void LogExternalDevice(frc::DigitalInput& pcm);
   void LogExternalDevice(frc::Encoder& pcm);
   void LogExternalDevice(frc::DutyCycleEncoder& pcm);
+
+#ifdef __FRC_ROBORIO__
+  void LogExternalDevice(frc::ADIS16470_IMU& pcm);
+#endif
 };

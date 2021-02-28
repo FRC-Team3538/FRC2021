@@ -103,7 +103,7 @@ private:
     // std::string m_angleOffsetPref = "SwerveAngleOffset";
 
     // Control
-    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;;
+    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;
     frc::ProfiledPIDController<units::radians> m_turningPIDController;
 
     frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward;
