@@ -501,26 +501,26 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IM
 }
 #endif
 
-flatbuffers::Offset<rj::WPIDigitalInput>
+flatbuffers::Offset<rj::WPIDigitalInputStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input,
                           rj::StatusFrame &frameType)
 {
-  frameType = rj::StatusFrame::StatusFrame_WPIDigitalInput;
+  frameType = rj::StatusFrame::StatusFrame_WPIDigitalInputStatusFrame;
 
-  return rj::CreateWPIDigitalInput(
+  return rj::CreateWPIDigitalInputStatusFrame(
       fbb,
       input.GetChannel(),
       input.Get(),
       input.IsAnalogTrigger());
 }
 
-flatbuffers::Offset<rj::WPIEncoder>
+flatbuffers::Offset<rj::WPIEncoderStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder,
                           rj::StatusFrame &frameType)
 {
-  frameType = rj::StatusFrame::StatusFrame_WPIEncoder;
+  frameType = rj::StatusFrame::StatusFrame_WPIEncoderStatusFrame;
 
-  return rj::CreateWPIEncoder(
+  return rj::CreateWPIEncoderStatusFrame(
       fbb,
       encoder.Get(),
       encoder.GetPeriod(),
@@ -536,14 +536,14 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &enc
       encoder.GetFPGAIndex());
 }
 
-flatbuffers::Offset<rj::WPIDutyCycleEncoder>
+flatbuffers::Offset<rj::WPIDutyCycleEncoderStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
                           frc::DutyCycleEncoder &encoder,
                           rj::StatusFrame &frameType)
 {
-  frameType = rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder;
+  frameType = rj::StatusFrame::StatusFrame_WPIDutyCycleEncoderStatusFrame;
 
-  return rj::CreateWPIDutyCycleEncoder(
+  return rj::CreateWPIDutyCycleEncoderStatusFrame(
       fbb,
       encoder.GetFrequency(),
       encoder.IsConnected(),

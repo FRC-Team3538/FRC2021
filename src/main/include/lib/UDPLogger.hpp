@@ -76,13 +76,13 @@ private:
   // rj::BoardYawAxis GetBoardYawAxis(AHRS::BoardYawAxis &yaw);
   // flatbuffers::Offset<rj::NavXStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx, rj::StatusFrame);
 
-  flatbuffers::Offset<rj::WPIDigitalInput> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+  flatbuffers::Offset<rj::WPIDigitalInputStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
                                                           frc::DigitalInput &input,
                                                           rj::StatusFrame &frameType);
-  flatbuffers::Offset<rj::WPIEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+  flatbuffers::Offset<rj::WPIEncoderStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
                                                      frc::Encoder &encoder,
                                                      rj::StatusFrame &frameType);
-  flatbuffers::Offset<rj::WPIDutyCycleEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+  flatbuffers::Offset<rj::WPIDutyCycleEncoderStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
                                                               frc::DutyCycleEncoder &encoder,
                                                               rj::StatusFrame &frameType);
 
