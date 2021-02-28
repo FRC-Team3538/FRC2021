@@ -434,6 +434,8 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
   );
 }
 */
+
+#ifdef __FRC_ROBORIO__
 flatbuffers::Offset<rj::ADIS16470StatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
   return rj::CreateADIS16470StatusFrame(
@@ -453,6 +455,7 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IM
       imu.GetYawAxis()
   );
 }
+#endif
 
 flatbuffers::Offset<rj::WPIDigitalInput>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
@@ -605,6 +608,8 @@ void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, AH
   rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
 }
 */
+
+#ifdef __FRC_ROBORIO__
 void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
   auto unixTime = frc::GetTime();
   auto monotonicTime = frc::Timer::GetFPGATimestamp();
@@ -616,6 +621,7 @@ void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, fr
 
   rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
 }
+#endif
 
 void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
   auto unixTime = frc::GetTime();
@@ -710,12 +716,15 @@ void UDPLogger::LogExternalDevice(AHRS& pcm) {
   Log(buffer.data(), buffer.size());
 }
 */
+
+#ifdef __FRC_ROBORIO__
 void UDPLogger::LogExternalDevice(frc::ADIS16470_IMU& pcm) {
   fbb.Reset();
   BuildExternalDeviceFrame(fbb, pcm);
   auto buffer = fbb.Release();
   Log(buffer.data(), buffer.size());
 }
+#endif
 
 void UDPLogger::LogExternalDevice(frc::DigitalInput& pcm) {
   fbb.Reset();
