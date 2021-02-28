@@ -4,11 +4,9 @@
 #include <mutex>
 #include <vector>
 
-#if defined(_WIN32)
-
-#else
+#if !defined(_WIN32)
 #include <netinet/in.h>
-#endif // defined(_WIN32)
+#endif
 
 // #include "rev/CANSparkMax.h"
 // #include "rev/ColorSensorV3.h"
@@ -22,10 +20,8 @@
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
 
-
 #include "flatbuffers/flatbuffers.h"
 #include <proto/StatusFrame_generated.h>
-
 
 using namespace std;
 
@@ -35,81 +31,101 @@ using namespace std;
 class UDPLogger
 {
 private:
-  flatbuffers::FlatBufferBuilder fbb{ FLATBUFFER_SIZE };
+  flatbuffers::FlatBufferBuilder fbb{FLATBUFFER_SIZE};
   uint8_t buf[FLATBUFFER_SIZE]; // 4KB
   size_t bufsize;
 
   int sockfd;
-#if defined(_WIN32)
-#else
+#if !defined(_WIN32)
   struct sockaddr_in address;
   std::vector<struct sockaddr_in> clients;
-#endif // defined(_WIN32)
+#endif
   std::recursive_mutex mut;
   std::string title;
 
-  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonFX& pcm);
-  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonSRX& pcm);
-  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::VictorSPX& pcm);
+  //
+  // Status Frame Generators
+  //
+  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                               ctre::phoenix::motorcontrol::can::TalonFX &device,
+                                                               rj::StatusFrame &frameType);
+  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                               ctre::phoenix::motorcontrol::can::TalonSRX &device,
+                                                               rj::StatusFrame &frameType);
+  flatbuffers::Offset<rj::CTREMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                               ctre::phoenix::motorcontrol::can::VictorSPX &device,
+                                                               rj::StatusFrame &frameType);
 
-  // rj::REVCANEncoder GetREVCANEncoder(rev::CANEncoder& pcm);
-  // rj::REVCANAnalog GetREVCANAnalog(rev::CANAnalog& pcm);
-  // rj::REVPIDController GetREVPIDController(rev::CANPIDController& pcm, int slotID);
-  // rj::REVCANDigitalInput GetREVCANDigitalInput(rev::CANDigitalInput& pcm);
-  // flatbuffers::Offset<rj::REVMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, rev::CANSparkMax &motor);
-  
-  flatbuffers::Offset<rj::PDPStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, frc::PowerDistributionPanel& pcm);
-  flatbuffers::Offset<rj::PCMStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, frc::Compressor& pcm);
+  // rj::REVCANEncoder GetREVCANEncoder(rev::CANEncoder& device);
+  // rj::REVCANAnalog GetREVCANAnalog(rev::CANAnalog& device);
+  // rj::REVPIDController GetREVPIDController(rev::CANPIDController& device, int slotID);
+  // rj::REVCANDigitalInput GetREVCANDigitalInput(rev::CANDigitalInput& device);
+  // flatbuffers::Offset<rj::REVMotorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder& fbb, rev::CANSparkMax &motor, rj::StatusFrame);
+
+  flatbuffers::Offset<rj::PDPStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                         frc::PowerDistributionPanel &device,
+                                                         rj::StatusFrame &frameType);
+  flatbuffers::Offset<rj::PCMStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                         frc::Compressor &device,
+                                                         rj::StatusFrame &frameType);
 
   // rj::RawColor GetRawColor(rev::ColorSensorV3::RawColor &color);
-  // flatbuffers::Offset<rj::REVColorSensorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, rev::ColorSensorV3 &colorSensor);
+  // flatbuffers::Offset<rj::REVColorSensorStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, rev::ColorSensorV3 &colorSensor, rj::StatusFrame);
 
   // rj::BoardYawAxis GetBoardYawAxis(AHRS::BoardYawAxis &yaw);
-  // flatbuffers::Offset<rj::NavXStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx);
-  
+  // flatbuffers::Offset<rj::NavXStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx, rj::StatusFrame);
 
-  flatbuffers::Offset<rj::WPIDigitalInput> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input);
-  flatbuffers::Offset<rj::WPIEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder);
-  flatbuffers::Offset<rj::WPIDutyCycleEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder);
-
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonFX& srx);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonSRX& srx);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::VictorSPX& spx);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::PowerDistributionPanel& pdp);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::Compressor& pcm);
-  // void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, rev::CANSparkMax& pcm);
-  // void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, rev::ColorSensorV3& pcm);
-  // void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, AHRS& pcm);
-  
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DigitalInput& pcm);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::Encoder& pcm);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DutyCycleEncoder& pcm);
+  flatbuffers::Offset<rj::WPIDigitalInput> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                          frc::DigitalInput &input,
+                                                          rj::StatusFrame &frameType);
+  flatbuffers::Offset<rj::WPIEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                     frc::Encoder &encoder,
+                                                     rj::StatusFrame &frameType);
+  flatbuffers::Offset<rj::WPIDutyCycleEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                              frc::DutyCycleEncoder &encoder,
+                                                              rj::StatusFrame &frameType);
 
 #ifdef __FRC_ROBORIO__
-  flatbuffers::Offset<rj::ADIS16470StatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu);
-  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::ADIS16470_IMU& pcm);
+  flatbuffers::Offset<rj::ADIS16470StatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                                               frc::ADIS16470_IMU &imu,
+                                                               rj::StatusFrame &frameType);
 #endif
+
+  template <typename T>
+  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
+                                           T &device)
+  {
+    // TODO(Dereck): The frame type should be determined from typeof(fbb)
+    // This manual method is somewhat brittle
+    rj::StatusFrame frameType;
+    auto statusFrameOffset = GetStatusFrame(fbb, device, frameType);
+
+    auto unixTime = frc::GetTime();
+    auto monotonicTime = frc::Timer::GetFPGATimestamp();
+    auto statusFrameHolder = rj::CreateStatusFrameHolder(
+        fbb, unixTime, monotonicTime,
+        frameType,
+        statusFrameOffset.Union());
+
+    rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
+  }
 
 public:
   void InitLogger();
   void CheckForNewClient();
   void FlushLogBuffer();
-  void Log(uint8_t* data, size_t size);
+  void Log(uint8_t *data, size_t size);
   void SetTitle(std::string str);
 
-  void LogExternalDevice(ctre::phoenix::motorcontrol::can::TalonFX& fx);
-  void LogExternalDevice(ctre::phoenix::motorcontrol::can::TalonSRX& srx);
-  void LogExternalDevice(ctre::phoenix::motorcontrol::can::VictorSPX& spx);
-  void LogExternalDevice(frc::PowerDistributionPanel& pdp);
-  void LogExternalDevice(frc::Compressor& pcm);
-  // void LogExternalDevice(rev::CANSparkMax& pcm);
-  // void LogExternalDevice(rev::ColorSensorV3& pcm);
-  // void LogExternalDevice(AHRS& pcm);
-  void LogExternalDevice(frc::DigitalInput& pcm);
-  void LogExternalDevice(frc::Encoder& pcm);
-  void LogExternalDevice(frc::DutyCycleEncoder& pcm);
-  
-  #ifdef __FRC_ROBORIO__
-  void LogExternalDevice(frc::ADIS16470_IMU& pcm);
-  #endif
+  //
+  // Logging ingest interface
+  //
+  template <typename T>
+  void LogExternalDevice(T &device)
+  {
+    fbb.Reset();
+    BuildExternalDeviceFrame(fbb, device);
+    auto buffer = fbb.Release();
+    Log(buffer.data(), buffer.size());
+  }
 };

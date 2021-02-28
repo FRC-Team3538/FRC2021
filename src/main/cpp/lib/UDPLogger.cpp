@@ -3,9 +3,9 @@
 #include <iostream>
 
 #ifndef _WIN32
-  #include <arpa/inet.h>
-  #include <netinet/ip.h>
-  #include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <sys/socket.h>
 #endif
 
 #include "frc/Timer.h"
@@ -13,29 +13,27 @@
 #include "proto/StatusFrame_generated.h"
 #include "lib/UDPLogger.hpp"
 
-
 #if defined(_WIN32)
 
-void
-UDPLogger::InitLogger()
-{}
+void UDPLogger::InitLogger()
+{
+}
 
-void
-UDPLogger::CheckForNewClient()
-{}
+void UDPLogger::CheckForNewClient()
+{
+}
 
-void
-UDPLogger::FlushLogBuffer()
-{}
+void UDPLogger::FlushLogBuffer()
+{
+}
 
 #else
 
-void
-UDPLogger::InitLogger()
+void UDPLogger::InitLogger()
 {
-
   sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
-  if (sockfd < 0) {
+  if (sockfd < 0)
+  {
     std::cout << "socket() failed! " << strerror(errno) << std::endl;
     return;
   }
@@ -43,39 +41,41 @@ UDPLogger::InitLogger()
   address.sin_family = AF_INET;
   address.sin_port = htons(3538);
 
-  if (inet_aton("0.0.0.0", &address.sin_addr) == 0) {
+  if (inet_aton("0.0.0.0", &address.sin_addr) == 0)
+  {
     std::cout << "inet_aton() failed! " << strerror(errno) << std::endl;
     return;
   }
 
-  if (bind(sockfd, (const struct sockaddr*)&address, sizeof(address)) != 0) {
+  if (bind(sockfd, (const struct sockaddr *)&address, sizeof(address)) != 0)
+  {
     std::cout << "bind() failed! " << strerror(errno) << std::endl;
     return;
   }
 }
 
-int
-sendLog(int sockfd,
-        const uint8_t* data,
-        size_t size,
-        const struct sockaddr_in& address)
+int sendLog(int sockfd,
+            const uint8_t *data,
+            size_t size,
+            const struct sockaddr_in &address)
 {
-  if (sockfd < 0) {
+  if (sockfd < 0)
+  {
     return 0;
   }
 
-  return sendto(
-    sockfd, data, size, 0, (const struct sockaddr*)&address, sizeof(address));
+  return sendto(sockfd, data, size, 0, (const struct sockaddr *)&address, sizeof(address));
 }
 
-// Need to lock at this level so we don't cause iterator invalidation on
-// `clients`
-void
-UDPLogger::FlushLogBuffer()
+// Need to lock at this level so we don't cause iterator invalidation on `clients`
+void UDPLogger::FlushLogBuffer()
 {
+  // TODO(Dereck): Change to scoped_lock?
   mut.lock();
-  for (struct sockaddr_in addr : clients) {
-    if (sendLog(sockfd, buf, bufsize, addr) == -1) {
+  for (struct sockaddr_in addr : clients)
+  {
+    if (sendLog(sockfd, buf, bufsize, addr) == -1)
+    {
       std::cout << "sendLog failed! " << strerror(errno) << std::endl;
     }
   }
@@ -83,32 +83,32 @@ UDPLogger::FlushLogBuffer()
   mut.unlock();
 }
 
-void
-UDPLogger::CheckForNewClient()
+void UDPLogger::CheckForNewClient()
 {
   struct sockaddr_in client;
   socklen_t client_len = sizeof(struct sockaddr_in);
   char buf[RECV_BUF_SIZE];
   buf[2] = 0x00;
   ssize_t res_len = recvfrom(sockfd,
-                             (void*)buf,
+                             (void *)buf,
                              RECV_BUF_SIZE,
                              0,
-                             (struct sockaddr*)&client,
+                             (struct sockaddr *)&client,
                              &client_len);
 
-  if (res_len == 2 && strcmp(buf, "Hi") == 0) {
+  if (res_len == 2 && strcmp(buf, "Hi") == 0)
+  {
     mut.lock();
     clients.push_back(client);
 
     fbb.Reset();
     auto greeting = rj::CreateInitializeStatusFrameDirect(fbb, title.c_str());
     auto wrapper =
-      rj::CreateStatusFrameHolder(fbb,
-                                  frc::GetTime(),
-                                  frc::Timer::GetFPGATimestamp(),
-                                  rj::StatusFrame_InitializeStatusFrame,
-                                  greeting.Union());
+        rj::CreateStatusFrameHolder(fbb,
+                                    frc::GetTime(),
+                                    frc::Timer::GetFPGATimestamp(),
+                                    rj::StatusFrame_InitializeStatusFrame,
+                                    greeting.Union());
     fbb.FinishSizePrefixed(wrapper);
     auto buffer = fbb.Release();
 
@@ -120,11 +120,11 @@ UDPLogger::CheckForNewClient()
 
 #endif // defined(_WIN32)
 
-void
-UDPLogger::Log(uint8_t* data, size_t size)
+void UDPLogger::Log(uint8_t *data, size_t size)
 {
   // shoutouts to memory safety
-  if (bufsize + size > FLATBUFFER_SIZE) {
+  if (bufsize + size > FLATBUFFER_SIZE)
+  {
     FlushLogBuffer();
   }
   assert(bufsize + size < FLATBUFFER_SIZE);
@@ -132,14 +132,17 @@ UDPLogger::Log(uint8_t* data, size_t size)
   bufsize += size;
 }
 
-void
-UDPLogger::SetTitle(std::string str)
+void UDPLogger::SetTitle(std::string str)
 {
   title = str;
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor, 
+                          rj::StatusFrame& frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
+
   Faults faults;
   motor.GetFaults(faults);
 
@@ -164,7 +167,11 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor) {
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
+
   Faults faults;
   motor.GetFaults(faults);
 
@@ -189,7 +196,11 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor) 
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, VictorSPX &motor) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, VictorSPX &motor, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_CTREMotorStatusFrame;
+
   Faults faults;
   motor.GetFaults(faults);
 
@@ -260,7 +271,8 @@ rj::REVPIDController UDPLogger::GetREVPIDController(rev::CANPIDController &pid,
   );
 }
 
-rj::REVCANDigitalInput UDPLogger::GetREVCANDigitalInput(rev::CANDigitalInput &input) {
+rj::REVCANDigitalInput UDPLogger::GetREVCANDigitalInput(rev::CANDigitalInput &input, 
+                          rj::StatusFrame &frameType) {
   return rj::REVCANDigitalInput(input.Get(), input.IsLimitSwitchEnabled());
 }
 
@@ -329,49 +341,61 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, rev::CANSparkMax 
 
 flatbuffers::Offset<rj::PDPStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
-               frc::PowerDistributionPanel &pdp) {
+                          frc::PowerDistributionPanel &device, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_PDPStatusFrame;
+
   std::vector<double> currentMeasurements{
-      pdp.GetCurrent(0),  pdp.GetCurrent(1),  pdp.GetCurrent(2),
-      pdp.GetCurrent(3),  pdp.GetCurrent(4),  pdp.GetCurrent(5),
-      pdp.GetCurrent(6),  pdp.GetCurrent(7),  pdp.GetCurrent(8),
-      pdp.GetCurrent(9),  pdp.GetCurrent(10), pdp.GetCurrent(11),
-      pdp.GetCurrent(12), pdp.GetCurrent(13), pdp.GetCurrent(14),
-      pdp.GetCurrent(15)};
+      device.GetCurrent(0), device.GetCurrent(1), device.GetCurrent(2),
+      device.GetCurrent(3), device.GetCurrent(4), device.GetCurrent(5),
+      device.GetCurrent(6), device.GetCurrent(7), device.GetCurrent(8),
+      device.GetCurrent(9), device.GetCurrent(10), device.GetCurrent(11),
+      device.GetCurrent(12), device.GetCurrent(13), device.GetCurrent(14),
+      device.GetCurrent(15)};
 
   return rj::CreatePDPStatusFrameDirect(
-      fbb, pdp.GetModule(), pdp.GetVoltage(), pdp.GetTemperature(),
-      &currentMeasurements, pdp.GetTotalCurrent(), pdp.GetTotalPower(),
-      pdp.GetTotalEnergy());
+      fbb, device.GetModule(), device.GetVoltage(), device.GetTemperature(),
+      &currentMeasurements, device.GetTotalCurrent(), device.GetTotalPower(),
+      device.GetTotalEnergy());
 }
 
 flatbuffers::Offset<rj::PCMStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Compressor &pcm) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Compressor &device, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_PCMStatusFrame;
+
   return rj::CreatePCMStatusFrame(
-      fbb, pcm.GetModule(), pcm.Enabled(), pcm.GetPressureSwitchValue(),
-      pcm.GetCompressorCurrent(), pcm.GetClosedLoopControl(),
-      pcm.GetCompressorCurrentTooHighFault(), pcm.GetCompressorShortedFault(),
-      pcm.GetCompressorNotConnectedFault());
+      fbb, device.GetModule(), device.Enabled(), device.GetPressureSwitchValue(),
+      device.GetCompressorCurrent(), device.GetClosedLoopControl(),
+      device.GetCompressorCurrentTooHighFault(), device.GetCompressorShortedFault(),
+      device.GetCompressorNotConnectedFault());
 }
 /*
-rj::RawColor UDPLogger::GetRawColor(rev::ColorSensorV3::RawColor &color) {
+rj::RawColor UDPLogger::GetRawColor(rev::ColorSensorV3::RawColor &color, 
+                          rj::StatusFrame &frameType) {
   return rj::RawColor(color.red, color.green, color.blue, color.ir);
 }
 
 flatbuffers::Offset<rj::REVColorSensorStatusFrame>
 UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
-               rev::ColorSensorV3 &colorSensor) {
+               rev::ColorSensorV3 &colorSensor, 
+                          rj::StatusFrame &frameType) {
   auto color = colorSensor.GetRawColor();
   auto revColor = GetRawColor(color);
   return rj::CreateREVColorSensorStatusFrame(
       fbb, &revColor, colorSensor.GetProximity(), colorSensor.HasReset());
 }
 
-rj::BoardYawAxis UDPLogger::GetBoardYawAxis(AHRS::BoardYawAxis &yaw) {
+rj::BoardYawAxis UDPLogger::GetBoardYawAxis(AHRS::BoardYawAxis &yaw, 
+                          rj::StatusFrame &frameType) {
   return rj::BoardYawAxis(yaw.board_axis, yaw.up);
 }
 
 flatbuffers::Offset<rj::NavXStatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx, 
+                          rj::StatusFrame &frameType) {
   auto yaw = navx.GetBoardYawAxis();
   auto boardYaw = GetBoardYawAxis(yaw);
 
@@ -434,7 +458,11 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
 
 #ifdef __FRC_ROBORIO__
 flatbuffers::Offset<rj::ADIS16470StatusFrame>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu, 
+                          rj::StatusFrame& frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_ADIS16470StatusFrame;
+
   return rj::CreateADIS16470StatusFrame(
       fbb,
       imu.GetAngle(),
@@ -449,23 +477,29 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IM
       imu.GetYComplementaryAngle(),
       imu.GetXFilteredAccelAngle(),
       imu.GetYFilteredAccelAngle(),
-      imu.GetYawAxis()
-  );
+      imu.GetYawAxis());
 }
 #endif
 
 flatbuffers::Offset<rj::WPIDigitalInput>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_WPIDigitalInput;
+
   return rj::CreateWPIDigitalInput(
       fbb,
       input.GetChannel(),
       input.Get(),
-      input.IsAnalogTrigger()
-  );
+      input.IsAnalogTrigger());
 }
 
 flatbuffers::Offset<rj::WPIEncoder>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_WPIEncoder;
+
   return rj::CreateWPIEncoder(
       fbb,
       encoder.Get(),
@@ -479,267 +513,23 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &enc
       encoder.GetDistancePerPulse(),
       encoder.GetSamplesToAverage(),
       encoder.PIDGet(),
-      encoder.GetFPGAIndex()
-  );
+      encoder.GetFPGAIndex());
 }
 
 flatbuffers::Offset<rj::WPIDutyCycleEncoder>
-UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder) {
+UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, 
+                          frc::DutyCycleEncoder &encoder, 
+                          rj::StatusFrame &frameType)
+{
+  frameType = rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder;
+
   return rj::CreateWPIDutyCycleEncoder(
       fbb,
       encoder.GetFrequency(),
       encoder.IsConnected(),
-      (double) encoder.Get(),
+      (double)encoder.Get(),
       encoder.GetDistancePerRotation(),
       encoder.GetDistance(),
       encoder.GetFPGAIndex(),
-      encoder.GetSourceChannel()
-  );
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              TalonFX &motor) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, motor);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_CTREMotorStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              TalonSRX &motor) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, motor);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_CTREMotorStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              VictorSPX &motor) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, motor);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_CTREMotorStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              frc::PowerDistributionPanel &pdp) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, pdp);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime, rj::StatusFrame::StatusFrame_PDPStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              frc::Compressor &pcm) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, pcm);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime, rj::StatusFrame::StatusFrame_PCMStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-/*
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              rev::CANSparkMax &motor) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, motor);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_REVMotorStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb,
-                              rev::ColorSensorV3 &colorSensor) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, colorSensor);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_REVColorSensorStatusFrame,
-      statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, navx);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_NavXStatusFrame, statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-*/
-
-#ifdef __FRC_ROBORIO__
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, imu);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_ADIS16470StatusFrame, statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}  
-#endif
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, input);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_WPIDigitalInput, statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, encoder);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_WPIEncoder, statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-void UDPLogger::BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder) {
-  auto unixTime = frc::GetTime();
-  auto monotonicTime = frc::Timer::GetFPGATimestamp();
-  auto statusFrameOffset = GetStatusFrame(fbb, encoder);
-
-  auto statusFrameHolder = rj::CreateStatusFrameHolder(
-      fbb, unixTime, monotonicTime,
-      rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder, statusFrameOffset.Union());
-
-  rj::FinishSizePrefixedStatusFrameHolderBuffer(fbb, statusFrameHolder);
-}
-
-
-void UDPLogger::LogExternalDevice(ctre::phoenix::motorcontrol::can::TalonFX& fx) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, fx);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(ctre::phoenix::motorcontrol::can::TalonSRX& srx) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, srx);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(ctre::phoenix::motorcontrol::can::VictorSPX& spx) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, spx);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::PowerDistributionPanel& pdp) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pdp);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::Compressor& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-/*
-void UDPLogger::LogExternalDevice(rev::CANSparkMax& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(rev::ColorSensorV3& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(AHRS& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-*/
-
-#ifdef __FRC_ROBORIO__
-void UDPLogger::LogExternalDevice(frc::ADIS16470_IMU& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-#endif
-
-void UDPLogger::LogExternalDevice(frc::DigitalInput& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::Encoder& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
-}
-
-void UDPLogger::LogExternalDevice(frc::DutyCycleEncoder& pcm) {
-  fbb.Reset();
-  BuildExternalDeviceFrame(fbb, pcm);
-  auto buffer = fbb.Release();
-  Log(buffer.data(), buffer.size());
+      encoder.GetSourceChannel());
 }

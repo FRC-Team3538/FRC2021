@@ -39,7 +39,7 @@ Drivetrain::Drivetrain(bool isSimulation)
   m_driveL0.SetSelectedSensorPosition(0.0);
   m_driveR0.SetSelectedSensorPosition(0.0);
 
-  // IMU 
+  // IMU
   m_imu.Reset();
 
   frc::SmartDashboard::PutData("Field", &m_fieldSim);
@@ -137,4 +137,18 @@ void Drivetrain::Periodic()
   // frc::SmartDashboard::PutNumber("Angle", angle);
   // frc::SmartDashboard::PutNumber("DISTANCEL", m_driveL0.GetSelectedSensorPosition(0));
   // frc::SmartDashboard::PutNumber("DISTANCER", m_driveR0.GetSelectedSensorPosition(0));
+}
+
+void Drivetrain::Log(UDPLogger &logger)
+{
+  logger.LogExternalDevice(m_driveL0);
+  logger.LogExternalDevice(m_driveL1);
+  logger.LogExternalDevice(m_driveL2);
+  logger.LogExternalDevice(m_driveR0);
+  logger.LogExternalDevice(m_driveR1);
+  logger.LogExternalDevice(m_driveR2);
+
+#ifdef __FRC_ROBORIO__
+  logger.LogExternalDevice(m_imu);
+#endif
 }

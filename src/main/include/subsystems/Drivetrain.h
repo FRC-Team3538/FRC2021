@@ -48,19 +48,7 @@ public:
     void SimulationPeriodic();
     void Periodic();
 
-    void Log(UDPLogger &logger)
-    {
-        logger.LogExternalDevice(m_driveL0);
-        logger.LogExternalDevice(m_driveL1);
-        logger.LogExternalDevice(m_driveL2);
-        logger.LogExternalDevice(m_driveR0);
-        logger.LogExternalDevice(m_driveR1);
-        logger.LogExternalDevice(m_driveR2);
-
-#ifdef __FRC_ROBORIO__
-        logger.LogExternalDevice(m_imu);
-#endif
-    }
+    void Log(UDPLogger &logger);
 
 private:
     /***************************************************************************/

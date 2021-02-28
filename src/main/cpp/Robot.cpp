@@ -26,9 +26,9 @@
 
 void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>> &loggables)
 {
-  auto target =
-      std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+  auto target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   logger.InitLogger();
+
   while (true)
   {
     logger.CheckForNewClient();
@@ -39,6 +39,8 @@ void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>
     }
 
     logger.FlushLogBuffer();
+
+    // Sleep
     std::this_thread::sleep_until(target);
     target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   }
@@ -53,6 +55,7 @@ public:
     // values are sent during every iteration.
     SetNetworkTablesFlushEnabled(true);
 
+    // Auto Programs
     m_chooser.SetDefaultOption("None", "None");
     m_chooser.AddOption("TEST", "TEST");
     m_chooser.AddOption("A-Red", "A-Red");
@@ -69,16 +72,28 @@ public:
     // Robot Preferences
     prefs = frc::Preferences::GetInstance();
 
-    frc::SmartDashboard::PutNumber("VoltageL", 0.0);
-    frc::SmartDashboard::PutNumber("VoltageR", 0.0);
-    frc::SmartDashboard::PutNumber("Left Rate", 0.0);
-    frc::SmartDashboard::PutNumber("Right Rate", 0.0);
-    frc::SmartDashboard::PutString("Reference", "");
-    frc::SmartDashboard::PutString("Pose", "");
+    // SmartDash
+    frc::SmartDashboard::SetDefaultNumber("VoltageL", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("VoltageR", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("Left Rate", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("Right Rate", 0.0);
+    frc::SmartDashboard::SetDefaultString("Reference", "");
+    frc::SmartDashboard::SetDefaultString("Pose", "");
 
+    // Logger thread
+    // TODO(Dereck): There is no RTC (Real Time Clock) on the rio
+    // but the DS will send the current time when it connects which will be used to set the system time
+    // so we might want to wait for the DS to connect to begin logging.
+    // For now I added a bootNumber and robot name to help keep things sorted.
     auto time_point = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(time_point);
-    m_udp_logger.SetTitle(std::ctime(&time));
+    auto robotName = prefs->GetString("RioName", "Robot");
+    auto bootnum = prefs->GetInt("BootNumber");
+    prefs->PutInt("BootNum", bootnum + 1);
+    auto logTitle = robotName + "(" + std::to_string(bootnum) + ") - " + std::ctime(&time);
+    std::cout << logTitle << std::endl;
+    m_udp_logger.SetTitle(logTitle);
+
     m_logging_thread =
         std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
     m_logging_thread.detach();
@@ -435,7 +450,7 @@ public:
 
     auto rot = -m_rotLimiter.Calculate(
                    deadband(m_controller.GetX(frc::GenericHID::kRightHand))) *
-               Drivetrain::kMaxAngularSpeed; 
+               Drivetrain::kMaxAngularSpeed;
 
     m_drive.Drive(xSpeed, rot);
   }
@@ -527,7 +542,6 @@ public:
   }
 
 private:
-  // TODO(Dereck): Change to PS4 controller
   frc::UniversalController m_controller{0};
 
   UDPLogger m_udp_logger;
