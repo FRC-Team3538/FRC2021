@@ -19,10 +19,10 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
     : m_driveMotor(driveMotorChannel),
       m_turningMotor(turningMotorChannel, rev::CANSparkMaxLowLevel::MotorType::kBrushless), 
       m_turningEncoder(turningEncoderChannel),
-      m_drivePIDController(config.drivePID),
-      m_turningPIDController(config.turningPID),
-      m_driveFeedforward(config.driveFf),
-      m_turnFeedforward(config.turnFf)
+      m_drivePIDController{config.drivePID.kP, config.drivePID.kI, config.drivePID.kD, {config.drivePID.max_acceleration, config.drivePID.max_jerk}},
+      m_turningPIDController{config.turningPID.kP, config.turningPID.kI, config.turningPID.kD, {config.turningPID.max_angular_velocity, config.turningPID.max_angular_acceleration}},
+      m_driveFeedforward{config.driveFf.kS, config.driveFf.kV, config.driveFf.kA},
+      m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA}
 {
   // Drive Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
@@ -47,14 +47,16 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   encoderConfig.initializationStrategy = ctre::phoenix::sensors::SensorInitializationStrategy::BootToAbsolutePosition;
   encoderConfig.absoluteSensorRange = ctre::phoenix::sensors::AbsoluteSensorRange::Signed_PlusMinus180;
   encoderConfig.magnetOffsetDegrees = config.angleOffset.value();
-  m_turningEncoder.ConfigAllSettings(encoderConfig);
+  m_turningEncoder.ConfigAllSettings(encoderConfig, 50);
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
   m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                units::radian_t(wpi::math::pi));
 
-  m_neoEncoder.SetPosition(m_turningEncoder.GetAbsolutePosition() / 360.0 / kEncoderGearboxRatio);
+  m_neoEncoder.SetPosition(m_turningEncoder.GetAbsolutePosition() / 360.0  * kEncoderGearboxRatio);
+
+  std::cout << m_drivePIDController.GetP() << " " << m_drivePIDController.GetI() << " " << m_drivePIDController.GetD() << " / " << m_turningPIDController.GetP() << " " << m_turningPIDController.GetI() << " " << m_turningPIDController.GetD() << std::endl;
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
@@ -66,7 +68,11 @@ frc::SwerveModuleState SwerveModule::GetState()
 }
 
 frc::Rotation2d SwerveModule::GetAngle() {
-  return frc::Rotation2d((units::radian_t)units::turn_t(m_neoEncoder.GetPosition() / kEncoderGearboxRatio));
+  return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition() / kEncoderGearboxRatio * 2 * wpi::math::pi));
+}
+
+void SwerveModule::LogStuff() {
+  std::cout << GetAngle().Radians() << std::endl;
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
@@ -102,12 +108,12 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
   const auto turnFeedforward = m_turnFeedforward.Calculate(
       m_turningPIDController.GetSetpoint().velocity);
 
-  std::cout << opt_state.speed << " - " << GetState().speed << " -> " << units::volt_t{driveOutput} << " ~ " << + driveFeedforward << "\n\t" << opt_state.angle.Radians() << " - " << GetState().angle.Radians() << " -> " << units::volt_t{turnOutput} << " ~ " << turnFeedforward << std::endl;
+  // std::cout << units::volt_t{turnOutput} << " ~ " << turnFeedforward << std::endl;
 
+  std::cout << GetAngle().Radians() << " + " << + opt_state.angle.Radians() << std::endl;
 
-  m_driveMotor.SetVoltage(0_V); // units::volt_t{driveOutput} + driveFeedforward);
-
-  m_turningMotor.SetVoltage(0_V); // units::volt_t{turnOutput} + turnFeedforward);
+  m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
+  m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
 }
 
 void SwerveModule::InitSendable(frc::SendableBuilder &builder)

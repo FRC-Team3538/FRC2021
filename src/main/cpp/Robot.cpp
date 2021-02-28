@@ -30,7 +30,7 @@ logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& lo
     logger.CheckForNewClient();
 
     for (auto& loggable : loggables) {
-      loggable->Log(logger);
+      // loggable->Log(logger);
     }
 
     logger.FlushLogBuffer();
@@ -80,6 +80,7 @@ public:
   void RobotPeriodic() override
   {
     m_swerve.UpdateOdometry();
+    m_swerve.LogStuff();
   }
 
   void AutonomousInit() override

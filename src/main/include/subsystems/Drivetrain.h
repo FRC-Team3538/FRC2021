@@ -40,6 +40,11 @@ public:
 #endif // __FRC_ROBORIO__
     }
 
+    void LogStuff()
+    {
+        m_frontLeft.LogStuff();
+    }
+
     static constexpr auto kMaxSpeed = 10_fps;
     static constexpr auto kMaxAngularSpeed = wpi::math::pi * 1_rad_per_s;
 
@@ -87,68 +92,116 @@ private:
     static constexpr auto kMaxModuleAngularVelocity = wpi::math::pi * 4_rad_per_s;
     static constexpr auto kMaxModuleAngularAcceleration = wpi::math::pi * 8_rad_per_s_sq;
 
-    const SwerveModuleConfig m_frontLeftConfig{
+    static constexpr SwerveModuleConfig m_frontLeftConfig{
         145.547_deg,
         {
             3.26,
             0.0,
             0.0,
-            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+            kMaxModuleLinearAcceleration, 
+            kMaxModuleLinearJerk
+        },
         {
-            9.73,
+            9.73 / (2 * wpi::math::pi),
             0.0,
-            3.9,
-            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
-        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
-        {0.976_V, 3.61_V / 1_rad_per_s, 0.257_V / 1_rad_per_s_sq}
+            3.9 / (2 * wpi::math::pi),
+            kMaxModuleAngularVelocity, 
+            kMaxModuleAngularAcceleration
+        },
+        {
+            0.668_V, 
+            2.39_V / 1_mps, 
+            0.143_V / 1_mps_sq
+        },
+        {
+            0.976_V, 
+            3.61_V / 1_rad_per_s, 
+            0.257_V / 1_rad_per_s_sq
+        }
     };
     
-    const SwerveModuleConfig m_frontRightConfig{
-        -60.469_deg,
+    static constexpr SwerveModuleConfig m_frontRightConfig{
+        units::degree_t(-60.469),
         {
             3.26,
             0.0,
             0.0,
-            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+            kMaxModuleLinearAcceleration, 
+            kMaxModuleLinearJerk
+        },
         {
-            9.61,
+            9.61 / (2 * wpi::math::pi),
             0.0,
-            3.72,
-            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
-        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
-        {0.656_V, 3.7_V / 1_rad_per_s, 0.237_V / 1_rad_per_s_sq}
+            3.72 / (2 * wpi::math::pi),
+            kMaxModuleAngularVelocity, 
+            kMaxModuleAngularAcceleration
+        },
+        {
+            0.668_V, 
+            2.39_V / 1_mps, 
+            0.143_V / 1_mps_sq
+        },
+        {
+            0.656_V, 
+            3.7_V / 1_rad_per_s, 
+            0.237_V / 1_rad_per_s_sq
+        }
     };
 
-    const SwerveModuleConfig m_backLeftConfig{
+    static constexpr SwerveModuleConfig m_backLeftConfig{
         98.789_deg,
         {
             3.26,
             0.0,
             0.0,
-            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+            kMaxModuleLinearAcceleration, 
+            kMaxModuleLinearJerk
+        },
         {
-            9.34,
+            9.34 / (2 * wpi::math::pi),
             0.0,
-            3.54,
-            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
-        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
-        {0.777_V, 3.62_V / 1_rad_per_s, 0.209_V / 1_rad_per_s_sq}
+            3.54 / (2 * wpi::math::pi),
+            kMaxModuleAngularVelocity, 
+            kMaxModuleAngularAcceleration
+        },
+        {
+            0.668_V, 
+            2.39_V / 1_mps, 
+            0.143_V / 1_mps_sq
+        },
+        {
+            0.777_V, 
+            3.62_V / 1_rad_per_s, 
+            0.209_V / 1_rad_per_s_sq
+        }
     };
 
-    const SwerveModuleConfig m_backRightConfig{
+    static constexpr SwerveModuleConfig m_backRightConfig{
         126.387_deg,
         {
             3.26,
             0.0,
             0.0,
-            {kMaxModuleLinearAcceleration, kMaxModuleLinearJerk}},
+            kMaxModuleLinearAcceleration, 
+            kMaxModuleLinearJerk
+        },
         {
-            9.77,
+            9.77 / (2 * wpi::math::pi),
             0.0,
-            3.98,
-            {kMaxModuleAngularVelocity, kMaxModuleAngularAcceleration}},
-        {0.668_V, 2.39_V / 1_mps, 0.143_V / 1_mps_sq},
-        {0.764_V, 3.54_V / 1_rad_per_s, 0.264_V / 1_rad_per_s_sq}
+            3.98 / (2 * wpi::math::pi),
+            kMaxModuleAngularVelocity, 
+            kMaxModuleAngularAcceleration
+        },
+        {
+            0.668_V, 
+            2.39_V / 1_mps, 
+            0.143_V / 1_mps_sq
+        },
+        {
+            0.764_V, 
+            3.54_V / 1_rad_per_s, 
+            0.264_V / 1_rad_per_s_sq
+        }
     };
 
 

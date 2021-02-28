@@ -29,13 +29,45 @@
 #include "ctre/Phoenix.h"
 #include "rev/CANSparkMax.h"
 
+struct SwerveModuleDrivePIDConfig
+{
+    const double kP;
+    const double kI;
+    const double kD;
+    const units::meters_per_second_squared_t max_acceleration;
+    const decltype(1_mps_sq / 1_s) max_jerk;
+};
+
+struct SwerveModuleDriveFFConfig
+{
+    const units::volt_t kS;
+    const decltype(1_V / 1_mps) kV;
+    const decltype(1_V / 1_mps_sq) kA;
+};
+
+struct SwerveModuleTurnPIDConfig
+{
+    const double kP;
+    const double kI;
+    const double kD;
+    const units::radians_per_second_t max_angular_velocity;
+    const units::radians_per_second_squared_t max_angular_acceleration;
+};
+
+struct SwerveModuleTurnFFConfig
+{
+    const units::volt_t kS;
+    const decltype(1_V / 1_rad_per_s) kV;
+    const decltype(1_V / 1_rad_per_s_sq) kA;
+};
+
 struct SwerveModuleConfig
 {
     const units::degree_t angleOffset;
-    const frc::ProfiledPIDController<units::meters_per_second> drivePID;
-    const frc::ProfiledPIDController<units::radians> turningPID;
-    const frc::SimpleMotorFeedforward<units::meters> driveFf;
-    const frc::SimpleMotorFeedforward<units::radians> turnFf;
+    const SwerveModuleDrivePIDConfig drivePID;
+    const SwerveModuleTurnPIDConfig turningPID;
+    const SwerveModuleDriveFFConfig driveFf;
+    const SwerveModuleTurnFFConfig turnFf;
 };
 
 class SwerveModule : public frc::Sendable,
@@ -53,14 +85,14 @@ public:
 
     void InitSendable(frc::SendableBuilder &builder) override;
 
-    void Set(double drive, double azimuth);
-
     void Log(UDPLogger &logger)
     {
       logger.LogExternalDevice(m_driveMotor);
       logger.LogExternalDevice(m_turningMotor);
       // logger.LogExternalDevice(m_turningEncoder);
     }
+
+    void LogStuff();
 
 private:
     // Configuration
@@ -103,7 +135,7 @@ private:
     // std::string m_angleOffsetPref = "SwerveAngleOffset";
 
     // Control
-    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;;
+    frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;
     frc::ProfiledPIDController<units::radians> m_turningPIDController;
 
     frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward;
