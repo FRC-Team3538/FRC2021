@@ -27,7 +27,7 @@
 
 #include "ctre/Phoenix.h"
 #include "adi/ADIS16470_IMU.h"
-#include <lib/Loggable.hpp>
+#include "lib/Loggable.hpp"
 
 /**
  * Represents a differential drive style drivetrain.
@@ -35,56 +35,7 @@
 class Drivetrain: public rj::Loggable
 {
 public:
-    Drivetrain(bool isSimulation)
-    {
-        m_isSimulation = isSimulation;
-
-        m_driveL0.ConfigFactoryDefault();
-        m_driveL1.ConfigFactoryDefault();
-        m_driveL2.ConfigFactoryDefault();
-        m_driveR0.ConfigFactoryDefault();
-        m_driveR1.ConfigFactoryDefault();
-        m_driveR2.ConfigFactoryDefault();
-
-        double pidIdx = 0;
-        double timeoutMs = 18;
-        m_driveL0.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, pidIdx);
-        m_driveL0.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
-
-        m_driveR0.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, pidIdx);
-        m_driveR0.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
-
-        m_gyro.Reset();
-
-#ifdef __FRC_ROBORIO__
-        m_imu.Reset();
-#endif
-
-        // Set the distance per pulse for the drive encoders. We can simply use the
-        // distance traveled for one rotation of the wheel divided by the encoder
-        // resolution.
-        auto dpp = /*empiricalDist/196920.0;*/empiricalDist/258824.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution) / 10.24;
-        m_leftEncoder.SetDistancePerPulse(dpp.value());
-        m_rightEncoder.SetDistancePerPulse(-dpp.value());
-
-        m_leftEncoder.Reset();
-        m_rightEncoder.Reset();
-
-        m_rightGroup.SetInverted(true);
-        m_leftGroup.SetInverted(false);
-
-        m_driveL0.SetSelectedSensorPosition(0.0);
-        m_driveR0.SetSelectedSensorPosition(0.0);
-
-        m_driveL0.SetNeutralMode(NeutralMode::Brake);
-        m_driveL1.SetNeutralMode(NeutralMode::Brake);
-        m_driveL2.SetNeutralMode(NeutralMode::Brake);
-        m_driveR0.SetNeutralMode(NeutralMode::Brake);
-        m_driveR1.SetNeutralMode(NeutralMode::Brake);
-        m_driveR2.SetNeutralMode(NeutralMode::Brake);
-
-        frc::SmartDashboard::PutData("Field", &m_fieldSim);
-    }
+    Drivetrain(bool isSimulation);
 
     void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
     void Drive(units::meters_per_second_t xSpeed,
@@ -117,10 +68,12 @@ private:
 
     static constexpr units::meter_t kTrackWidth = 24.19872_in;
     static constexpr units::meter_t kWheelRadius = 3_in;
-    static constexpr units::meter_t empiricalDist = 240_in;
-    static constexpr double kGearRatio = 10.24;
+    static constexpr double kGearRatio = 7.09;
     static constexpr int kEncoderResolution = 2048;
-    static constexpr int kMotorCount = 2;
+    static constexpr int kMotorCount = 3;
+    
+    //static constexpr auto kScaleFactor = (2 * wpi::math::pi * kWheelRadius) / (kGearRatio * kEncoderResolution);
+    static constexpr auto kScaleFactor = 240_in / 258824.5;
 
     decltype(1_V) kStatic{0.668};
     decltype(1_V / 1_fps) kVlinear{0.686};
@@ -128,8 +81,8 @@ private:
     decltype(1_V / 1_rad_per_s) kVangular{0.717};
     decltype(1_V / 1_rad_per_s_sq) kAangular{0.092};
 
-    // Velocity Control PID (Is this really required ???)
-    frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0}; //2.75
+    // Velocity Control PID
+    frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0};
     frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
 
 public:
@@ -172,18 +125,14 @@ private:
         m_driveR1,
         m_driveR2};
 
-    // Simulated Encoders
-    frc::Encoder m_leftEncoder{0, 1};
-    frc::Encoder m_rightEncoder{2, 3};
-
-    // Simulated Gyro
-    frc::AnalogGyro m_gyro{0};
-
 #ifdef __FRC_ROBORIO__
     frc::ADIS16470_IMU m_imu{
         frc::ADIS16470_IMU::IMUAxis::kX, //kZ
         frc::SPI::Port::kOnboardCS0,
         frc::ADIS16470CalibrationTime::_4s};
+#else
+    // Simulated Gyro (Linux Desktop Support)
+    frc::AnalogGyro m_imu{0};
 #endif
 
     //
@@ -208,8 +157,5 @@ private:
         kGearRatio,
         kWheelRadius};
 
-    frc::sim::AnalogGyroSim m_gyroSim{m_gyro};
-    frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
-    frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
     frc::Field2d m_fieldSim;
 };

@@ -6,39 +6,87 @@
 
 #include <frc/RobotController.h>
 
+Drivetrain::Drivetrain(bool isSimulation)
+{
+  m_isSimulation = isSimulation;
+
+  // Speed Controllers
+  m_driveL0.ConfigFactoryDefault();
+  m_driveL1.ConfigFactoryDefault();
+  m_driveL2.ConfigFactoryDefault();
+  m_driveR0.ConfigFactoryDefault();
+  m_driveR1.ConfigFactoryDefault();
+  m_driveR2.ConfigFactoryDefault();
+
+  m_rightGroup.SetInverted(true);
+  m_leftGroup.SetInverted(false);
+
+  m_driveL0.SetNeutralMode(NeutralMode::Brake);
+  m_driveL1.SetNeutralMode(NeutralMode::Brake);
+  m_driveL2.SetNeutralMode(NeutralMode::Brake);
+  m_driveR0.SetNeutralMode(NeutralMode::Brake);
+  m_driveR1.SetNeutralMode(NeutralMode::Brake);
+  m_driveR2.SetNeutralMode(NeutralMode::Brake);
+
+  // Encoders
+  double pidIdx = 0;
+  m_driveL0.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, pidIdx);
+  m_driveL0.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
+
+  m_driveR0.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, pidIdx);
+  m_driveR0.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
+
+  m_driveL0.SetSelectedSensorPosition(0.0);
+  m_driveR0.SetSelectedSensorPosition(0.0);
+
+  // IMU 
+  m_imu.Reset();
+
+  frc::SmartDashboard::PutData("Field", &m_fieldSim);
+}
+
 void Drivetrain::SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds)
 {
+  // Feedforward
   auto leftFeedforward = m_feedforward.Calculate(speeds.left);
   auto rightFeedforward = m_feedforward.Calculate(speeds.right);
 
-  double leftRate = 0.0;
-  double rightRate = 0.0;
+  // PID
+  units::meters_per_second_t leftRate;
+  units::meters_per_second_t rightRate;
 
   if (m_isSimulation)
   {
-    leftRate = m_leftEncoder.GetRate();
-    rightRate = m_rightEncoder.GetRate();
+    leftRate = m_drivetrainSimulator.GetLeftVelocity();
+    rightRate = m_drivetrainSimulator.GetLeftVelocity();
   }
   else
   {
-    leftRate = m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
-    rightRate = m_driveR0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0;
+    leftRate = m_driveL0.GetSelectedSensorVelocity(0) / 100_ms * kScaleFactor;
+    rightRate = m_driveR0.GetSelectedSensorVelocity(0) / 100_ms * kScaleFactor;
   }
 
   double leftOutput = m_leftPIDController.Calculate(
-      leftRate,
-      speeds.left.to<double>());
+      leftRate.value(),
+      speeds.left.value());
 
   double rightOutput = m_rightPIDController.Calculate(
-      rightRate,
-      speeds.right.to<double>());
+      rightRate.value(),
+      speeds.right.value());
 
-  // m_leftGroup.SetVoltage(units::volt_t{leftOutput} + leftFeedforward);
-  // m_rightGroup.SetVoltage(units::volt_t{rightOutput} + rightFeedforward);
+  // Final Voltage output
+  auto left = units::volt_t{leftOutput} + leftFeedforward;
+  auto right = units::volt_t{rightOutput} + rightFeedforward;
+  // auto left = leftFeedforward;
+  // auto right = rightFeedforward;
 
-  m_leftGroup.SetVoltage(leftFeedforward);
-  m_rightGroup.SetVoltage(rightFeedforward);
-  
+  m_leftGroup.SetVoltage(left);
+  m_rightGroup.SetVoltage(right);
+
+  if (m_isSimulation)
+  {
+    m_drivetrainSimulator.SetInputs(left, right);
+  }
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
@@ -49,25 +97,22 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 
 void Drivetrain::UpdateOdometry()
 {
-#ifdef __FRC_ROBORIO__
-  auto left = m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse();
-  auto right = m_driveR0.GetSelectedSensorPosition(0) * m_rightEncoder.GetDistancePerPulse();
-
-  m_odometry.Update(m_imu.GetRotation2d(),
-                    units::meter_t(left), 
-                    units::meter_t(right));
-#else
-  m_odometry.Update(m_gyro.GetRotation2d() /*m_gyro.GetRotation2d()*/,
-                    units::meter_t(m_leftEncoder.GetDistance()),
-                    units::meter_t(m_rightEncoder.GetDistance()));
-#endif
+  if (m_isSimulation)
+  {
+    auto left = m_driveL0.GetSelectedSensorPosition(0) * kScaleFactor;
+    auto right = m_driveR0.GetSelectedSensorPosition(0) * kScaleFactor;
+    m_odometry.Update(m_imu.GetRotation2d(), left, right);
+  }
+  else
+  {
+    m_odometry.Update(m_drivetrainSimulator.GetHeading(),
+                      m_drivetrainSimulator.GetLeftPosition(),
+                      m_drivetrainSimulator.GetRightPosition());
+  }
 }
 
 void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 {
-  m_leftEncoder.Reset();
-  m_rightEncoder.Reset();
-
   m_driveL0.SetSelectedSensorPosition(0);
   m_driveR0.SetSelectedSensorPosition(0);
 
@@ -77,35 +122,16 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 
 void Drivetrain::SimulationPeriodic()
 {
-  // To update our simulation, we set motor voltage inputs, update the
-  // simulation, and write the simulated positions and velocities to our
-  // simulated encoder and gyro. We negate the right side so that positive
-  // voltages make the right side move forward.
-  m_drivetrainSimulator.SetInputs(units::volt_t{m_leftLeader.Get()} *
-                                      frc::RobotController::GetInputVoltage(),
-                                  units::volt_t{-m_rightLeader.Get()} *
-                                      frc::RobotController::GetInputVoltage());
   m_drivetrainSimulator.Update(20_ms);
-
-  m_leftEncoderSim.SetDistance(
-      m_drivetrainSimulator.GetLeftPosition().to<double>());
-  m_leftEncoderSim.SetRate(
-      m_drivetrainSimulator.GetLeftVelocity().to<double>());
-  m_rightEncoderSim.SetDistance(
-      m_drivetrainSimulator.GetRightPosition().to<double>());
-  m_rightEncoderSim.SetRate(
-      m_drivetrainSimulator.GetRightVelocity().to<double>());
-  m_gyroSim.SetAngle(
-      -m_drivetrainSimulator.GetHeading().Degrees().to<double>());
 }
 
 void Drivetrain::Periodic()
 {
   UpdateOdometry();
   //m_fieldSim.SetRobotPose(m_odometry.GetPose());
-  // double angle = /*m_imu.GetAngle();*/ acos(m_imu.GetRotation2d().Cos()) * (180.0 / wpi::math::pi);
-  // double distL = (m_driveL0.GetSelectedSensorPosition(0) * m_leftEncoder.GetDistancePerPulse());
-  // double distR = (m_driveR0.GetSelectedSensorPosition(0) * m_rightEncoder.GetDistancePerPulse());
+  // double angle = m_imu.GetRotation2d().Degrees();
+  // double distL = (m_driveL0.GetSelectedSensorPosition(0) * kScaleFactor);
+  // double distR = (m_driveR0.GetSelectedSensorPosition(0) * kScaleFactor);
   // frc::SmartDashboard::PutNumber("Dist L", distL);
   // frc::SmartDashboard::PutNumber("Dist R", distR);
   // frc::SmartDashboard::PutNumber("Angle", angle);

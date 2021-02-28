@@ -19,7 +19,7 @@
 #include "subsystems/Drivetrain.h"
 #include "lib/UniversalController.hpp"
 #include "subsystems/GlobalDevices.h"
-#include <UDPLogger.hpp>
+#include <lib/UDPLogger.hpp>
 
 #include <memory>
 #include <thread>
