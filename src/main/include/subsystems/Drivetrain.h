@@ -31,7 +31,6 @@ public:
 
     void Log(UDPLogger &logger)
     {
-      m_backRight.LogStuff();
       m_frontLeft.Log(logger);
       m_frontRight.Log(logger);
       m_backLeft.Log(logger);
@@ -41,21 +40,16 @@ public:
 #endif // __FRC_ROBORIO__
     }
 
-    void LogStuff()
-    {
-        m_frontLeft.LogStuff();
-    }
-
     static constexpr auto kMaxSpeed = 10_fps;
     static constexpr auto kMaxAngularSpeed = wpi::math::pi * 1_rad_per_s;
 
 private:
     // Configuration
     static constexpr auto m_dist = 15.75_in / 2;
-    frc::Translation2d m_frontLeftLocation{+m_dist, +m_dist};
-    frc::Translation2d m_frontRightLocation{+m_dist, -m_dist};
-    frc::Translation2d m_backLeftLocation{-m_dist, +m_dist};
-    frc::Translation2d m_backRightLocation{-m_dist, -m_dist};
+    frc::Translation2d m_frontLeftLocation{+m_dist, -m_dist};
+    frc::Translation2d m_frontRightLocation{+m_dist, +m_dist};
+    frc::Translation2d m_backLeftLocation{-m_dist, -m_dist};
+    frc::Translation2d m_backRightLocation{-m_dist, +m_dist};
 
     // Swerve Modules
     SwerveModule m_frontLeft{1, 2, 3, m_frontLeftConfig};
@@ -103,9 +97,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            9.73 / (2 * wpi::math::pi),
+            0.887,
             0.0,
-            3.9 / (2 * wpi::math::pi),
+            0.104,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -115,9 +109,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.976_V, 
-            3.61_V / 1_rad_per_s, 
-            0.257_V / 1_rad_per_s_sq
+            0.987_V, 
+            0.572_V / 1_rad_per_s, 
+            0.041_V / 1_rad_per_s_sq
         }
     };
     
@@ -131,9 +125,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            9.61 / (2 * wpi::math::pi),
+            0.879,
             0.0,
-            3.72 / (2 * wpi::math::pi),
+            0.0818,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -143,9 +137,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.656_V, 
-            3.7_V / 1_rad_per_s, 
-            0.237_V / 1_rad_per_s_sq
+            0.677_V, 
+            0.585_V / 1_rad_per_s, 
+            0.0374_V / 1_rad_per_s_sq
         }
     };
 
@@ -159,9 +153,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            9.34 / (2 * wpi::math::pi),
+            0.838,
             0.0,
-            3.54 / (2 * wpi::math::pi),
+            0.061,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -171,9 +165,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.777_V, 
-            3.62_V / 1_rad_per_s, 
-            0.209_V / 1_rad_per_s_sq
+            0.799_V, 
+            0.572_V / 1_rad_per_s, 
+            0.0334_V / 1_rad_per_s_sq
         }
     };
 
@@ -187,9 +181,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            9.77 / (2 * wpi::math::pi),
+            0.876,
             0.0,
-            3.98 / (2 * wpi::math::pi),
+            0.11,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -199,9 +193,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.764_V, 
-            3.54_V / 1_rad_per_s, 
-            0.264_V / 1_rad_per_s_sq
+            0.789_V, 
+            0.56_V / 1_rad_per_s, 
+            0.0418_V / 1_rad_per_s_sq
         }
     };
 

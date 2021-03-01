@@ -33,7 +33,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   // Turning Motor Configuration
   m_turningMotor.RestoreFactoryDefaults();
   m_turningMotor.SetInverted(false); // Remember: counter-clockwise-positive!
-  m_turningMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+  m_turningMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   m_turningMotor.SetSmartCurrentLimit(kTurningMotorCurrentLimit.value());
   m_turningMotor.EnableVoltageCompensation(kTurningMotorVoltageNominal.value());
   m_turningMotor.BurnFlash();
@@ -65,7 +65,8 @@ frc::SwerveModuleState SwerveModule::GetState()
 }
 
 frc::Rotation2d SwerveModule::GetAngle() {
-  return frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
+  auto un_normalized = frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
+  return frc::Rotation2d(un_normalized.Cos(), un_normalized.Sin());
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)

@@ -87,11 +87,6 @@ public:
 
     void Set(double drive, double azimuth);
 
-    void LogStuff()
-    {
-        std::cout << " cancoder: " << m_turningEncoder.GetPosition() << " = " << GetAngle().Degrees() << std::endl;
-    }
-
     void Log(UDPLogger &logger)
     {
       logger.LogExternalDevice(m_driveMotor);

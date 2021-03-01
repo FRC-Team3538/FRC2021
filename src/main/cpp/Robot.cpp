@@ -31,7 +31,7 @@ logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& lo
 
     auto time = frc::Timer::GetFPGATimestamp();
     for (auto& loggable : loggables) {
-      // loggable->Log(logger);
+      loggable->Log(logger);
     }
     logger.FlushLogBuffer();
 
@@ -53,7 +53,7 @@ public:
     frc::LiveWindow::GetInstance()->SetEnabled(false);
 
     // PS4 | xbox controller mapping
-    m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);
+    m_controller.SetControllerType(frc::UniversalController::ControllerType::kXbox);
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
@@ -82,7 +82,6 @@ public:
   void RobotPeriodic() override
   {
     m_swerve.UpdateOdometry();
-    m_swerve.LogStuff();
   }
 
   void AutonomousInit() override
@@ -153,9 +152,12 @@ public:
   void TeleopPeriodic() override
   {
     // Drivebase
-    const auto xSpeed = -m_xspeedLimiter.Calculate(m_controller.GetX(frc::GenericHID::kLeftHand)) * Drivetrain::kMaxSpeed;
-    const auto ySpeed = -m_yspeedLimiter.Calculate(m_controller.GetY(frc::GenericHID::kLeftHand)) * Drivetrain::kMaxSpeed;
-    const auto rot = -m_rotLimiter.Calculate(m_controller.GetX(frc::GenericHID::kRightHand)) * Drivetrain::kMaxAngularSpeed;
+    // NOTE: controller axes / robot axes are flipped 
+    // because the robot considers x downfield, which is y to the controller
+    // TODO: Calibrate this for ps4 controllers
+    const auto ySpeed = m_xspeedLimiter.Calculate(deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1)) * Drivetrain::kMaxSpeed;
+    const auto xSpeed = -m_yspeedLimiter.Calculate(deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1)) * Drivetrain::kMaxSpeed;
+    const auto rot = m_rotLimiter.Calculate(deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1)) * Drivetrain::kMaxAngularSpeed;
     m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
     // const auto drive = m_controller.GetY(frc::GenericHID::kLeftHand) * Drivetrain::kMaxSpeed;
@@ -166,7 +168,17 @@ public:
     // module.SetDesiredState(state);
 
     // Toggle Drive mode (Field | Robot Relative)
-    if(m_controller.GetOptionsButtonPressed()) m_fieldRelative = !m_fieldRelative;
+    if(m_controller.GetOptionsButtonPressed()) 
+    {
+      m_fieldRelative = !m_fieldRelative;
+      if (m_fieldRelative) {
+        std::cout << "Switching to Field Relative Control" << std::endl;
+      }
+      else
+      {
+        std::cout << "Switching to Normal Control" << std::endl;
+      }
+    }
   }
 
 private:
@@ -203,6 +215,15 @@ private:
 
   // Auto State
   frc::Timer m_autoTimer;
+
+  double deadband(double input, double band, double max)
+  {
+    if (input < band && -input < band) 
+    {
+      return 0;
+    }
+    return (input - band) / (max - band);
+  }
 };
 
 #ifndef RUNNING_FRC_TESTS
