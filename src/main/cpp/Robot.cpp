@@ -29,11 +29,13 @@ logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& lo
   while (true) {
     logger.CheckForNewClient();
 
+    auto time = frc::Timer::GetFPGATimestamp();
     for (auto& loggable : loggables) {
       // loggable->Log(logger);
     }
-
     logger.FlushLogBuffer();
+
+    // std::cout << "finished log loop" << std::endl;
     std::this_thread::sleep_until(target);
     target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   }

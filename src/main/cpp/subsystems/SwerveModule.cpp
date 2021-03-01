@@ -22,7 +22,8 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
       m_drivePIDController{config.drivePID.kP, config.drivePID.kI, config.drivePID.kD, {config.drivePID.max_acceleration, config.drivePID.max_jerk}},
       m_turningPIDController{config.turningPID.kP, config.turningPID.kI, config.turningPID.kD, {config.turningPID.max_angular_velocity, config.turningPID.max_angular_acceleration}},
       m_driveFeedforward{config.driveFf.kS, config.driveFf.kV, config.driveFf.kA},
-      m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA}
+      m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA},
+      angle_offset(config.angleOffset)
 {
   // Drive Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
@@ -33,7 +34,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   // Turning Motor Configuration
   m_turningMotor.RestoreFactoryDefaults();
   m_turningMotor.SetInverted(false); // Remember: counter-clockwise-positive!
-  m_turningMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+  m_turningMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   m_turningMotor.SetSmartCurrentLimit(kTurningMotorCurrentLimit.value());
   m_turningMotor.EnableVoltageCompensation(kTurningMotorVoltageNominal.value());
   m_turningMotor.BurnFlash();
@@ -41,22 +42,24 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
 
   // Turning Encoder Config
   m_turningEncoder.ConfigFactoryDefault();
+  m_turningEncoder.SetPositionToAbsolute();
+
   ctre::phoenix::sensors::CANCoderConfiguration encoderConfig;
   m_turningEncoder.GetAllConfigs(encoderConfig);
   encoderConfig.enableOptimizations = true;
   encoderConfig.initializationStrategy = ctre::phoenix::sensors::SensorInitializationStrategy::BootToAbsolutePosition;
   encoderConfig.absoluteSensorRange = ctre::phoenix::sensors::AbsoluteSensorRange::Signed_PlusMinus180;
   encoderConfig.magnetOffsetDegrees = config.angleOffset.value();
-  m_turningEncoder.ConfigAllSettings(encoderConfig, 50);
+  m_turningEncoder.ConfigAllSettings(encoderConfig);
+  m_turningEncoder.SetPositionToAbsolute();
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
   m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                units::radian_t(wpi::math::pi));
 
-  m_neoEncoder.SetPosition(m_turningEncoder.GetAbsolutePosition() / 360.0  * kEncoderGearboxRatio);
-
-  std::cout << m_drivePIDController.GetP() << " " << m_drivePIDController.GetI() << " " << m_drivePIDController.GetD() << " / " << m_turningPIDController.GetP() << " " << m_turningPIDController.GetI() << " " << m_turningPIDController.GetD() << std::endl;
+  auto res = m_neoEncoder.SetPosition(0); // m_turningEncoder.GetPosition() / 360);
+  std::cout << config.angleOffset << " " << angle_offset << std::endl;
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
@@ -68,11 +71,7 @@ frc::SwerveModuleState SwerveModule::GetState()
 }
 
 frc::Rotation2d SwerveModule::GetAngle() {
-  return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition() / kEncoderGearboxRatio * 2 * wpi::math::pi));
-}
-
-void SwerveModule::LogStuff() {
-  std::cout << GetAngle().Radians() << std::endl;
+  return frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition() + angle_offset));
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
@@ -108,9 +107,7 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
   const auto turnFeedforward = m_turnFeedforward.Calculate(
       m_turningPIDController.GetSetpoint().velocity);
 
-  // std::cout << units::volt_t{turnOutput} << " ~ " << turnFeedforward << std::endl;
-
-  std::cout << GetAngle().Radians() << " + " << + opt_state.angle.Radians() << std::endl;
+  // std::cout << GetAngle().Radians() << " + " << + opt_state.angle.Radians() << std::endl;
 
   m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
   m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);

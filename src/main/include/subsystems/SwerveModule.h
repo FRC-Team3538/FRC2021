@@ -85,16 +85,24 @@ public:
 
     void InitSendable(frc::SendableBuilder &builder) override;
 
+    void Set(double drive, double azimuth);
+
+    void LogStuff()
+    {
+        std::cout << angle_offset << " cancoder: " << m_turningEncoder.GetAbsolutePosition() << " -> " << m_turningEncoder.GetPosition() + angle_offset << " = " << GetAngle().Degrees() << std::endl;
+    }
+
     void Log(UDPLogger &logger)
     {
       logger.LogExternalDevice(m_driveMotor);
       logger.LogExternalDevice(m_turningMotor);
-      // logger.LogExternalDevice(m_turningEncoder);
+      logger.LogExternalDevice(m_turningEncoder);
     }
 
     void LogStuff();
 
 private:
+    const double angle_offset;
     // Configuration
     static constexpr auto kWheelRadius = 1.5_in;
     static constexpr int kEncoderResolution = 2048;
@@ -128,7 +136,7 @@ private:
     CANCoder m_turningEncoder;
     // encoder returns position in turns, so no need to use the internal ticks for added precision
     // here we convert motor turns to wheel radians
-    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor, 42.0 * kEncoderGearboxRatio); 
+    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor); 
     rev::CANPIDController m_neoPIDController = m_turningMotor.GetPIDController();
 
     // Angle Offset

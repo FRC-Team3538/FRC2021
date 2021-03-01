@@ -29,7 +29,7 @@
 
 using namespace std;
 
-#define FLATBUFFER_SIZE 4096
+#define FLATBUFFER_SIZE 8192
 
 class UDPLogger
 {
@@ -66,9 +66,10 @@ private:
   // rj::BoardYawAxis GetBoardYawAxis(AHRS::BoardYawAxis &yaw);
   // flatbuffers::Offset<rj::NavXStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, AHRS &navx);
 
-  flatbuffers::Offset<rj::WPIDigitalInput> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input);
-  flatbuffers::Offset<rj::WPIEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder);
-  flatbuffers::Offset<rj::WPIDutyCycleEncoder> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder);
+  flatbuffers::Offset<rj::WPIDigitalInputStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DigitalInput &input);
+  flatbuffers::Offset<rj::WPIEncoderStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Encoder &encoder);
+  flatbuffers::Offset<rj::WPIDutyCycleEncoderStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::DutyCycleEncoder &encoder);
+  flatbuffers::Offset<rj::CTRECanCoderStatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, ctre::phoenix::sensors::CANCoder &encoder);
 
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonFX& srx);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::motorcontrol::can::TalonSRX& srx);
@@ -81,6 +82,7 @@ private:
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DigitalInput& pcm);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::Encoder& pcm);
   void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, frc::DutyCycleEncoder& pcm);
+  void BuildExternalDeviceFrame(flatbuffers::FlatBufferBuilder& fbb, ctre::phoenix::sensors::CANCoder& pcm);
 
 #ifdef __FRC_ROBORIO__
   flatbuffers::Offset<rj::ADIS16470StatusFrame> GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::ADIS16470_IMU &imu);
@@ -105,6 +107,7 @@ public:
   void LogExternalDevice(frc::DigitalInput& pcm);
   void LogExternalDevice(frc::Encoder& pcm);
   void LogExternalDevice(frc::DutyCycleEncoder& pcm);
+  void LogExternalDevice(ctre::phoenix::sensors::CANCoder& pcm);
 
 #ifdef __FRC_ROBORIO__
   void LogExternalDevice(frc::ADIS16470_IMU& pcm);
