@@ -22,8 +22,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
       m_drivePIDController{config.drivePID.kP, config.drivePID.kI, config.drivePID.kD, {config.drivePID.max_acceleration, config.drivePID.max_jerk}},
       m_turningPIDController{config.turningPID.kP, config.turningPID.kI, config.turningPID.kD, {config.turningPID.max_angular_velocity, config.turningPID.max_angular_acceleration}},
       m_driveFeedforward{config.driveFf.kS, config.driveFf.kV, config.driveFf.kA},
-      m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA},
-      angle_offset(config.angleOffset)
+      m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA}
 {
   // Drive Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
@@ -41,9 +40,6 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
 
 
   // Turning Encoder Config
-  m_turningEncoder.ConfigFactoryDefault();
-  m_turningEncoder.SetPositionToAbsolute();
-
   ctre::phoenix::sensors::CANCoderConfiguration encoderConfig;
   m_turningEncoder.GetAllConfigs(encoderConfig);
   encoderConfig.enableOptimizations = true;
@@ -51,7 +47,6 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   encoderConfig.absoluteSensorRange = ctre::phoenix::sensors::AbsoluteSensorRange::Signed_PlusMinus180;
   encoderConfig.magnetOffsetDegrees = config.angleOffset.value();
   m_turningEncoder.ConfigAllSettings(encoderConfig);
-  m_turningEncoder.SetPositionToAbsolute();
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
@@ -59,7 +54,6 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
                                                units::radian_t(wpi::math::pi));
 
   auto res = m_neoEncoder.SetPosition(0); // m_turningEncoder.GetPosition() / 360);
-  std::cout << config.angleOffset << " " << angle_offset << std::endl;
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
@@ -71,7 +65,7 @@ frc::SwerveModuleState SwerveModule::GetState()
 }
 
 frc::Rotation2d SwerveModule::GetAngle() {
-  return frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition() + angle_offset));
+  return frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)

@@ -31,7 +31,7 @@ public:
 
     void Log(UDPLogger &logger)
     {
-        m_backRight.LogStuff();
+      m_backRight.LogStuff();
       m_frontLeft.Log(logger);
       m_frontRight.Log(logger);
       m_backLeft.Log(logger);

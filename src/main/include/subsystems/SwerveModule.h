@@ -89,7 +89,7 @@ public:
 
     void LogStuff()
     {
-        std::cout << angle_offset << " cancoder: " << m_turningEncoder.GetAbsolutePosition() << " -> " << m_turningEncoder.GetPosition() + angle_offset << " = " << GetAngle().Degrees() << std::endl;
+        std::cout << " cancoder: " << m_turningEncoder.GetPosition() << " = " << GetAngle().Degrees() << std::endl;
     }
 
     void Log(UDPLogger &logger)
@@ -99,10 +99,7 @@ public:
       logger.LogExternalDevice(m_turningEncoder);
     }
 
-    void LogStuff();
-
 private:
-    const double angle_offset;
     // Configuration
     static constexpr auto kWheelRadius = 1.5_in;
     static constexpr int kEncoderResolution = 2048;
