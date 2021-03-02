@@ -159,4 +159,7 @@ imgui.ini
 
 
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
+
+# These contain 'robot preferences' for the simulator which are unique to each user
+networktables.ini
 networktables.ini.bak
