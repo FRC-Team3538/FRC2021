@@ -25,7 +25,7 @@
 
 using namespace std;
 
-#define FLATBUFFER_SIZE 4096
+#define FLATBUFFER_SIZE 8192
 
 class UDPLogger
 {
@@ -115,7 +115,7 @@ public:
   void InitLogger();
   void CheckForNewClient();
   void FlushLogBuffer();
-  void Log(uint8_t *data, size_t size);
+  void Log(uint8_t* data, size_t size);
   void SetTitle(std::string str);
 
   //

@@ -37,7 +37,7 @@ inline bool operator==(const sockaddr_in &lhs, const sockaddr_in &rhs)
 
 void UDPLogger::InitLogger()
 {
-  sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
+  sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); //formerly SOCK_NONBLOCK
   if (sockfd < 0)
   {
     std::cout << "socket() failed! " << strerror(errno) << std::endl;
@@ -147,6 +147,12 @@ void UDPLogger::Log(uint8_t *data, size_t size)
   {
     FlushLogBuffer();
   }
+
+  if (size > FLATBUFFER_SIZE)
+  {
+    std::cout << "Packet Too Big!" << std::endl;
+  }
+
   assert(bufsize + size < FLATBUFFER_SIZE);
   memcpy(buf + bufsize, data, size);
   bufsize += size;
@@ -167,12 +173,20 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor,
   motor.GetFaults(faults);
 
   return rj::CreateCTREMotorStatusFrame(
-      fbb, motor.GetFirmwareVersion(), motor.GetBaseID(), motor.GetDeviceID(),
-      motor.GetOutputCurrent(), motor.GetBusVoltage(),
-      motor.GetMotorOutputPercent(), motor.GetMotorOutputVoltage(),
-      motor.GetTemperature(), motor.GetSelectedSensorPosition(),
-      motor.GetSelectedSensorVelocity(), motor.GetClosedLoopError(),
-      motor.GetIntegralAccumulator(), motor.GetErrorDerivative(),
+      fbb,
+      motor.GetFirmwareVersion(),
+      motor.GetBaseID(),
+      motor.GetDeviceID(),
+      motor.GetOutputCurrent(),
+      motor.GetBusVoltage(),
+      motor.GetMotorOutputPercent(),
+      motor.GetMotorOutputVoltage(),
+      motor.GetTemperature(),
+      motor.GetSelectedSensorPosition(),
+      motor.GetSelectedSensorVelocity(),
+      motor.GetClosedLoopError(),
+      motor.GetIntegralAccumulator(),
+      motor.GetErrorDerivative(),
       0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
       0, // TODO: only call this for valid modes.
          // motor.GetActiveTrajectoryPosition(),
@@ -180,9 +194,13 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonFX &motor,
          // motor.GetActiveTrajectoryVelocity(),
       0, // TODO: only call this for valid modes.
          // motor.GetActiveTrajectoryArbFeedFwd(),
-      faults.ToBitfield(), motor.HasResetOccurred(), motor.GetLastError(),
-      static_cast<int32_t>(motor.GetControlMode()), motor.GetStatorCurrent(),
-      motor.GetSupplyCurrent(), motor.IsFwdLimitSwitchClosed(),
+      faults.ToBitfield(),
+      motor.HasResetOccurred(),
+      motor.GetLastError(),
+      static_cast<int32_t>(motor.GetControlMode()),
+      motor.GetStatorCurrent(),
+      motor.GetSupplyCurrent(),
+      motor.IsFwdLimitSwitchClosed(),
       motor.IsRevLimitSwitchClosed());
 }
 
@@ -196,23 +214,35 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, TalonSRX &motor,
   motor.GetFaults(faults);
 
   return rj::CreateCTREMotorStatusFrame(
-      fbb, motor.GetFirmwareVersion(), motor.GetBaseID(), motor.GetDeviceID(),
-      motor.GetOutputCurrent(), motor.GetBusVoltage(),
-      motor.GetMotorOutputPercent(), motor.GetMotorOutputVoltage(),
-      motor.GetTemperature(), motor.GetSelectedSensorPosition(),
-      motor.GetSelectedSensorVelocity(), motor.GetClosedLoopError(),
-      motor.GetIntegralAccumulator(), motor.GetErrorDerivative(),
-      0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryPosition(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryVelocity(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryArbFeedFwd(),
-      faults.ToBitfield(), motor.HasResetOccurred(), motor.GetLastError(),
-      static_cast<int32_t>(motor.GetControlMode()), motor.GetStatorCurrent(),
-      motor.GetSupplyCurrent(), motor.IsFwdLimitSwitchClosed(),
-      motor.IsRevLimitSwitchClosed());
+    fbb, motor.GetFirmwareVersion(),
+    motor.GetBaseID(),
+    motor.GetDeviceID(),
+    motor.GetOutputCurrent(),
+    motor.GetBusVoltage(),
+    motor.GetMotorOutputPercent(),
+    motor.GetMotorOutputVoltage(),
+    motor.GetTemperature(),
+    motor.GetSelectedSensorPosition(),
+    motor.GetSelectedSensorVelocity(),
+    motor.GetClosedLoopError(),
+    motor.GetIntegralAccumulator(),
+    motor.GetErrorDerivative(),
+    0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryPosition(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryVelocity(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryArbFeedFwd(),
+    faults.ToBitfield(),
+    motor.HasResetOccurred(),
+    motor.GetLastError(),
+    static_cast<int32_t>(motor.GetControlMode()),
+    motor.GetStatorCurrent(),
+    motor.GetSupplyCurrent(),
+    motor.IsFwdLimitSwitchClosed(),
+    motor.IsRevLimitSwitchClosed()
+  );
 }
 
 flatbuffers::Offset<rj::CTREMotorStatusFrame>
@@ -225,21 +255,36 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, VictorSPX &motor,
   motor.GetFaults(faults);
 
   return rj::CreateCTREMotorStatusFrame(
-      fbb, motor.GetFirmwareVersion(), motor.GetBaseID(), motor.GetDeviceID(),
-      0.0, motor.GetBusVoltage(), motor.GetMotorOutputPercent(),
-      motor.GetMotorOutputVoltage(), motor.GetTemperature(),
-      motor.GetSelectedSensorPosition(), motor.GetSelectedSensorVelocity(),
-      motor.GetClosedLoopError(), motor.GetIntegralAccumulator(),
-      motor.GetErrorDerivative(),
-      0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryPosition(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryVelocity(),
-      0, // TODO: only call this for valid modes.
-         // motor.GetActiveTrajectoryArbFeedFwd(),
-      faults.ToBitfield(), motor.HasResetOccurred(), motor.GetLastError(),
-      static_cast<int32_t>(motor.GetControlMode()), 0.0, 0.0, 0, 0);
+    fbb, 
+    motor.GetFirmwareVersion(), 
+    motor.GetBaseID(), 
+    motor.GetDeviceID(),
+    0.0, 
+    motor.GetBusVoltage(), 
+    motor.GetMotorOutputPercent(),
+    motor.GetMotorOutputVoltage(),
+    motor.GetTemperature(),
+    motor.GetSelectedSensorPosition(), 
+    motor.GetSelectedSensorVelocity(),
+    motor.GetClosedLoopError(), 
+    motor.GetIntegralAccumulator(),
+    motor.GetErrorDerivative(),
+    0, // TODO: only call this for valid modes. motor.GetClosedLoopTarget(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryPosition(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryVelocity(),
+    0, // TODO: only call this for valid modes.
+        // motor.GetActiveTrajectoryArbFeedFwd(),
+    faults.ToBitfield(), 
+    motor.HasResetOccurred(), 
+    motor.GetLastError(),
+    static_cast<int32_t>(motor.GetControlMode()), 
+    0.0, 
+    0.0, 
+    0, 
+    0
+  );
 }
 /*
 rj::REVCANEncoder UDPLogger::GetREVCANEncoder(rev::CANEncoder &encoder) {
@@ -375,9 +420,15 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb,
       device.GetCurrent(15)};
 
   return rj::CreatePDPStatusFrameDirect(
-      fbb, device.GetModule(), device.GetVoltage(), device.GetTemperature(),
-      &currentMeasurements, device.GetTotalCurrent(), device.GetTotalPower(),
-      device.GetTotalEnergy());
+    fbb, 
+    device.GetModule(), 
+    device.GetVoltage(), 
+    device.GetTemperature(),
+    &currentMeasurements, 
+    device.GetTotalCurrent(), 
+    device.GetTotalPower(),
+    device.GetTotalEnergy()
+  );
 }
 
 flatbuffers::Offset<rj::PCMStatusFrame>
@@ -387,10 +438,16 @@ UDPLogger::GetStatusFrame(flatbuffers::FlatBufferBuilder &fbb, frc::Compressor &
   frameType = rj::StatusFrame::StatusFrame_PCMStatusFrame;
 
   return rj::CreatePCMStatusFrame(
-      fbb, device.GetModule(), device.Enabled(), device.GetPressureSwitchValue(),
-      device.GetCompressorCurrent(), device.GetClosedLoopControl(),
-      device.GetCompressorCurrentTooHighFault(), device.GetCompressorShortedFault(),
-      device.GetCompressorNotConnectedFault());
+    fbb, 
+    device.GetModule(), 
+    device.Enabled(), 
+    device.GetPressureSwitchValue(),
+    device.GetCompressorCurrent(), 
+    device.GetClosedLoopControl(),
+    device.GetCompressorCurrentTooHighFault(),
+    device.GetCompressorShortedFault(),
+    device.GetCompressorNotConnectedFault()
+  );
 }
 /*
 rj::RawColor UDPLogger::GetRawColor(rev::ColorSensorV3::RawColor &color, 
