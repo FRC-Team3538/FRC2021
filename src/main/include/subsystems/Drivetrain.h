@@ -63,9 +63,9 @@ public:
         // Set the distance per pulse for the drive encoders. We can simply use the
         // distance traveled for one rotation of the wheel divided by the encoder
         // resolution.
-        auto dpp = /*empiricalDist/196920.0;*/empiricalDist/258824.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution) / 10.24;
-        m_leftEncoder.SetDistancePerPulse(dpp.value());
-        m_rightEncoder.SetDistancePerPulse(-dpp.value());
+        auto dpp = empiricalDist/263386.5;//128173.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution);
+        m_leftEncoder.SetDistancePerPulse(-dpp.value());
+        m_rightEncoder.SetDistancePerPulse(dpp.value());
 
         m_leftEncoder.Reset();
         m_rightEncoder.Reset();
@@ -89,6 +89,7 @@ public:
     void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
     void Drive(units::meters_per_second_t xSpeed,
                units::radians_per_second_t rot);
+    void Arcade(double forward, double rotate);
     void UpdateOdometry();
     void ResetOdometry(const frc::Pose2d &pose);
 
@@ -115,28 +116,28 @@ private:
     /***************************************************************************/
     // CrossFire Characterization Values
 
-    static constexpr units::meter_t kTrackWidth = 24.19872_in;
-    static constexpr units::meter_t kWheelRadius = 3_in;
+    static constexpr units::meter_t kTrackWidth = 0.622_m;
+    static constexpr units::meter_t kWheelRadius = 2.125_in;
     static constexpr units::meter_t empiricalDist = 240_in;
-    static constexpr double kGearRatio = 10.24;
+    static constexpr double kGearRatio = 7.09;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.668};
-    decltype(1_V / 1_fps) kVlinear{0.686};
-    decltype(1_V / 1_fps_sq) kAlinear{0.124};
-    decltype(1_V / 1_rad_per_s) kVangular{0.717};
-    decltype(1_V / 1_rad_per_s_sq) kAangular{0.092};
+    decltype(1_V) kStatic{0.576};
+    decltype(1_V / 1_mps) kVlinear{2.23};
+    decltype(1_V / 1_mps_sq) kAlinear{0.126};
+    decltype(1_V / 1_rad_per_s) kVangular{2.3};
+    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0744};
 
     // Velocity Control PID (Is this really required ???)
-    frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0}; //2.75
-    frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
+    frc2::PIDController m_leftPIDController{1.9, 0.0, 0.0}; //2.75
+    frc2::PIDController m_rightPIDController{1.9, 0.0, 0.0};
 
 public:
     // Teleop Values
     /// TODO(Dereck): Measure these too
-    static constexpr units::feet_per_second_t kMaxSpeed{10.0};
-    static constexpr units::degrees_per_second_t kMaxAngularSpeed{180.0};
+    static constexpr units::feet_per_second_t kMaxSpeed{14.0};
+    static constexpr units::degrees_per_second_t kMaxAngularSpeed{360.0};
 
     /***************************************************************************/
 
@@ -181,7 +182,7 @@ private:
 
 #ifdef __FRC_ROBORIO__
     frc::ADIS16470_IMU m_imu{
-        frc::ADIS16470_IMU::IMUAxis::kX, //kZ
+        frc::ADIS16470_IMU::IMUAxis::kZ, //kZ
         frc::SPI::Port::kOnboardCS0,
         frc::ADIS16470CalibrationTime::_4s};
 #endif
@@ -190,7 +191,7 @@ private:
     // Dynamics
     //
     frc::DifferentialDriveKinematics m_kinematics{kTrackWidth};
-    frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d()};
+    frc::DifferentialDriveOdometry m_odometry{-m_imu.GetRotation2d()};
     frc::SimpleMotorFeedforward<units::meters> m_feedforward{kStatic, kVlinear, kAlinear};
 
     //
