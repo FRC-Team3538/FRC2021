@@ -72,7 +72,7 @@ int sendLog(int sockfd,
     return 0;
   }
 
-  std::cout << "RJ: SENDING " << size << " bytes" << std::endl;
+  //std::cout << "RJ: SENDING " << size << " bytes" << std::endl;
   return sendto(sockfd, data, size, 0, (const struct sockaddr *)&address, sizeof(address));
 }
 
