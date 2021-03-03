@@ -37,7 +37,8 @@ inline bool operator==(const sockaddr_in &lhs, const sockaddr_in &rhs)
 
 void UDPLogger::InitLogger()
 {
-  sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); //formerly SOCK_NONBLOCK
+  sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
+
   if (sockfd < 0)
   {
     std::cout << "socket() failed! " << strerror(errno) << std::endl;
@@ -67,9 +68,11 @@ int sendLog(int sockfd,
 {
   if (sockfd < 0)
   {
+    std::cout << "RJ: Dirty sock! " << std::endl;
     return 0;
   }
 
+  std::cout << "RJ: SENDING " << size << " bytes" << std::endl;
   return sendto(sockfd, data, size, 0, (const struct sockaddr *)&address, sizeof(address));
 }
 
@@ -80,9 +83,9 @@ void UDPLogger::FlushLogBuffer()
 
   for (struct sockaddr_in client : m_clients)
   {
-    if (sendLog(sockfd, buf, bufsize, client) == -1)
+    if (sendLog(sockfd, buf, bufsize, client) < 0)
     {
-      std::cout << "sendLog failed! " << strerror(errno) << std::endl;
+      std::cout << "RJ: SendLog failed! " << strerror(errno) << std::endl;
     }
   }
   bufsize = 0;
@@ -101,14 +104,19 @@ void UDPLogger::CheckForNewClient()
                              (struct sockaddr *)&client,
                              &client_len);
 
+  // No Requests = bail
+  if(res_len < 0) return;
+
+  // Parse Command
   buf[res_len] = '\n';
   auto sBuf = std::string(buf);
 
   if (sBuf.find("Hi") == 0)
   {
     // Connect
-    std::cout << "RJ: UDP Client Connected!" << std::endl;
+    std::cout << "RJ: Log Client Connected!" << std::endl;
 
+    // Send connection info to client
     fbb.Reset();
     auto greeting = rj::CreateInitializeStatusFrameDirect(fbb, title.c_str());
     auto wrapper =
@@ -120,8 +128,7 @@ void UDPLogger::CheckForNewClient()
     fbb.FinishSizePrefixed(wrapper);
     auto buffer = fbb.Release();
 
-    sendLog(sockfd, buffer.data(), buffer.size(), client);
-
+    // Add client to the list of clients
     {
       std::scoped_lock lock{mut};
       m_clients.push_back(client);
@@ -135,7 +142,7 @@ void UDPLogger::CheckForNewClient()
       m_clients.erase(std::remove(m_clients.begin(), m_clients.end(), client), m_clients.end());
     }
 
-    std::cout << "RJ: UDP Client Disconnected!" << std::endl;
+    std::cout << "RJ: Log Client Disconnected!" << std::endl;
   }
 }
 #endif // defined(_WIN32)
@@ -150,7 +157,7 @@ void UDPLogger::Log(uint8_t *data, size_t size)
 
   if (size > FLATBUFFER_SIZE)
   {
-    std::cout << "Packet Too Big!" << std::endl;
+    std::cout << "RJ: Packet Too Big!" << std::endl;
   }
 
   assert(bufsize + size < FLATBUFFER_SIZE);

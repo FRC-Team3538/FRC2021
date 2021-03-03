@@ -25,7 +25,7 @@
 
 using namespace std;
 
-#define FLATBUFFER_SIZE 8192
+#define FLATBUFFER_SIZE 1400
 
 class UDPLogger
 {

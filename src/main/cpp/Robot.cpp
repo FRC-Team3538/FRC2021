@@ -97,6 +97,10 @@ public:
     m_logging_thread =
         std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
     m_logging_thread.detach();
+
+    // Set Controller type
+    // TODO(Dereck): Connect to a chooser
+    m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);
   }
 
   void RobotPeriodic() override
@@ -468,7 +472,10 @@ public:
     return in;
   }
 
-  void SimulationPeriodic() override { m_drive.SimulationPeriodic(); }
+  void SimulationPeriodic() override
+  {
+    m_drive.SimulationPeriodic();
+  }
 
   void AutoPowerPort()
   {
