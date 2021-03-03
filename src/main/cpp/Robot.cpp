@@ -559,9 +559,9 @@ private:
       std::shared_ptr<rj::Loggable>(&m_drive),
   };
 
-  // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-  frc::SlewRateLimiter<units::scalar> m_speedLimiter{3 / 1_s};
-  frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
+  // Slew rate limiters to make joystick inputs more gentle; 1/5 sec from 0 to 1.
+  frc::SlewRateLimiter<units::scalar> m_speedLimiter{5 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_rotLimiter{5 / 1_s};
 
   Drivetrain m_drive{IsSimulation()};
   GlobalDevices m_globals;

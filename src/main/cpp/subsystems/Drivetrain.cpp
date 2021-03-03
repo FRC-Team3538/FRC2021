@@ -99,15 +99,13 @@ void Drivetrain::UpdateOdometry()
 {
   if (m_isSimulation)
   {
-    auto left = m_driveL0.GetSelectedSensorPosition(0) * kScaleFactor;
-    auto right = m_driveR0.GetSelectedSensorPosition(0) * kScaleFactor;
-    m_odometry.Update(m_imu.GetRotation2d(), left, right);
-  }
-  else
-  {
     m_odometry.Update(m_drivetrainSimulator.GetHeading(),
                       m_drivetrainSimulator.GetLeftPosition(),
                       m_drivetrainSimulator.GetRightPosition());
+  } else {
+    auto left = m_driveL0.GetSelectedSensorPosition(0) * kScaleFactor;
+    auto right = m_driveR0.GetSelectedSensorPosition(0) * kScaleFactor;
+    m_odometry.Update(m_imu.GetRotation2d(), left, right);
   }
 }
 
@@ -128,7 +126,8 @@ void Drivetrain::SimulationPeriodic()
 void Drivetrain::Periodic()
 {
   UpdateOdometry();
-  //m_fieldSim.SetRobotPose(m_odometry.GetPose());
+  m_fieldSim.SetRobotPose(m_odometry.GetPose());
+
   // double angle = m_imu.GetRotation2d().Degrees();
   // double distL = (m_driveL0.GetSelectedSensorPosition(0) * kScaleFactor);
   // double distR = (m_driveR0.GetSelectedSensorPosition(0) * kScaleFactor);
