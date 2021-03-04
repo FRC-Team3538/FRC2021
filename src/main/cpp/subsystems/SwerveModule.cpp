@@ -29,6 +29,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
   m_driveMotor.SetInverted(false); // Remember: forward-positive!
   m_driveMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
+  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 60, 0.1));
 
   // Turning Motor Configuration
   m_turningMotor.RestoreFactoryDefaults();

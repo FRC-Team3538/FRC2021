@@ -53,7 +53,7 @@ public:
     frc::LiveWindow::GetInstance()->SetEnabled(false);
 
     // PS4 | xbox controller mapping
-    m_controller.SetControllerType(frc::UniversalController::ControllerType::kXbox);
+    m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
@@ -82,6 +82,19 @@ public:
   void RobotPeriodic() override
   {
     m_swerve.UpdateOdometry();
+
+    // Toggle Drive mode (Field | Robot Relative)
+    if(m_controller.GetOptionsButtonPressed()) 
+    {
+      m_fieldRelative = !m_fieldRelative;
+      if (m_fieldRelative) {
+        std::cout << "Switching to Field Relative Control" << std::endl;
+      }
+      else
+      {
+        std::cout << "Switching to Normal Control" << std::endl;
+      }
+    }
   }
 
   void AutonomousInit() override
@@ -166,19 +179,6 @@ public:
     // const auto ang = units::math::atan2(rot_y, rot_x);
     // frc::SwerveModuleState state{drive, frc::Rotation2d(ang)};
     // module.SetDesiredState(state);
-
-    // Toggle Drive mode (Field | Robot Relative)
-    if(m_controller.GetOptionsButtonPressed()) 
-    {
-      m_fieldRelative = !m_fieldRelative;
-      if (m_fieldRelative) {
-        std::cout << "Switching to Field Relative Control" << std::endl;
-      }
-      else
-      {
-        std::cout << "Switching to Normal Control" << std::endl;
-      }
-    }
   }
 
 private:
@@ -199,9 +199,9 @@ private:
   // SwerveModule module{1, 2, 3};
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-  frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s};
-  frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s};
-  frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{10 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{10 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_rotLimiter{10 / 1_s};
 
   // Drive Mode
   bool m_fieldRelative = true;

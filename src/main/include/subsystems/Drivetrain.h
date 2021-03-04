@@ -41,7 +41,7 @@ public:
     }
 
     static constexpr auto kMaxSpeed = 10_fps;
-    static constexpr auto kMaxAngularSpeed = wpi::math::pi * 1_rad_per_s;
+    static constexpr auto kMaxAngularSpeed = wpi::math::pi * 2_rad_per_s;
 
 private:
     // Configuration
