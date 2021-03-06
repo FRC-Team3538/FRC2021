@@ -83,7 +83,8 @@ frc::Rotation2d SwerveModule::GetAngle()
   if (m_isSimulation)
   {
     // Simulator
-    return m_turnSim.GetPosition();
+    auto un_normalized = frc::Rotation2d(units::degree_t(m_turnSim.GetPosition()));
+    return frc::Rotation2d(un_normalized.Cos(), un_normalized.Sin());
   }
   else
   {
@@ -164,32 +165,38 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder)
   builder.SetActuator(true);
 
   // Drive Control
-  // builder.AddDoubleProperty(
-  //     "Drive P", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
-  // builder.AddDoubleProperty(
-  //     "Drive I", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
-  // builder.AddDoubleProperty(
-  //     "Drive D", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
-  // builder.AddDoubleProperty(
-  //     "Drive Goal",
-  //     [this] { return m_drivePIDController.GetGoal().velocity.value(); },
-  //     [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
+  builder.AddDoubleProperty(
+      "Drive kP", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
+  builder.AddDoubleProperty(
+      "Drive kI", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
+  builder.AddDoubleProperty(
+      "Drive kD", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
+  builder.AddDoubleProperty(
+      "Drive Goal",
+      [this] { return m_drivePIDController.GetGoal().velocity.value(); },
+      [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
+  builder.AddDoubleProperty(
+      "Drive SP",
+      [this] { return m_drivePIDController.GetGoal().velocity.value(); }, nullptr);
   builder.AddDoubleProperty(
       "Velocity", [this] { return GetVelocity().value(); }, nullptr);
   builder.AddDoubleProperty(
       "m_driveVolts", [this] { return m_driveVolts.value(); }, nullptr);
 
   // Angle Control
-  // builder.AddDoubleProperty(
-  //     "Angle P", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
-  // builder.AddDoubleProperty(
-  //     "Angle I", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
-  // builder.AddDoubleProperty(
-  //     "Angle D", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
-  // builder.AddDoubleProperty(
-  //     "Angle Goal",
-  //     [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
-  //     [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
+  builder.AddDoubleProperty(
+      "Angle kP", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
+  builder.AddDoubleProperty(
+      "Angle kI", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
+  builder.AddDoubleProperty(
+      "Angle kD", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
+  builder.AddDoubleProperty(
+      "Angle Goal",
+      [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
+      [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
+  builder.AddDoubleProperty(
+      "Angle SP",
+      [this] { return units::degree_t(m_turningPIDController.GetSetpoint().position).value(); }, nullptr);
   builder.AddDoubleProperty(
       "Angle", [this] { return GetAngle().Degrees().value(); }, nullptr);
   builder.AddDoubleProperty(

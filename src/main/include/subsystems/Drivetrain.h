@@ -33,7 +33,7 @@ public:
 
 
     static constexpr auto kMaxSpeed = 10_fps;
-    static constexpr auto kMaxAngularSpeed = wpi::math::pi * 2_rad_per_s;
+    static constexpr auto kMaxAngularSpeed = 2_rad_per_s;
 
 private:
     // Configuration
@@ -80,8 +80,8 @@ private:
     static constexpr auto kMaxModuleLinearAcceleration = 6.0_mps_sq;
     static constexpr auto kMaxModuleLinearJerk = 12.0_mps_sq / 1_s;
 
-    static constexpr auto kMaxModuleAngularVelocity = wpi::math::pi * 4_rad_per_s;
-    static constexpr auto kMaxModuleAngularAcceleration = wpi::math::pi * 8_rad_per_s_sq;
+    static constexpr auto kMaxModuleAngularVelocity = 18_rad_per_s;
+    static constexpr auto kMaxModuleAngularAcceleration = 27_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
         145.547_deg,

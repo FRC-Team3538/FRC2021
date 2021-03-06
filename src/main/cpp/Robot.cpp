@@ -163,10 +163,6 @@ public:
   void TeleopPeriodic() override
   {
     // Drivebase
-    // NOTE: controller axes / robot axes are flipped 
-    // because the robot considers x downfield, which is y to the controller
-    // TODO: Calibrate this for ps4 controllers
-
     auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
