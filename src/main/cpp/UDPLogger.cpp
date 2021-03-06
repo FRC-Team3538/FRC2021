@@ -30,6 +30,9 @@ void
 UDPLogger::FlushLogBuffer()
 {}
 
+void
+UDPLogger::Log(uint8_t* data, size_t size)
+{}
 #else
 
 void
@@ -126,8 +129,6 @@ UDPLogger::CheckForNewClient()
   }
 }
 
-#endif // defined(_WIN32)
-
 void
 UDPLogger::Log(uint8_t* data, size_t size)
 {
@@ -142,6 +143,9 @@ UDPLogger::Log(uint8_t* data, size_t size)
   memcpy(buf + bufsize, data, size);
   bufsize += size;
 }
+#endif // defined(_WIN32)
+
+
 
 void
 UDPLogger::SetTitle(std::string str)
