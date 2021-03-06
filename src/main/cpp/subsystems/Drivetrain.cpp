@@ -16,6 +16,8 @@ Drivetrain::Drivetrain()
   frc::SmartDashboard::PutData("SwerveFR", &m_frontRight);
   frc::SmartDashboard::PutData("SwerveBL", &m_backLeft);
   frc::SmartDashboard::PutData("SwerveBR", &m_backRight);
+
+  frc::SmartDashboard::PutData("Field", &m_fieldDisplay);
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
@@ -53,14 +55,45 @@ void Drivetrain::UpdateOdometry()
                          m_frontRight.GetState(),
                          m_backLeft.GetState(),
                          m_backRight.GetState());
+
+  m_fieldDisplay.SetRobotPose(m_poseEstimator.GetPose());
 }
 
 frc::Rotation2d Drivetrain::GetYaw()
 {
-
 #ifdef __FRC_ROBORIO__
   return m_imu.GetRotation2d();
 #else
-  return m_gyro.GetRotation2d();
+  //return m_gyro.GetRotation2d();
+  return m_theta;
 #endif
+}
+
+void Drivetrain::Log(UDPLogger &logger)
+{
+  m_frontLeft.Log(logger);
+  m_frontRight.Log(logger);
+  m_backLeft.Log(logger);
+  m_backRight.Log(logger);
+#ifdef __FRC_ROBORIO__
+  logger.LogExternalDevice(m_imu);
+#endif // __FRC_ROBORIO__
+}
+
+
+void Drivetrain::SimPeriodic()
+{
+  m_frontLeft.SimPeriodic();
+  m_frontRight.SimPeriodic();
+  m_backLeft.SimPeriodic();
+  m_backRight.SimPeriodic();
+
+  // Simulated IMU
+  auto [dx, dy, dtheta] = m_kinematics.ToChassisSpeeds({
+    m_frontLeft.GetState(),
+    m_frontRight.GetState(),
+    m_backLeft.GetState(),
+    m_backRight.GetState()});
+  
+  m_theta += dtheta * 20_ms;
 }

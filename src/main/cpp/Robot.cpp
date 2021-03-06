@@ -29,13 +29,11 @@ logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& lo
   while (true) {
     logger.CheckForNewClient();
 
-    auto time = frc::Timer::GetFPGATimestamp();
     for (auto& loggable : loggables) {
       loggable->Log(logger);
     }
     logger.FlushLogBuffer();
 
-    // std::cout << "finished log loop" << std::endl;
     std::this_thread::sleep_until(target);
     target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   }
@@ -168,17 +166,21 @@ public:
     // NOTE: controller axes / robot axes are flipped 
     // because the robot considers x downfield, which is y to the controller
     // TODO: Calibrate this for ps4 controllers
-    const auto ySpeed = m_xspeedLimiter.Calculate(deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1)) * Drivetrain::kMaxSpeed;
-    const auto xSpeed = -m_yspeedLimiter.Calculate(deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1)) * Drivetrain::kMaxSpeed;
-    const auto rot = m_rotLimiter.Calculate(deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1)) * Drivetrain::kMaxAngularSpeed;
-    m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
-    // const auto drive = m_controller.GetY(frc::GenericHID::kLeftHand) * Drivetrain::kMaxSpeed;
-    // const auto rot_x = units::meter_t(m_controller.GetX(frc::GenericHID::kRightHand));
-    // const auto rot_y = units::meter_t(m_controller.GetY(frc::GenericHID::kRightHand));
-    // const auto ang = units::math::atan2(rot_y, rot_x);
-    // frc::SwerveModuleState state{drive, frc::Rotation2d(ang)};
-    // module.SetDesiredState(state);
+    auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
+
+    auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
+    auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
+    auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
+    
+    m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+  }
+
+  void SimulationPeriodic() override
+  {
+    m_swerve.SimPeriodic();
   }
 
 private:

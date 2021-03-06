@@ -9,6 +9,7 @@
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <frc/AnalogGyro.h>
 #include <wpi/math>
+#include <frc/smartdashboard/Field2d.h>
 
 #include "subsystems/SwerveModule.h"
 #include "adi/ADIS16470_IMU.h"
@@ -26,19 +27,10 @@ public:
                units::radians_per_second_t rot,
                bool fieldRelative = true);
     void UpdateOdometry();
-
     frc::Rotation2d GetYaw();
+    void Log(UDPLogger &logger);
+    void SimPeriodic();
 
-    void Log(UDPLogger &logger)
-    {
-      m_frontLeft.Log(logger);
-      m_frontRight.Log(logger);
-      m_backLeft.Log(logger);
-      m_backRight.Log(logger);
-#ifdef __FRC_ROBORIO__
-      logger.LogExternalDevice(m_imu);
-#endif // __FRC_ROBORIO__
-    }
 
     static constexpr auto kMaxSpeed = 10_fps;
     static constexpr auto kMaxAngularSpeed = wpi::math::pi * 2_rad_per_s;
@@ -79,6 +71,10 @@ private:
         m_kinematics,
         frc::Rotation2d(),
         frc::Pose2d()};
+
+    frc::Field2d m_fieldDisplay;
+
+    units::radian_t m_theta = 0_rad;
 
     // Control
     static constexpr auto kMaxModuleLinearAcceleration = 6.0_mps_sq;

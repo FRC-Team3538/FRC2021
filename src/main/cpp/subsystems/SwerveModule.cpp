@@ -17,7 +17,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
                            const int turningEncoderChannel,
                            SwerveModuleConfig config)
     : m_driveMotor(driveMotorChannel),
-      m_turningMotor(turningMotorChannel, rev::CANSparkMaxLowLevel::MotorType::kBrushless), 
+      m_turningMotor(turningMotorChannel, rev::CANSparkMaxLowLevel::MotorType::kBrushless),
       m_turningEncoder(turningEncoderChannel),
       m_drivePIDController{config.drivePID.kP, config.drivePID.kI, config.drivePID.kD, {config.drivePID.max_acceleration, config.drivePID.max_jerk}},
       m_turningPIDController{config.turningPID.kP, config.turningPID.kI, config.turningPID.kD, {config.turningPID.max_angular_velocity, config.turningPID.max_angular_acceleration}},
@@ -39,7 +39,6 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_turningMotor.EnableVoltageCompensation(kTurningMotorVoltageNominal.value());
   m_turningMotor.BurnFlash();
 
-
   // Turning Encoder Config
   ctre::phoenix::sensors::CANCoderConfiguration encoderConfig;
   m_turningEncoder.GetAllConfigs(encoderConfig);
@@ -54,20 +53,44 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                units::radian_t(wpi::math::pi));
 
-  auto res = m_neoEncoder.SetPosition(0); // m_turningEncoder.GetPosition() / 360);
+  // Use mag encoder to set start-up angle
+  m_neoEncoder.SetPosition(0);
+  // m_turningEncoder.GetPosition() / 360);
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
 {
-  constexpr int pidIndex = 0;
-  auto velocity = m_driveMotor.GetSelectedSensorVelocity(pidIndex) * kDriveScaleFactor / 100_ms;
-  
-  return {velocity, GetAngle()};
+  return {GetVelocity(), GetAngle()};
 }
 
-frc::Rotation2d SwerveModule::GetAngle() {
-  auto un_normalized = frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
-  return frc::Rotation2d(un_normalized.Cos(), un_normalized.Sin());
+units::meters_per_second_t SwerveModule::GetVelocity()
+{
+  if (m_isSimulation)
+  {
+    // Simulator
+    return m_driveSim.GetVelocity();
+  }
+  else
+  {
+    // Real Hardware
+    constexpr int pidIndex = 0;
+    return m_driveMotor.GetSelectedSensorVelocity(pidIndex) * kDriveScaleFactor / 100_ms;
+  }
+}
+
+frc::Rotation2d SwerveModule::GetAngle()
+{
+  if (m_isSimulation)
+  {
+    // Simulator
+    return m_turnSim.GetPosition();
+  }
+  else
+  {
+    // Real Hardware
+    auto un_normalized = frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
+    return frc::Rotation2d(un_normalized.Cos(), un_normalized.Sin());
+  }
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
@@ -87,6 +110,7 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
     return;
   }
 
+  // Forward Kinematics
   const auto opt_state = SwerveModuleState::Optimize(state, GetAngle());
 
   // Drive
@@ -96,71 +120,100 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 
   const auto driveFeedforward = m_driveFeedforward.Calculate(opt_state.speed);
 
+  m_driveVolts = units::volt_t{driveOutput} + driveFeedforward;
+
   // Angle
   const auto turnOutput = m_turningPIDController.Calculate(
-      GetAngle().Radians(), opt_state.angle.Radians());
+      GetAngle().Radians(),
+      opt_state.angle.Radians());
 
   const auto turnFeedforward = m_turnFeedforward.Calculate(
       m_turningPIDController.GetSetpoint().velocity);
 
-  // std::cout << GetAngle().Radians() << " + " << + opt_state.angle.Radians() << std::endl;
+  m_turnVolts = units::volt_t{turnOutput} + turnFeedforward;
 
-  m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
-  m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
+  // Output
+  m_driveMotor.SetVoltage(m_driveVolts);
+  m_turningMotor.SetVoltage(m_turnVolts);
+
+  if (m_isSimulation)
+  {
+    m_driveSim.SetInputVoltage(m_driveVolts);
+    m_turnSim.SetInputVoltage(m_turnVolts);
+  }
+}
+
+void SwerveModule::SimPeriodic()
+{
+  m_isSimulation = true;
+
+  m_driveSim.Update(20_ms);
+  m_turnSim.Update(20_ms);
+}
+
+void SwerveModule::Log(UDPLogger &logger)
+{
+  logger.LogExternalDevice(m_driveMotor);
+  logger.LogExternalDevice(m_turningMotor);
+  logger.LogExternalDevice(m_turningEncoder);
 }
 
 void SwerveModule::InitSendable(frc::SendableBuilder &builder)
 {
-    builder.SetSmartDashboardType("SwerveModule");
-    builder.SetActuator(true);
+  builder.SetSmartDashboardType("SwerveModule");
+  builder.SetActuator(true);
 
-    // Drive Control
-    // builder.AddDoubleProperty(
-    //     "Drive P", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
-    // builder.AddDoubleProperty(
-    //     "Drive I", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
-    // builder.AddDoubleProperty(
-    //     "Drive D", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
-    // builder.AddDoubleProperty(
-    //     "Drive Goal",
-    //     [this] { return m_drivePIDController.GetGoal().velocity.value(); },
-    //     [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
-    // builder.AddDoubleProperty(
-    //     "Velocity", [this] { return GetState().speed.value(); }, nullptr);
+  // Drive Control
+  // builder.AddDoubleProperty(
+  //     "Drive P", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
+  // builder.AddDoubleProperty(
+  //     "Drive I", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
+  // builder.AddDoubleProperty(
+  //     "Drive D", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
+  // builder.AddDoubleProperty(
+  //     "Drive Goal",
+  //     [this] { return m_drivePIDController.GetGoal().velocity.value(); },
+  //     [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
+  builder.AddDoubleProperty(
+      "Velocity", [this] { return GetVelocity().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "m_driveVolts", [this] { return m_driveVolts.value(); }, nullptr);
 
-    // Angle Control
-    // builder.AddDoubleProperty(
-    //     "Angle P", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
-    // builder.AddDoubleProperty(
-    //     "Angle I", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
-    // builder.AddDoubleProperty(
-    //     "Angle D", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
-    // builder.AddDoubleProperty(
-    //     "Angle Goal",
-    //     [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
-    //     [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
-    // builder.AddDoubleProperty(
-    //     "Angle", [this] { return GetState().angle.Degrees().value(); }, nullptr);
+  // Angle Control
+  // builder.AddDoubleProperty(
+  //     "Angle P", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
+  // builder.AddDoubleProperty(
+  //     "Angle I", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
+  // builder.AddDoubleProperty(
+  //     "Angle D", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
+  // builder.AddDoubleProperty(
+  //     "Angle Goal",
+  //     [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
+  //     [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
+  builder.AddDoubleProperty(
+      "Angle", [this] { return GetAngle().Degrees().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "m_turnVolts", [this] { return m_turnVolts.value(); }, nullptr);
 
-    // builder.AddDoubleProperty(
-    //     "Angle Offset",
-    //     [this] { return prefs->GetDouble(m_angleOffsetPref); },
-    //     [this](double value) {
-    //         prefs->PutDouble(m_angleOffsetPref, value);
-    //         m_turningEncoder.ConfigMagnetOffset(value);
-    //     });
+  // builder.AddDoubleProperty(
+  //     "Angle Offset",
+  //     [this] { return prefs->GetDouble(m_angleOffsetPref); },
+  //     [this](double value) {
+  //         prefs->PutDouble(m_angleOffsetPref, value);
+  //         m_turningEncoder.ConfigMagnetOffset(value);
+  //     });
 
-    // Turning Encoders
-    // builder.AddDoubleProperty(
-    //     "Encoder Neo", [this] { return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition())).Degrees().value(); }, nullptr);
-    // builder.AddDoubleProperty(
-    //     "Encoder CTRE", [this] { return m_turningEncoder.GetAbsolutePosition(); }, nullptr);
+  // Turning Encoders
+  // builder.AddDoubleProperty(
+  //     "Encoder Neo", [this] { return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition())).Degrees().value(); }, nullptr);
+  // builder.AddDoubleProperty(
+  //     "Encoder CTRE", [this] { return m_turningEncoder.GetAbsolutePosition(); }, nullptr);
 
-    // Thermal
-    builder.AddBooleanProperty(
-        "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
-    builder.AddDoubleProperty(
-        "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
-    builder.AddDoubleProperty(
-        "Angle Temp [C]", [this] { return m_turningMotor.GetMotorTemperature(); }, nullptr);
+  // Thermal
+  builder.AddBooleanProperty(
+      "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
+  builder.AddDoubleProperty(
+      "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
+  builder.AddDoubleProperty(
+      "Angle Temp [C]", [this] { return m_turningMotor.GetMotorTemperature(); }, nullptr);
 }

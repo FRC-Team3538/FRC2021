@@ -26,6 +26,12 @@
 #include <frc/smartdashboard/SendableHelper.h>
 #include <lib/Loggable.hpp>
 
+// Simulation
+#include <frc/system/plant/LinearSystemId.h>
+#include "subsystems/VelocitySystemSim.h"
+#include "subsystems/PositionSystemSim.h"
+
+// Vendor Libraries
 #include "ctre/Phoenix.h"
 #include "rev/CANSparkMax.h"
 
@@ -79,27 +85,27 @@ public:
                  int turningMotorChannel,
                  int turningEncoderChannel,
                  SwerveModuleConfig config);
+
     frc::SwerveModuleState GetState();
     void SetDesiredState(const frc::SwerveModuleState &state);
+
+    units::meters_per_second_t GetVelocity();
     frc::Rotation2d GetAngle();
 
     void InitSendable(frc::SendableBuilder &builder) override;
 
     void Set(double drive, double azimuth);
 
-    void Log(UDPLogger &logger)
-    {
-      logger.LogExternalDevice(m_driveMotor);
-      logger.LogExternalDevice(m_turningMotor);
-      logger.LogExternalDevice(m_turningEncoder);
-    }
+    void Log(UDPLogger &logger);
+
+    void SimPeriodic();
 
 private:
     // Configuration
     static constexpr auto kWheelRadius = 1.5_in;
     static constexpr int kEncoderResolution = 2048;
     static constexpr double kDriveGearboxRatio = 5.25;
-    static constexpr double kEncoderGearboxRatio = 5.33 * 2.89 * 3.61;
+    static constexpr double kTurnGearboxRatio = 5.33 * 2.89 * 3.61;
 
     static constexpr auto kMaxLinearAcceleration = 6.0_mps_sq;
     static constexpr auto kMaxLinearJerk = 12.0_mps_sq / 1_s;
@@ -143,4 +149,34 @@ private:
 
     // Thermal Limit
     bool m_faultTermal = false;
+
+    //
+    // Simulation
+    //
+    bool m_isSimulation = false;
+    units::volt_t m_driveVolts = 0_V;
+    units::volt_t m_turnVolts = 0_V;
+
+    // Drive
+    frc::LinearSystem<1, 1, 1> m_drivePlant =
+    frc::LinearSystemId::IdentifyVelocitySystem<units::meter>(
+        m_driveFeedforward.kV, 
+        m_driveFeedforward.kA);
+
+    frc::sim::VelocitySystemSim m_driveSim{
+        m_drivePlant,
+        frc::DCMotor::Falcon500(),
+        kDriveGearboxRatio,
+        kWheelRadius};
+
+    // Turn
+    frc::LinearSystem<2, 1, 1> m_turnPlant =
+    frc::LinearSystemId::IdentifyPositionSystem<units::radian>(
+        m_turnFeedforward.kV, 
+        m_turnFeedforward.kA);
+
+    frc::sim::PositionSystemSim m_turnSim{
+        m_turnPlant,
+        frc::DCMotor::NEO550(),
+        kTurnGearboxRatio};
 };
