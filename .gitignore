@@ -159,8 +159,8 @@ imgui.ini
 
 
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
+networktables.ini
 networktables.ini.bak
 
 logs/
 __pycache__/
-networktables.ini
