@@ -173,13 +173,13 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder)
       "Drive kD", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
   builder.AddDoubleProperty(
       "Drive Goal",
-      [this] { return m_drivePIDController.GetGoal().velocity.value(); },
+      [this] { return units::meters_per_second_t(m_drivePIDController.GetGoal().position).value(); },
       [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
   builder.AddDoubleProperty(
       "Drive SP",
-      [this] { return m_drivePIDController.GetGoal().velocity.value(); }, nullptr);
+      [this] { return units::meters_per_second_t(m_drivePIDController.GetSetpoint().position).value(); }, nullptr);
   builder.AddDoubleProperty(
-      "Velocity", [this] { return GetVelocity().value(); }, nullptr);
+      "Velocity", [this] { return units::meters_per_second_t(GetVelocity()).value(); }, nullptr);
   builder.AddDoubleProperty(
       "m_driveVolts", [this] { return m_driveVolts.value(); }, nullptr);
 
