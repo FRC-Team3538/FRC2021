@@ -28,12 +28,13 @@ public:
                bool fieldRelative = true);
     void UpdateOdometry();
     frc::Rotation2d GetYaw();
+    void ResetYaw();
     void Log(UDPLogger &logger);
     void SimPeriodic();
 
 
     static constexpr auto kMaxSpeed = 10_fps;
-    static constexpr auto kMaxAngularSpeed = 2_rad_per_s;
+    static constexpr auto kMaxAngularSpeed = wpi::math::pi * 2_rad_per_s;
 
 private:
     // Configuration
@@ -84,7 +85,7 @@ private:
     static constexpr auto kMaxModuleAngularAcceleration = 27_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
-        145.547_deg,
+        units::degree_t(-150.205), // units::degree_t(-145.107),
         {
             3.26,
             0.0,
@@ -112,7 +113,7 @@ private:
     };
     
     static constexpr SwerveModuleConfig m_frontRightConfig{
-        units::degree_t(-60.469),
+        units::degree_t(-125.684), // units::degree_t(-128.320),
         {
             3.26,
             0.0,
@@ -140,7 +141,7 @@ private:
     };
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
-        98.789_deg,
+        101.426_deg, // 97.822_deg,
         {
             3.26,
             0.0,
@@ -168,7 +169,7 @@ private:
     };
 
     static constexpr SwerveModuleConfig m_backRightConfig{
-        126.387_deg,
+        126.650_deg, // 125.771_deg,
         {
             3.26,
             0.0,

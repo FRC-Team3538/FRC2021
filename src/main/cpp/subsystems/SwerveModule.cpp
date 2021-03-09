@@ -89,7 +89,7 @@ frc::Rotation2d SwerveModule::GetAngle()
   else
   {
     // Real Hardware
-    auto un_normalized = frc::Rotation2d(units::degree_t(m_turningEncoder.GetPosition()));
+    auto un_normalized = frc::Rotation2d(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
     return frc::Rotation2d(un_normalized.Cos(), un_normalized.Sin());
   }
 }

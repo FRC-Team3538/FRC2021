@@ -59,6 +59,11 @@ void Drivetrain::UpdateOdometry()
   m_fieldDisplay.SetRobotPose(m_poseEstimator.GetPose());
 }
 
+void Drivetrain::ResetYaw()
+{
+  m_imu.Reset();
+}
+
 frc::Rotation2d Drivetrain::GetYaw()
 {
 #ifdef __FRC_ROBORIO__

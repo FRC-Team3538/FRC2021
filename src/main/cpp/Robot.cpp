@@ -93,6 +93,13 @@ public:
         std::cout << "Switching to Normal Control" << std::endl;
       }
     }
+
+    // Toggle Drive mode (Field | Robot Relative)
+    if(m_controller.GetScreenShotButtonPressed()) 
+    {
+      m_swerve.ResetYaw();
+      std::cout << "Reset Gyro" << std::endl;
+    }
   }
 
   void AutonomousInit() override
@@ -164,8 +171,8 @@ public:
   {
     // Drivebase
     auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
+    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
+    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
 
     auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
     auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
