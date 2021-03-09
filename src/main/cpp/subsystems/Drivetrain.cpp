@@ -61,7 +61,9 @@ void Drivetrain::UpdateOdometry()
 
 void Drivetrain::ResetYaw()
 {
-  m_imu.Reset();
+#ifdef __FRC_ROBORIO__
+    m_imu.Reset();
+#endif // __FRC_ROBORIO__
 }
 
 frc::Rotation2d Drivetrain::GetYaw()
