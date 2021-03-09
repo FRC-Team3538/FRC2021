@@ -96,6 +96,12 @@ frc::Rotation2d SwerveModule::GetAngle()
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 {
+  // if we're moving at less than an inch per second just ignore
+  if (units::math::abs(state.speed) < 1_fps / 12)
+  {
+    return;
+  }
+
   // Protect the Neo550 from overheating
   auto temp = units::celsius_t(m_turningMotor.GetMotorTemperature());
   if (m_faultTermal || temp > kTurningMotorTemperatureMax)
