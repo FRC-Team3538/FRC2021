@@ -33,8 +33,9 @@ public:
     void SimPeriodic();
 
 
-    static constexpr auto kMaxSpeed = 10_fps;
-    static constexpr auto kMaxAngularSpeed = wpi::math::pi * 2_rad_per_s;
+    static constexpr auto kMaxSpeed = 16_fps;
+    // about 2.5 turns per second
+    static constexpr auto kMaxAngularSpeed = 2 * wpi::math::pi * 2.5_rad_per_s;
 
 private:
     // Configuration
@@ -78,11 +79,11 @@ private:
     units::radian_t m_theta = 0_rad;
 
     // Control
-    static constexpr auto kMaxModuleLinearAcceleration = 6.0_mps_sq;
-    static constexpr auto kMaxModuleLinearJerk = 12.0_mps_sq / 1_s;
+    static constexpr auto kMaxModuleLinearAcceleration = 8.0_mps_sq;
+    static constexpr auto kMaxModuleLinearJerk = 5.0_mps_sq / 1_s;
 
     static constexpr auto kMaxModuleAngularVelocity = 18_rad_per_s;
-    static constexpr auto kMaxModuleAngularAcceleration = 27_rad_per_s_sq;
+    static constexpr auto kMaxModuleAngularAcceleration = 200_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
         units::degree_t(-150.205), // units::degree_t(-145.107),
@@ -106,7 +107,7 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.987_V, 
+            0.799_V, 
             0.572_V / 1_rad_per_s, 
             0.041_V / 1_rad_per_s_sq
         }

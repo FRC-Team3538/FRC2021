@@ -24,6 +24,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
       m_driveFeedforward{config.driveFf.kS, config.driveFf.kV, config.driveFf.kA},
       m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA}
 {
+  m_turningPIDController.SetTolerance(0.1_rad, units::radians_per_second_t(std::numeric_limits<double>::infinity()));
   // Drive Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
@@ -97,8 +98,11 @@ frc::Rotation2d SwerveModule::GetAngle()
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 {
   // if we're moving at less than an inch per second just ignore
-  if (units::math::abs(state.speed) < 1_fps / 12)
+  // std::cout << state.speed << " <? " << units::feet_per_second_t(1.0 / 12.0) << std::endl;
+  if (units::math::abs(state.speed) < units::feet_per_second_t(1.0 / 12.0))
   {
+    m_driveMotor.SetVoltage(0_V);
+    m_turningMotor.SetVoltage(0_V);
     return;
   }
 

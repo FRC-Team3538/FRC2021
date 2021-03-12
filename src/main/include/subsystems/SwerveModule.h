@@ -107,12 +107,6 @@ private:
     static constexpr double kDriveGearboxRatio = 5.25;
     static constexpr double kTurnGearboxRatio = 5.33 * 2.89 * 3.61;
 
-    static constexpr auto kMaxLinearAcceleration = 6.0_mps_sq;
-    static constexpr auto kMaxLinearJerk = 12.0_mps_sq / 1_s;
-
-    static constexpr auto kMaxAngularVelocity = wpi::math::pi * 4_rad_per_s;
-    static constexpr auto kMaxAngularAcceleration = wpi::math::pi * 8_rad_per_s_sq;
-
     static constexpr auto kDriveScaleFactor =
         (2 * wpi::math::pi * kWheelRadius) / (kDriveGearboxRatio * kEncoderResolution);
     
