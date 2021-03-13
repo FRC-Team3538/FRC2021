@@ -35,6 +35,7 @@ public:
 
     static constexpr auto kMaxSpeed = 16_fps;
     // about 2.5 turns per second
+    // calculated theoretically to 2.7 turns/sec
     static constexpr auto kMaxAngularSpeed = 2 * wpi::math::pi * 2.5_rad_per_s;
 
 private:
@@ -95,9 +96,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.887,
+            0.989,
             0.0,
-            0.104,
+            0.17,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -107,9 +108,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.799_V, 
-            0.572_V / 1_rad_per_s, 
-            0.041_V / 1_rad_per_s_sq
+            0.983_V, 
+            0.588_V / 1_rad_per_s, 
+            0.0496_V / 1_rad_per_s_sq
         }
     };
     
@@ -123,9 +124,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.879,
+            0.761,
             0.0,
-            0.0818,
+            0.0187,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -135,9 +136,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.677_V, 
-            0.585_V / 1_rad_per_s, 
-            0.0374_V / 1_rad_per_s_sq
+            0.537_V, 
+            0.543_V / 1_rad_per_s, 
+            0.0204_V / 1_rad_per_s_sq
         }
     };
 
@@ -151,9 +152,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.838,
+            0.909,
             0.0,
-            0.061,
+            0.0892,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -163,9 +164,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.799_V, 
-            0.572_V / 1_rad_per_s, 
-            0.0334_V / 1_rad_per_s_sq
+            0.698_V, 
+            0.6_V / 1_rad_per_s, 
+            0.0387_V / 1_rad_per_s_sq
         }
     };
 
@@ -179,9 +180,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.876,
+            0.853,
             0.0,
-            0.11,
+            0.315,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -191,9 +192,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            0.789_V, 
-            0.56_V / 1_rad_per_s, 
-            0.0418_V / 1_rad_per_s_sq
+            1.2_V, 
+            0.589_V / 1_rad_per_s, 
+            0.0315_V / 1_rad_per_s_sq
         }
     };
 
