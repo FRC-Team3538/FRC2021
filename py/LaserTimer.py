@@ -5,7 +5,7 @@ from serial import *
 from tkinter import *
 import time
 
-serialPort = "/dev/ttyUSB0"
+serialPort = "COM5"
 baudRate = 115200
 ser = Serial(serialPort , baudRate, timeout=0, writeTimeout=0) #ensure non-blocking
 
