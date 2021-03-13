@@ -143,6 +143,9 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 
   m_turnVolts = units::volt_t{turnOutput} + turnFeedforward;
 
+  std::cout << "\tD: (" << GetVelocity() << ", " << opt_state.speed << ") = " << units::volt_t(driveOutput) << " + " << driveFeedforward << std::endl;
+  std::cout << "\tA: (" << GetAngle().Radians() << ", " << opt_state.angle.Radians() << ") = " << units::volt_t(turnOutput) << " + " << turnFeedforward << std::endl;
+
   // Output
   m_driveMotor.SetVoltage(m_driveVolts);
   m_turningMotor.SetVoltage(m_turnVolts);
