@@ -2,16 +2,36 @@
 
 This branch has two programs, one for an Arduino Nano and a python script. 
 
+
 ## Arduino Nano
+
 The Arduino nano will relay the status of a laser beam-break sensor via USB Serial to the python script. Just plug in the Ardunio to the Driver station and it should power up the laser and start broadcasting the laser state.
 
 ![Image of Hardware](doc/arduino.png)
 
 
 ## Python GUI
+
 The Python script will monitor for the `[]\` Robot Enable Hotkey to start a timer. The timer will stop when the laser beam is broken. The GUI will display the state of the Laser Sensor as well. 
 
 ![Image of Hardware](doc/GUI.png)
+
+### Linux Setup
+
+```
+git clone git@github.com:FRC-Team3538/FRC2021.git -b LaserTimer
+cd FRC2021
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r py/requirements.txt
+```
+
+### Windows Setup
+
+TODO.
+
+
+## How to Use
 
 1. Set up the laser so it crosses the finish line.
 2. Plug in the Arduino Nano to the Driver Station
