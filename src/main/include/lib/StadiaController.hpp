@@ -91,21 +91,21 @@ class StadiaController : public GenericHID {
   };
 
   enum class Button {
-    kA = 0,
-    kB = 1,
-    kX = 2,
-    kY = 3,
-    kLeftBumper = 4,
-    kRightBumper = 5,
-    kOptions = 6,
-    kMenu = 7,
-    kStadia = 8,
-    kAssistant = 9,
-    kCapture = 10,
-    kL3= 11,
-    kR3 = 12,
-    kRightTrigger = 13,
-    kLeftTrigger = 14,
+    kA = 1,
+    kB = 2,
+    kX = 3,
+    kY = 4,
+    kLeftBumper = 5,
+    kRightBumper = 6,
+    kOptions = 7,
+    kMenu = 8,
+    kStadia = 9,
+    kL3= 10,
+    kR3 = 11,
+    kAssistant = 12,
+    kCapture = 13,
+    kRightTrigger = 14,
+    kLeftTrigger = 15,
   };
 
   enum class POV {

@@ -55,9 +55,9 @@ class PS4Controller : public GenericHID {
   bool GetTriangleButtonPressed();
   bool GetTriangleButtonReleased();
 
-  bool GetScreenShotButton() const;
-  bool GetScreenShotButtonPressed();
-  bool GetScreenShotButtonReleased();
+  bool GetShareButton() const;
+  bool GetShareButtonPressed();
+  bool GetShareButtonReleased();
 
   bool GetOptionsButton() const;
   bool GetOptionsButtonPressed();
@@ -81,16 +81,16 @@ class PS4Controller : public GenericHID {
 
  private:
   enum class Button {
-    kBumperLeft = 5,
-    kBumperRight = 6,
-    kStickLeft = 11,
-    kStickRight = 12,
+    kSquare = 1,
     kCross = 2,
     kCircle = 3,
-    kSquare = 1,
     kTriangle = 4,
-    kScreenShot = 9,
+    kBumperLeft = 5,
+    kBumperRight = 6,
+    kShare = 9,
     kOptions = 10,
+    kStickLeft = 11,
+    kStickRight = 12,
     kPS = 13,
     kTouchPad = 14
   };

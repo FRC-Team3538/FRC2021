@@ -463,19 +463,19 @@ bool UniversalController::GetTriangleButtonReleased()
 }
 
 /**
- * Read the value of the ScreenShot button on the controller.
+ * Read the value of the Share button on the controller.
  *
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool UniversalController::GetScreenShotButton() const
+bool UniversalController::GetShareButton() const
 {
   switch (m_type)
   {
   case ControllerType::kXbox:
     return xb_.GetBackButton();
   case ControllerType::kPS4:
-    return ps_.GetScreenShotButton();
+    return ps_.GetShareButton();
   case ControllerType::kStadia:
     return stadia_.GetOptionsButton();
   default:
@@ -484,18 +484,18 @@ bool UniversalController::GetScreenShotButton() const
 }
 
 /**
- * Whether the ScreenShot button was pressed since the last check.
+ * Whether the Share button was pressed since the last check.
  *
  * @return Whether the button was pressed since the last check.
  */
-bool UniversalController::GetScreenShotButtonPressed()
+bool UniversalController::GetShareButtonPressed()
 {
   switch (m_type)
   {
   case ControllerType::kXbox:
     return xb_.GetBackButtonPressed();
   case ControllerType::kPS4:
-    return ps_.GetScreenShotButtonPressed();
+    return ps_.GetShareButtonPressed();
   case ControllerType::kStadia:
     return stadia_.GetOptionsButtonPressed();
   default:
@@ -504,18 +504,18 @@ bool UniversalController::GetScreenShotButtonPressed()
 }
 
 /**
- * Whether the ScreenShot button was released since the last check.
+ * Whether the Share button was released since the last check.
  *
  * @return Whether the button was released since the last check.
  */
-bool UniversalController::GetScreenShotButtonReleased()
+bool UniversalController::GetShareButtonReleased()
 {
   switch (m_type)
   {
   case ControllerType::kXbox:
     return xb_.GetBackButtonReleased();
   case ControllerType::kPS4:
-    return ps_.GetScreenShotButtonReleased();
+    return ps_.GetShareButtonReleased();
   case ControllerType::kStadia:
     return stadia_.GetOptionsButtonReleased();
   default:
@@ -660,7 +660,7 @@ bool UniversalController::GetTouchPadButton() const
   case ControllerType::kPS4:
     return ps_.GetTouchPadButton();
   case ControllerType::kStadia:
-    return false;
+    return stadia_.GetCaptureButton();
   default:
     return false;
   }
@@ -680,7 +680,7 @@ bool UniversalController::GetTouchPadButtonPressed()
   case ControllerType::kPS4:
     return ps_.GetTouchPadButtonPressed();
   case ControllerType::kStadia:
-    return false;
+    return stadia_.GetCaptureButtonPressed();
   default:
     return false;
   }
@@ -700,7 +700,7 @@ bool UniversalController::GetTouchPadButtonReleased()
   case ControllerType::kPS4:
     return ps_.GetTouchPadButtonReleased();
   case ControllerType::kStadia:
-    return false;
+    return stadia_.GetCaptureButtonReleased();
   default:
     return false;
   }
@@ -790,7 +790,12 @@ void UniversalController::InitSendable(frc::SendableBuilder &builder)
       "btn/Triangle", [this] { return GetTriangleButton(); }, nullptr);
 
   builder.AddBooleanProperty(
-      "btn/ScreenShot", [this] { return GetScreenShotButton(); }, nullptr);
+      "btn/BumperL", [this] { return GetBumper(JoystickHand::kLeftHand); }, nullptr);
+  builder.AddBooleanProperty(
+      "btn/BumperR", [this] { return GetBumper(JoystickHand::kRightHand); }, nullptr);
+
+  builder.AddBooleanProperty(
+      "btn/Share", [this] { return GetShareButton(); }, nullptr);
   builder.AddBooleanProperty(
       "btn/Options", [this] { return GetOptionsButton(); }, nullptr);
   builder.AddBooleanProperty(

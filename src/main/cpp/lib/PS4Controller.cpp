@@ -259,31 +259,31 @@ bool PS4Controller::GetTriangleButtonReleased() {
 }
 
 /**
- * Read the value of the ScreenShot button on the controller.
+ * Read the value of the Share button on the controller.
  *
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool PS4Controller::GetScreenShotButton() const {
-  return GetRawButton(static_cast<int>(Button::kScreenShot));
+bool PS4Controller::GetShareButton() const {
+  return GetRawButton(static_cast<int>(Button::kShare));
 }
 
 /**
- * Whether the ScreenShot button was pressed since the last check.
+ * Whether the Share button was pressed since the last check.
  *
  * @return Whether the button was pressed since the last check.
  */
-bool PS4Controller::GetScreenShotButtonPressed() {
-  return GetRawButtonPressed(static_cast<int>(Button::kScreenShot));
+bool PS4Controller::GetShareButtonPressed() {
+  return GetRawButtonPressed(static_cast<int>(Button::kShare));
 }
 
 /**
- * Whether the ScreenShot button was released since the last check.
+ * Whether the Share button was released since the last check.
  *
  * @return Whether the button was released since the last check.
  */
-bool PS4Controller::GetScreenShotButtonReleased() {
-  return GetRawButtonReleased(static_cast<int>(Button::kScreenShot));
+bool PS4Controller::GetShareButtonReleased() {
+  return GetRawButtonReleased(static_cast<int>(Button::kShare));
 }
 
 /**

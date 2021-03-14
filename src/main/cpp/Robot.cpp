@@ -104,7 +104,7 @@ public:
     }
 
     // Toggle Drive mode (Field | Robot Relative)
-    if(m_controller.GetScreenShotButtonPressed()) 
+    if(m_controller.GetShareButtonPressed()) 
     {
       m_swerve.ResetYaw();
       std::cout << "Reset Gyro" << std::endl;

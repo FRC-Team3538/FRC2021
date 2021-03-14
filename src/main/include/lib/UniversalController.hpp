@@ -72,9 +72,9 @@ namespace frc
     bool GetTriangleButtonPressed();
     bool GetTriangleButtonReleased();
 
-    bool GetScreenShotButton() const;
-    bool GetScreenShotButtonPressed();
-    bool GetScreenShotButtonReleased();
+    bool GetShareButton() const;
+    bool GetShareButtonPressed();
+    bool GetShareButtonReleased();
 
     bool GetOptionsButton() const;
     bool GetOptionsButtonPressed();
