@@ -35,8 +35,8 @@ public:
 
     static constexpr auto kMaxSpeed = 16_fps;
     // about 2.5 turns per second
-    // calculated theoretically to 2.7 turns/sec
-    static constexpr auto kMaxAngularSpeed = 2 * wpi::math::pi * 2.5_rad_per_s;
+    // calculated theoretically to 2.743821154 turns/sec
+    static constexpr auto kMaxAngularSpeed = 16_rad_per_s;
 
 private:
     // Configuration
@@ -80,8 +80,8 @@ private:
     units::radian_t m_theta = 0_rad;
 
     // Control
-    static constexpr auto kMaxModuleLinearAcceleration = 8.0_mps_sq;
-    static constexpr auto kMaxModuleLinearJerk = 5.0_mps_sq / 1_s;
+    static constexpr auto kMaxModuleLinearAcceleration = 80.0_mps_sq;
+    static constexpr auto kMaxModuleLinearJerk = 200.0_mps_sq / 1_s;
 
     static constexpr auto kMaxModuleAngularVelocity = 18_rad_per_s;
     static constexpr auto kMaxModuleAngularAcceleration = 200_rad_per_s_sq;
@@ -96,9 +96,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.989,
+            1.08,
             0.0,
-            0.17,
+            0.175,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -124,9 +124,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.761,
+            2.83,
             0.0,
-            0.0187,
+            0.0385,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -152,9 +152,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.909,
+            1.64,
             0.0,
-            0.0892,
+            0.0988,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -180,9 +180,9 @@ private:
             kMaxModuleLinearJerk
         },
         {
-            0.853,
+            0.943,
             0.0,
-            0.315,
+            0.174,
             kMaxModuleAngularVelocity, 
             kMaxModuleAngularAcceleration
         },
@@ -192,9 +192,9 @@ private:
             0.143_V / 1_mps_sq
         },
         {
-            1.2_V, 
-            0.589_V / 1_rad_per_s, 
-            0.0315_V / 1_rad_per_s_sq
+            1.19_V, 
+            0.575_V / 1_rad_per_s, 
+            0.0496_V / 1_rad_per_s_sq
         }
     };
 

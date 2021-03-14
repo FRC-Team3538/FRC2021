@@ -30,7 +30,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
   m_driveMotor.SetInverted(false); // Remember: forward-positive!
   m_driveMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 60, 0.1));
+  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 55, 0.0));
 
   // Turning Motor Configuration
   m_turningMotor.RestoreFactoryDefaults();
@@ -53,9 +53,10 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   // to be continuous.
   m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                units::radian_t(wpi::math::pi));
+  m_turningPIDController.Reset(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
 
   // Use mag encoder to set start-up angle
-  m_neoEncoder.SetPosition(0);
+  // m_neoEncoder.SetPosition(0);
   // m_turningEncoder.GetPosition() / 360);
 }
 
@@ -97,14 +98,7 @@ frc::Rotation2d SwerveModule::GetAngle()
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 {
-  // if we're moving at less than an inch per second just ignore
-  // std::cout << state.speed << " <? " << units::feet_per_second_t(1.0 / 12.0) << std::endl;
-  if (units::math::abs(state.speed) < units::feet_per_second_t(1.0 / 12.0))
-  {
-    m_driveMotor.SetVoltage(0_V);
-    m_turningMotor.SetVoltage(0_V);
-    return;
-  }
+  const auto currentState = GetState();
 
   // Protect the Neo550 from overheating
   auto temp = units::celsius_t(m_turningMotor.GetMotorTemperature());
@@ -122,20 +116,20 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
   }
 
   // Forward Kinematics
-  const auto opt_state = SwerveModuleState::Optimize(state, GetAngle());
+  const auto opt_state = SwerveModuleState::Optimize(state, currentState.angle);
 
   // Drive
   const auto driveOutput = m_drivePIDController.Calculate(
-      GetState().speed,
+      currentState.speed,
       opt_state.speed);
 
-  const auto driveFeedforward = m_driveFeedforward.Calculate(opt_state.speed);
+  const auto driveFeedforward = m_driveFeedforward.Calculate(m_drivePIDController.GetSetpoint().position, m_drivePIDController.GetSetpoint().velocity);
 
   m_driveVolts = units::volt_t{driveOutput} + driveFeedforward;
 
   // Angle
   const auto turnOutput = m_turningPIDController.Calculate(
-      GetAngle().Radians(),
+      currentState.angle.Radians(),
       opt_state.angle.Radians());
 
   const auto turnFeedforward = m_turnFeedforward.Calculate(
@@ -143,8 +137,18 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 
   m_turnVolts = units::volt_t{turnOutput} + turnFeedforward;
 
-  std::cout << "\tD: (" << GetVelocity() << ", " << opt_state.speed << ") = " << units::volt_t(driveOutput) << " + " << driveFeedforward << std::endl;
-  std::cout << "\tA: (" << GetAngle().Radians() << ", " << opt_state.angle.Radians() << ") = " << units::volt_t(turnOutput) << " + " << turnFeedforward << std::endl;
+  std::cout << currentState.speed.value() << "," << opt_state.speed.value() << "," << units::volt_t(driveOutput).value() << "," << m_drivePIDController.GetSetpoint().position.value() << "," << m_drivePIDController.GetSetpoint().velocity.value() << "," << driveFeedforward.value() << ",";
+  std::cout << currentState.angle.Radians().value() << "," << opt_state.angle.Radians().value() << "," << units::volt_t(turnOutput).value() << "," << "," << m_turningPIDController.GetSetpoint().velocity.value() << "," << turnFeedforward.value() << ",";
+
+  // if we're moving at less than an inch per second just ignore
+  // std::cout << state.speed << " <? " << units::feet_per_second_t(1.0 / 12.0) << std::endl;
+  if (units::math::abs(state.speed) < units::feet_per_second_t(1.0 / 12.0))
+  {
+    m_turnVolts = 0_V;
+    m_driveVolts = 0_V;
+    m_turningPIDController.Reset(currentState.angle.Radians());
+    m_drivePIDController.Reset(currentState.speed);
+  }
 
   // Output
   m_driveMotor.SetVoltage(m_driveVolts);

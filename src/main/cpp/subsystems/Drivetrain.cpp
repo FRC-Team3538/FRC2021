@@ -40,18 +40,15 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
   auto states = m_kinematics.ToSwerveModuleStates(cmd);
   m_kinematics.NormalizeWheelSpeeds(&states, kMaxSpeed);
 
-  std::cout << "(" << xSpeed << ", " << ySpeed << ", " << rot << ")" << std::endl;
+  std::cout << frc::Timer::GetFPGATimestamp() << "," << xSpeed.value() << "," << ySpeed.value() << "," << rot.value() << ",";
 
   // Set State of Each Module
   auto [fl, fr, bl, br] = states;
-  std::cout << "FL:" << std::endl;
   m_frontLeft.SetDesiredState(fl);
-  std::cout << "FR:" << std::endl;
   m_frontRight.SetDesiredState(fr);
-  std::cout << "BL:" << std::endl;
   m_backLeft.SetDesiredState(bl);
-  std::cout << "BR:" << std::endl;
   m_backRight.SetDesiredState(br);
+  std::cout << std::endl;
 }
 
 void Drivetrain::UpdateOdometry()

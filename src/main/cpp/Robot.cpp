@@ -167,12 +167,24 @@ public:
     }
   }
 
+  void TeleopInit() override
+  {
+    std::cout << "time,xSpeed,ySpeed,rot,FL_CurrentVelocity,FL_GoalVelocity,FL_drivePIDOutput,FL_drivePIDVelocity,FL_drivePIDAccel,FL_driveFF,FL_CurrentAngle,FL_GoalAngle,FL_turnPIDOutput,FL_turningSetpointPosition,FL_turningSetpointVelocity,FL_turnFeedforward,FR_CurrentVelocity,FR_GoalVelocity,FR_drivePIDOutput,FR_drivePIDVelocity,FR_drivePIDAccel,FR_driveFF,FR_CurrentAngle,FR_GoalAngle,FR_turnPIDOutput,FR_turningSetpointPosition,FR_turningSetpointVelocity,FR_turnFeedforward,BL_CurrentVelocity,BL_GoalVelocity,BL_drivePIDOutput,BL_drivePIDVelocity,BL_drivePIDAccel,BL_driveFF,BL_CurrentAngle,BL_GoalAngle,BL_turnPIDOutput,BL_turningSetpointPosition,BL_turningSetpointVelocity,BL_turnFeedforward,BR_CurrentVelocity,BR_GoalVelocity,BR_drivePIDOutput,BR_drivePIDVelocity,BR_drivePIDAccel,BR_driveFF,BR_CurrentAngle,BR_GoalAngle,BR_turnPIDOutput,BR_turningSetpointPosition,BR_turningSetpointVelocity,BR_turnFeedforward," << std::endl;
+  }
+
   void TeleopPeriodic() override
   {
     // Drivebase
     auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
     auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
+
+    if (xInput * xInput + yInput * yInput > 0) {
+      auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+      auto angle = frc::Rotation2d(xInput, yInput);
+      xInput = angle.Cos() * throttle;
+      yInput = angle.Sin() * throttle;
+    }
 
     auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
     auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
