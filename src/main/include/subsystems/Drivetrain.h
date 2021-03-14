@@ -80,12 +80,16 @@ private:
         m_kinematics,
         frc::Rotation2d(),
         frc::Pose2d()};
+    
+    frc::ChassisSpeeds m_robotVelocity;
 
     frc::Field2d m_fieldDisplay;
 
     units::radian_t m_theta = 0_rad;
 
     // Control
+    frc::ChassisSpeeds m_command;
+
     static constexpr auto kMaxModuleLinearAcceleration = 80.0_mps_sq;
     static constexpr auto kMaxModuleLinearJerk = 200.0_mps_sq / 1_s;
 

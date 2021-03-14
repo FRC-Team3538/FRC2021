@@ -20,19 +20,18 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::radians_per_second_t rot,
                        bool fieldRelative)
 {
-  // Field / Robot Relative Control
-  frc::ChassisSpeeds cmd;
+  // Transform Field Oriented command to a Robot Relative Command
   if (fieldRelative)
   {
-    cmd = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, GetYaw());
+    m_command = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xSpeed, ySpeed, rot, GetYaw());
   }
   else
   {
-    cmd = frc::ChassisSpeeds{xSpeed, ySpeed, rot};
+    m_command = frc::ChassisSpeeds{xSpeed, ySpeed, rot};
   }
 
   // Calculate desired swerve states
-  auto states = m_kinematics.ToSwerveModuleStates(cmd);
+  auto states = m_kinematics.ToSwerveModuleStates(m_command);
   m_kinematics.NormalizeWheelSpeeds(&states, kMaxSpeed);
 
   std::cout << frc::Timer::GetFPGATimestamp() << "," << xSpeed.value() << "," << ySpeed.value() << "," << rot.value() << ",";
@@ -54,13 +53,18 @@ void Drivetrain::UpdateOdometry()
                          m_backLeft.GetState(),
                          m_backRight.GetState());
 
+  m_robotVelocity = m_kinematics.ToChassisSpeeds({m_frontLeft.GetState(),
+                                                  m_frontRight.GetState(),
+                                                  m_backLeft.GetState(),
+                                                  m_backRight.GetState()});
+
   m_fieldDisplay.SetRobotPose(m_poseEstimator.GetPose());
 }
 
 void Drivetrain::ResetYaw()
 {
 #ifdef __FRC_ROBORIO__
-    m_imu.Reset();
+  m_imu.Reset();
 #endif // __FRC_ROBORIO__
 }
 
@@ -85,7 +89,6 @@ void Drivetrain::Log(UDPLogger &logger)
 #endif // __FRC_ROBORIO__
 }
 
-
 void Drivetrain::SimPeriodic()
 {
   m_frontLeft.SimPeriodic();
@@ -94,15 +97,7 @@ void Drivetrain::SimPeriodic()
   m_backRight.SimPeriodic();
 
   // Simulated IMU
-  auto [dx, dy, dtheta] = m_kinematics.ToChassisSpeeds({
-    m_frontLeft.GetState(),
-    m_frontRight.GetState(),
-    m_backLeft.GetState(),
-    m_backRight.GetState()});
-  
-  m_theta += dtheta * 20_ms;
-  (void)dx;
-  (void)dy;
+  m_theta += m_robotVelocity.omega * 20_ms;
 }
 
 void Drivetrain::InitSendable(frc::SendableBuilder &builder)
@@ -115,7 +110,7 @@ void Drivetrain::InitSendable(frc::SendableBuilder &builder)
   m_frontRight.InitSendable(builder, "FR");
   m_backLeft.InitSendable(builder, "BL");
   m_backRight.InitSendable(builder, "BR");
-  
+
   // Pose
   builder.AddDoubleProperty(
       "pose/x", [this] { return m_poseEstimator.GetPose().X().value(); }, nullptr);
@@ -123,4 +118,20 @@ void Drivetrain::InitSendable(frc::SendableBuilder &builder)
       "pose/y", [this] { return m_poseEstimator.GetPose().Y().value(); }, nullptr);
   builder.AddDoubleProperty(
       "pose/yaw", [this] { return m_poseEstimator.GetPose().Rotation().Degrees().value(); }, nullptr);
+
+  // Velocity
+  builder.AddDoubleProperty(
+      "vel/x", [this] { return m_robotVelocity.vx.value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "vel/y", [this] { return m_robotVelocity.vy.value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "vel/yaw", [this] { return units::degrees_per_second_t(m_robotVelocity.omega).value(); }, nullptr);
+
+  // Command
+  builder.AddDoubleProperty(
+      "cmd/x", [this] { return m_command.vx.value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "cmd/y", [this] { return m_command.vy.value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "cmd/yaw", [this] { return units::degrees_per_second_t(m_command.omega).value(); }, nullptr);
 }
