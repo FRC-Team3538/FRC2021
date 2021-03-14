@@ -12,25 +12,26 @@
 using namespace frc;
 
 /**
- * Construct an instance of a PS4 controller.
+ * Construct an instance of a ps_4 controller.
  *
  * The controller index is the USB port on the Driver Station.
  *
  * @param port The port on the Driver Station that the controller is plugged
  *             into (0-5).
  */
-UniversalController::UniversalController(int port) : GenericHID(port) {
+UniversalController::UniversalController(int port) : 
+  GenericHID(port), 
+  xb_{port}, 
+  ps_{port},
+  stadia_{port}
+  {
   HAL_Report(HALUsageReporting::kResourceType_Joystick, port);
-  
-  // Physical Hardware
-  xb = new XboxController(port);
-  ps = new PS4Controller(port);
 }
 
 /**
  * Set the physical controller type
  *
- * @param type ControllerType to use {kXbox, kPS4}
+ * @param type ControllerType to use {kXbox, kPS4, kStadia}
  */
 void UniversalController::SetControllerType(ControllerType type){
   m_type = type;
@@ -42,10 +43,15 @@ void UniversalController::SetControllerType(ControllerType type){
  * @param hand Side of controller whose value should be returned.
  */
 double UniversalController::GetX(JoystickHand hand) const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetX(hand);
-  } else {
-    return ps->GetX(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetX(hand);
+    case ControllerType::kPS4:
+      return ps_.GetX(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetX(hand);
+    default:
+      return 0.0;
   }
 }
 
@@ -55,10 +61,15 @@ double UniversalController::GetX(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  */
 double UniversalController::GetY(JoystickHand hand) const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetY(hand);
-  } else {
-    return ps->GetY(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetY(hand);
+    case ControllerType::kPS4:
+      return ps_.GetY(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetY(hand);
+    default:
+      return 0.0;
   }
 }
 
@@ -68,10 +79,15 @@ double UniversalController::GetY(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  */
 double UniversalController::GetTriggerAxis(JoystickHand hand) const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetTriggerAxis(hand);
-  } else {
-    return ps->GetTriggerAxis(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetTriggerAxis(hand);
+    case ControllerType::kPS4:
+      return ps_.GetTriggerAxis(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetTriggerAxis(hand);
+    default:
+      return 0.0;
   }
 }
 
@@ -81,10 +97,15 @@ double UniversalController::GetTriggerAxis(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  */
 bool UniversalController::GetBumper(JoystickHand hand) const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBumper(hand);
-  } else {
-    return ps->GetBumper(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBumper(hand);
+    case ControllerType::kPS4:
+      return ps_.GetBumper(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetBumper(hand);
+    default:
+      return false;
   }
 }
 
@@ -95,10 +116,15 @@ bool UniversalController::GetBumper(JoystickHand hand) const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetBumperPressed(JoystickHand hand) {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBumperPressed(hand);
-  } else {
-    return ps->GetBumperPressed(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBumperPressed(hand);
+    case ControllerType::kPS4:
+      return ps_.GetBumperPressed(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetBumperPressed(hand);
+    default:
+      return false;
   }
 }
 
@@ -109,10 +135,15 @@ bool UniversalController::GetBumperPressed(JoystickHand hand) {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetBumperReleased(JoystickHand hand) {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBumperReleased(hand);
-  } else {
-    return ps->GetBumperReleased(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBumperReleased(hand);
+    case ControllerType::kPS4:
+      return ps_.GetBumperReleased(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetBumperReleased(hand);
+    default:
+      return false;
   }
 }
 
@@ -123,10 +154,15 @@ bool UniversalController::GetBumperReleased(JoystickHand hand) {
  * @return The state of the button.
  */
 bool UniversalController::GetStickButton(JoystickHand hand) const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStickButton(hand);
-  } else {
-    return ps->GetStickButton(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStickButton(hand);
+    case ControllerType::kPS4:
+      return ps_.GetStickButton(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetStickButton(hand);
+    default:
+      return false;
   }
 }
 
@@ -137,10 +173,15 @@ bool UniversalController::GetStickButton(JoystickHand hand) const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetStickButtonPressed(JoystickHand hand) {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStickButtonPressed(hand);
-  } else {
-    return ps->GetStickButtonPressed(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStickButtonPressed(hand);
+    case ControllerType::kPS4:
+      return ps_.GetStickButtonPressed(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetStickButtonPressed(hand);
+    default:
+      return false;
   }
 }
 
@@ -151,10 +192,15 @@ bool UniversalController::GetStickButtonPressed(JoystickHand hand) {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetStickButtonReleased(JoystickHand hand) {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStickButtonReleased(hand);
-  } else {
-    return ps->GetStickButtonReleased(hand);
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStickButtonReleased(hand);
+    case ControllerType::kPS4:
+      return ps_.GetStickButtonReleased(hand);
+    case ControllerType::kStadia:
+      return stadia_.GetStickButtonReleased(hand);
+    default:
+      return false;
   }
 }
 
@@ -164,10 +210,15 @@ bool UniversalController::GetStickButtonReleased(JoystickHand hand) {
  * @return The state of the button.
  */
 bool UniversalController::GetCrossButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetAButton();
-  } else {
-    return ps->GetCrossButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetAButton();
+    case ControllerType::kPS4:
+      return ps_.GetCrossButton();
+    case ControllerType::kStadia:
+      return stadia_.GetAButton();
+    default:
+      return false;
   }
 }
 
@@ -177,10 +228,15 @@ bool UniversalController::GetCrossButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetCrossButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetAButtonPressed();
-  } else {
-    return ps->GetCrossButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetAButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetCrossButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetAButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -190,10 +246,15 @@ bool UniversalController::GetCrossButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetCrossButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetAButtonReleased();
-  } else {
-    return ps->GetCrossButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetAButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetCrossButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetAButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -203,10 +264,15 @@ bool UniversalController::GetCrossButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetCircleButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBButton();
-  } else {
-    return ps->GetCircleButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBButton();
+    case ControllerType::kPS4:
+      return ps_.GetCircleButton();
+    case ControllerType::kStadia:
+      return stadia_.GetBButton();
+    default:
+      return false;
   }
 }
 
@@ -216,10 +282,15 @@ bool UniversalController::GetCircleButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetCircleButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBButtonPressed();
-  } else {
-    return ps->GetCircleButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetCircleButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetBButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -229,10 +300,15 @@ bool UniversalController::GetCircleButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetCircleButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBButtonReleased();
-  } else {
-    return ps->GetCircleButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetCircleButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetBButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -242,11 +318,16 @@ bool UniversalController::GetCircleButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetSquareButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetXButton();
-  } else {
-    return ps->GetSquareButton();
-  };
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetXButton();
+    case ControllerType::kPS4:
+      return ps_.GetSquareButton();
+    case ControllerType::kStadia:
+      return stadia_.GetXButton();
+    default:
+      return false;
+  }
 }
 
 /**
@@ -255,10 +336,15 @@ bool UniversalController::GetSquareButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetSquareButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetXButtonPressed();
-  } else {
-    return ps->GetSquareButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetXButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetSquareButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetXButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -268,10 +354,15 @@ bool UniversalController::GetSquareButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetSquareButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetXButtonReleased();
-  } else {
-    return ps->GetSquareButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetXButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetSquareButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetXButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -281,10 +372,15 @@ bool UniversalController::GetSquareButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetTriangleButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetYButton();
-  } else {
-    return ps->GetTriangleButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetYButton();
+    case ControllerType::kPS4:
+      return ps_.GetTriangleButton();
+    case ControllerType::kStadia:
+      return stadia_.GetYButton();
+    default:
+      return false;
   }
 }
 
@@ -294,10 +390,15 @@ bool UniversalController::GetTriangleButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetTriangleButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetYButtonPressed();
-  } else {
-    return ps->GetTriangleButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetYButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetTriangleButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetYButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -307,10 +408,15 @@ bool UniversalController::GetTriangleButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetTriangleButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetYButtonReleased();
-  } else {
-    return ps->GetTriangleButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetYButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetTriangleButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetYButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -321,10 +427,15 @@ bool UniversalController::GetTriangleButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetScreenShotButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBackButton();
-  } else {
-    return ps->GetScreenShotButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBackButton();
+    case ControllerType::kPS4:
+      return ps_.GetScreenShotButton();
+    case ControllerType::kStadia:
+      return stadia_.GetOptionsButton();
+    default:
+      return false;
   }
 }
 
@@ -334,10 +445,15 @@ bool UniversalController::GetScreenShotButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetScreenShotButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBackButtonPressed();
-  } else {
-    return ps->GetScreenShotButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBackButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetScreenShotButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetOptionsButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -347,10 +463,15 @@ bool UniversalController::GetScreenShotButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetScreenShotButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetBackButtonReleased();
-  } else {
-    return ps->GetScreenShotButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetBackButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetScreenShotButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetOptionsButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -361,10 +482,15 @@ bool UniversalController::GetScreenShotButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetOptionsButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStartButton();
-  } else {
-    return ps->GetOptionsButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStartButton();
+    case ControllerType::kPS4:
+      return ps_.GetOptionsButton();
+    case ControllerType::kStadia:
+      return stadia_.GetMenuButton();
+    default:
+      return false;
   }
 }
 
@@ -374,10 +500,15 @@ bool UniversalController::GetOptionsButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetOptionsButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStartButtonPressed();
-  } else {
-    return ps->GetOptionsButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStartButtonPressed();
+    case ControllerType::kPS4:
+      return ps_.GetOptionsButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetMenuButtonPressed();
+    default:
+      return false;
   }
 }
 
@@ -387,50 +518,70 @@ bool UniversalController::GetOptionsButtonPressed() {
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetOptionsButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return xb->GetStartButtonReleased();
-  } else {
-    return ps->GetOptionsButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return xb_.GetStartButtonReleased();
+    case ControllerType::kPS4:
+      return ps_.GetOptionsButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetMenuButtonReleased();
+    default:
+      return false;
   }
 }
 
 /**
- * Read the value of the PS button on the controller.
+ * Read the value of the ps_ button on the controller.
  *
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
 bool UniversalController::GetPSButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetPSButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetPSButton();
+    case ControllerType::kStadia:
+      return stadia_.GetStadiaButton();
+    default:
+      return false;
   }
 }
 
 /**
- * Whether the PS button was pressed since the last check.
+ * Whether the ps_ button was pressed since the last check.
  *
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetPSButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetPSButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetPSButtonPressed();
+    case ControllerType::kStadia:
+      return stadia_.GetStadiaButtonPressed();
+    default:
+      return false;
   }
 }
 
 /**
- * Whether the PS button was released since the last check.
+ * Whether the ps_ button was released since the last check.
  *
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetPSButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetPSButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetPSButtonReleased();
+    case ControllerType::kStadia:
+      return stadia_.GetStadiaButtonReleased();
+    default:
+      return false;
   }
 }
 
@@ -441,10 +592,15 @@ bool UniversalController::GetPSButtonReleased() {
  * @return The state of the button.
  */
 bool UniversalController::GetTouchPadButton() const {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetTouchPadButton();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetTouchPadButton();
+    case ControllerType::kStadia:
+      return false;
+    default:
+      return false;
   }
 }
 
@@ -454,27 +610,37 @@ bool UniversalController::GetTouchPadButton() const {
  * @return Whether the button was pressed since the last check.
  */
 bool UniversalController::GetTouchPadButtonPressed() {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetTouchPadButtonPressed();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetTouchPadButtonPressed();
+    case ControllerType::kStadia:
+      return false;
+    default:
+      return false;
   }
 }
 
 /**
- * Whether the PS button was released since the last check.
+ * Whether the ps_ button was released since the last check.
  *
  * @return Whether the button was released since the last check.
  */
 bool UniversalController::GetTouchPadButtonReleased() {
-  if (m_type == ControllerType::kXbox) {
-    return false;
-  } else {
-    return ps->GetTouchPadButtonReleased();
+  switch(m_type) {
+    case ControllerType::kXbox:
+      return false;
+    case ControllerType::kPS4:
+      return ps_.GetTouchPadButtonReleased();
+    case ControllerType::kStadia:
+      return false;
+    default:
+      return false;
   }
 }
 
-// TODO: Add XBox Getter functions
+// TODO: Add xb_ox Getter functions
 
 /**
  * Read the value of the TouchPad button on the controller.

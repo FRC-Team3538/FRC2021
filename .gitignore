@@ -164,3 +164,6 @@ networktables.ini.bak
 
 logs/
 __pycache__/
+
+# Python Virtual Environment
+.venv

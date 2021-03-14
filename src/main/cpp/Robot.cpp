@@ -50,8 +50,11 @@ public:
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
     frc::LiveWindow::GetInstance()->SetEnabled(false);
 
-    // PS4 | xbox controller mapping
-    m_controller.SetControllerType(frc::UniversalController::ControllerType::kPS4);
+    // Controller Type Selection
+    m_chooserControllerType.SetDefaultOption(kControllerTypePS4, frc::UniversalController::ControllerType::kPS4);
+    m_chooserControllerType.AddOption(kControllerTypeXbox, frc::UniversalController::ControllerType::kXbox);
+    m_chooserControllerType.AddOption(kControllerTypeStadia, frc::UniversalController::ControllerType::kStadia);
+    frc::SmartDashboard::PutData(&m_chooserControllerType);
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
@@ -69,6 +72,7 @@ public:
     frc::SmartDashboard::SetDefaultNumber("auto/R2", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/T", 4.0);
 
+    // UDP Logger
     auto time_point = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(time_point);
     m_udp_logger.SetTitle(std::ctime(&time));
@@ -79,6 +83,9 @@ public:
 
   void RobotPeriodic() override
   {
+       // PS4 | xbox controller mapping
+    m_controller.SetControllerType(m_chooserControllerType.GetSelected());
+
     m_swerve.UpdateOdometry();
 
     // Toggle Drive mode (Field | Robot Relative)
@@ -229,6 +236,11 @@ private:
   static constexpr auto kAutoConstant = "1 - Constant";
   static constexpr auto kAutoToggle = "2 - Toggle";
   static constexpr auto kAutoSweep = "3 - Sweep";
+
+  frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserControllerType;
+  static constexpr auto kControllerTypePS4 = "PS4";
+  static constexpr auto kControllerTypeXbox = "Xbox";
+  static constexpr auto kControllerTypeStadia = "Stadia";
 
   // Auto State
   frc::Timer m_autoTimer;

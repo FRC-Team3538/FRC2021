@@ -10,16 +10,15 @@
 #include <frc/GenericHID.h>
 #include <frc/XboxController.h>
 #include "lib/PS4Controller.hpp"
+#include "lib/StadiaController.hpp"
 
 namespace frc {
 
 /**
- * Handle input from PS4 controllers connected to the Driver Station.
- *
- * This class handles input that comes from the Driver Station. Each time a
- * value is requested the most recent value is returned. There is a single class
- * instance for each controller and the mapping of ports to hardware buttons
- * depends on the code in the Driver Station.
+ * Handle input from various types of controllers and provide the same 
+ * API as a PS4 Controller, since that's what we use. 
+ * 
+ * TODO: Support other controller APIs as well?
  */
 class UniversalController : public GenericHID {
  public:
@@ -30,8 +29,9 @@ class UniversalController : public GenericHID {
   UniversalController& operator=(const UniversalController&) = delete;
 
   enum class ControllerType {
-    kXbox = 0,
-    kPS4
+    kXbox,
+    kPS4,
+    kStadia,
   };
   void SetControllerType(ControllerType type);
 
@@ -87,9 +87,9 @@ class UniversalController : public GenericHID {
  private:
   ControllerType m_type = ControllerType::kPS4;
 
-  XboxController* xb;
-  PS4Controller* ps;
-
+  XboxController xb_;
+  PS4Controller ps_;
+  StadiaController stadia_;
 };
 
 }  // namespace frc
