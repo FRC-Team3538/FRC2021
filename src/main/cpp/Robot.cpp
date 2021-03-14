@@ -95,9 +95,31 @@ public:
 
     wpi::json j;
     frc::to_json(j, m_drive.GetPose());
-    auto pose_json = j.dump(0);
+    pose_json = j.dump(0);
 
     frc::SmartDashboard::PutString("Pose", pose_json);
+
+    double vel = m_drive.GetVel();
+    double acc = (vel - prevVel) / 0.02;
+    double smoothAcc = 0.0;
+    if (colCt < 10)
+    {
+      prevCol += acc;
+      colCt++;
+    }
+
+    if (colCt >= 10)
+    {
+      smoothAcc = prevCol / 10.0;
+      colCt = 0;
+      prevCol = 0.0;
+    }
+    prevVel = vel;
+    topVel = (abs(vel) > abs(topVel)) ? vel : topVel;
+    topAcc = (smoothAcc > topAcc) ? smoothAcc : topAcc;
+
+    frc::SmartDashboard::PutNumber("topVel", topVel);
+    frc::SmartDashboard::PutNumber("topAcc", topAcc);
   }
 
   void AutonomousInit() override
@@ -109,227 +131,317 @@ public:
 
     if (path == "A-Red")
     {
+      // m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+      //     frc::Pose2d(40_in, 120_in, -35_deg), {frc::Translation2d(150_in, 60_in), frc::Translation2d(180_in, 150_in)},
+      //     frc::Pose2d(360_in, 170_in, 0_deg),
+      //     frc::TrajectoryConfig(10_fps, 10_fps_sq));
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+
+      frc::TrajectoryConfig config(16_fps, 13_fps_sq); //17.5 15
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{1.0, 0.7688146572428465, 0.0},
+           {-2.25, -0.019765044946133292, 0.0}},
+          {{2.355177657311467, 0.48387816747576157, 0.0},
+           {-2.355177657311467, -0.4171459884144158, 0.0}},
+          {{2.737301859603376, 0.3387625578793974, 0.0},
+           {-2.9151872641185754, -0.3381660542059067, 0.0}},
+          {{3.40272503945653, 0.5007144719687098, 0.0},
+           {-3.336841556302752, 0.13176696630755425, 0.0}},
+          {{3.765084196802306, 0.3821242022919096, 0.0},
+           {-2.9876590955877314, 0.61930474164551, 0.0}},
+          {{3.989088039525149, 0.5019686743419465, 0.0},
+           {-1.2549234886433818, 0.5814333535102015, 0.0}},
+          {{4.4370957249708365, 0.6539948934743014, 0.0},
+           {-0.8793876346668497, 0.41720066299364955, 0.0}},
+          {{6.183008028545942, 0.7708367528991973, 0.0},
+           {-0.6487954436286283, 0.013176696630755491, 0.0}},
+          {{8.600931860289577, 0.6654231798531534, 0.0},
+           {-0.6949138818362726, 0.026353393261511426, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(40_in, 120_in, -35_deg), {frc::Translation2d(150_in, 60_in), frc::Translation2d(180_in, 150_in)},
-          frc::Pose2d(360_in, 170_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+          points,
+          config);
     }
     else if (path == "A-Blue")
     {
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+
+      frc::TrajectoryConfig config(7_fps, 7_fps_sq); //17.5 15
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{1.0, 3.048, 0.0},
+           {-2.25, 0.0, 0.0}},
+          {{3.692612365333151, 1.5350851574830164, 0.0},
+           {-3.8441443765868386, 0.5336562135455978, 0.0}},
+          {{4.45686076991697, 0.24376888766897675, 0.0},
+           {-2.5396514101420435, 1.0936658203527072, 0.0}},
+          {{5.1684023879777685, 1.2781395731832825, 0.0},
+           {-1.5382224662046253, 0.6983649214300423, 0.0}},
+          {{6.874784601660605, 1.1716499185339804, 0.0},
+           {-2.2563524325808, -0.2697165791353041, 0.0}},
+          {{8.67999204007411, 1.0409590338296848, 0.0},
+           {-2.361766005626844, 0.0, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 35_in, 0_deg), {frc::Translation2d(170_in, 35_in), frc::Translation2d(210_in, 110_in)},
-          frc::Pose2d(360_in, 70_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+          points,
+          config);
     }
     else if (path == "B-Red")
     {
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+
+      frc::TrajectoryConfig config(7_fps, 7_fps_sq); //17.5 15
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{1.0, 1.0, 0.0},
+           {-2.25, 0.0, 0.0}},
+          {{2.2695291292115556, 1.6339103822136831, 0.0},
+           {-1.4921040279969808, 0.006588348315377912, 0.0}},
+          {{3.798025938379195, 1.6536754271598153, 0.0},
+           {-3.033777533795375, 0.0, 0.0}},
+          {{5.3792295340698555, 1.5711135984846305, 0.0},
+           {-1.5448108145200028, 0.8350248254711028, 0.0}},
+          {{8.851289096273932, 1.2968588485555488, 0.0},
+           {-1.4657506347354698, -0.005542578741508208, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 150_in, -45_deg), {frc::Translation2d(150_in, 70_in), frc::Translation2d(210_in, 110_in)},
-          frc::Pose2d(360_in, 160_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+          points,
+          config);
     }
     else if (path == "B-Blue")
     {
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+
+      frc::TrajectoryConfig config(7_fps, 7_fps_sq); //17.5 15
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{1.0, 3.048, 0.0},
+           {-2.25, 0.0, 0.0}},
+          {{4.700629657585947, 1.5689516109535795, 0.0},
+           {-3.07989597200302, 0.8588567277300433, 0.0}},
+          {{6.143477938653675, 1.2913162698140406, 0.0},
+           {-1.5316341178892476, 0.026353393261511426, 0.0}},
+          {{7.639033006244425, 0.9189023186463852, 0.0},
+           {-3.0271891854799975, -0.5459804055419246, 0.0}},
+          {{8.67999204007411, 0.5007144719687098, 0.0},
+           {-3.475196870925685, 0.01317669663075538, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 60_in, 0_deg), {frc::Translation2d(170_in, 60_in), frc::Translation2d(240_in, 110_in)},
-          frc::Pose2d(360_in, 20_in, -35_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+          points,
+          config);
     }
     else if (path == "Barrel")
     {
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Barrel2Cop.wpilib.json");
+      // wpi::SmallString<64> deployDirectory;
+      // frc::filesystem::GetDeployDirectory(deployDirectory);
+      // wpi::sys::path::append(deployDirectory, "output");
+      // wpi::sys::path::append(deployDirectory, "Barrel2Cop.wpilib.json");
 
-      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-      // rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper};
+      // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-      // frc::TrajectoryConfig config(3_fps, 3_fps_sq);
-      // config.AddConstraint(m_drivetrain_constraint);
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
 
-      // std::vector<frc::Spline<5>::ControlVector> points{
-      //     {{0.8200924998284499, 3.048, 0.0},
-      //      {-2.2497640842654225, 0.0, 0.0}},
-      //     {{4.199915185617237, 0.900906462215082, 0.0},
-      //      {-2.4408261854113773, -1.1291725521124159, 0.0}},
-      //     {{4.595216084539903, 0.02595854361932215, 0.0},
-      //      {-3.0864843203183976, -0.38072530641672664, 0.0}},
-      //     {{3.7914375900638166, -0.7141589071175916, 0.0},
-      //      {-3.718965758594662, 0.009115386025385419, 0.0}},
-      //     {{3.060130927056886, 0.017305695746214766, 0.0},
-      //      {-3.0074241405338644, 0.423989545782264, 0.0}},
-      //     {{4.470037466547726, 2.1372534246575343, 0.0},
-      //      {-2.177292252796267, -0.03461139149242953, 0.0}},
-      //     {{6.986786523022028, -0.18288307284347294, 0.0},
-      //      {-1.3735137583201815, 1.6403069464171405, 0.0}},
-      //     {{6.143477938653675, -0.5116216604171, 0.0},
-      //      {-0.7015022301516503, -0.059207625021598556, 0.0}},
-      //     {{5.445113017223633, 0.13844556596971902, 0.0},
-      //      {-1.4262205448432033, -1.3498442682047587, 0.0}},
-      //     {{7.349145680367804, 1.0816059841384291, 0.0},
-      //      {-3.494961915871818, -0.4412952415284783, 0.0}},
-      //     {{8.699757085020243, -0.10383417447729038, 0.0},
-      //      {-2.9415406573800875, 1.7219167267483777, 0.0}},
-      //     {{7.685151444452069, -0.6390697865916417, 0.0},
-      //      {-2.0916437246963566, 0.046118438207644274, 0.0}},
-      //     {{6.249004325883201, -2.194032803204273, 0.0},
-      //      {-2.138901586157174, 0.09337629966846173, 0.0}},
-      //     {{0.7476206683592946, -0.6576164383561647, 0.0},
-      //      {-2.2695291292115556, 0.0778756308579669, 0.0}}};
-      // m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-      //     points,
-      //     config);
+      frc::TrajectoryConfig config(7_fps, 7_fps_sq); //17.5 15
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{0.8200924998284499, 3.048, 0.0},
+           {-2.2497640842654225, 0.0, 0.0}},
+          {{3.9297929046867495, 0.4282426404995543, 0.0},
+           {-2.394707747203733, -0.006588348315378134, 0.0}},
+          {{4.423919028340081, 0.22362380950435873, 0.0},
+           {-2.57918150003431, -0.22883838178909777, 0.0}},
+          {{4.595216084539903, 0.02595854361932215, 0.0},
+           {-3.0864843203183976, -0.38072530641672664, 0.0}},
+          {{4.33827050024017, -0.2555665650299187, 0.0},
+           {-3.514726960817951, -0.22607721769718894, 0.0}},
+          {{3.7914375900638166, -0.7141589071175916, 0.0},
+           {-3.718965758594662, 0.009115386025385419, 0.0}},
+          {{3.3170765113566185, -0.2558336419542251, 0.0},
+           {-3.5279036574487064, 0.22445657762015062, 0.0}},
+          {{3.060130927056886, 0.017305695746214766, 0.0},
+           {-3.0074241405338644, 0.423989545782264, 0.0}},
+          {{3.303899814725863, 0.3605923778698733, 0.0},
+           {-2.513298016880533, 0.41300018887636014, 0.0}},
+          {{4.496390859809237, 0.434830988814932, 0.0},
+           {-2.3815310505729768, 0.006588348315376802, 0.0}},
+          {{6.894549646606739, -0.01317669663075538, 0.0},
+           {-1.5513991628353807, 1.5087317642215057, 0.0}},
+          {{6.545367185891719, -0.05270678652302152, 0.0},
+           {-0.8332691964592056, 0.052706786523021965, 0.0}},
+          {{6.051241062238384, -0.34918246071502157, 0.0},
+           {-0.7542090166746724, -0.07906017978453295, 0.0}},
+          {{5.478054758800521, -0.19765044946133248, 0.0},
+           {-1.004566252659027, -0.25035723598435444, 0.0}},
+          {{5.3726411857544765, 0.019765044946134402, 0.0},
+           {-1.6370476909352913, -0.5995396966993758, 0.0}},
+          {{7.309615590475538, 1.0816059841384291, 0.0},
+           {-3.718965758594662, -0.4412952415284783, 0.0}},
+          {{8.429634804089755, -0.013176696630754492, 0.0},
+           {-3.3697832978796405, 0.7576600562684419, 0.0}},
+          {{8.284691141151445, -0.24972271704421992, 0.0},
+           {-2.7307135112879988, 0.3629367298451762, 0.0}},
+          {{7.579737871406025, -0.5731863034378639, 0.0},
+           {-2.361766005626844, 0.013176696630754936, 0.0}},
+          {{6.367481781376519, -1.5086361674683444, 0.0},
+           {-2.3156475674192003, 0.03398425362189381, 0.0}},
+          {{3.0535425787415083, -1.8952508941697392, 0.0},
+           {-2.3815310505729768, -0.03719701460318264, 0.0}},
+          {{0.6817371852055171, -0.5204795169148426, 0.0},
+           {-2.427649488780622, 0.013176696630756268, 0.0}}};
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
     }
     else if (path == "Slalom")
     {
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
+      // wpi::SmallString<64> deployDirectory;
+      // frc::filesystem::GetDeployDirectory(deployDirectory);
+      // wpi::sys::path::append(deployDirectory, "output");
+      // wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
 
-      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-      // rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
 
-      // frc::TrajectoryConfig config(3_fps, 3_fps_sq);
-      // config.AddConstraint(m_drivetrain_constraint);
+      frc::TrajectoryConfig config(17.5_fps, 13_fps_sq);
+      config.AddConstraint(m_drivetrain_constraint);
 
-      // std::vector<frc::Spline<5>::ControlVector> points{
-      //     {{1.2351584436972485,
-      //       1.7063822136828386,
-      //       0.0},
-      //      {-3.7716725451176836,
-      //       0.03294174157688934,
-      //       0.0}},
-      //     {{2.447414533726755,
-      //       1.0277823371989299,
-      //       0.0},
-      //      {-3.0733076236876413,
-      //       2.0357996294517253,
-      //       0.0}},
-      //     {{4.535740447007931,
-      //       2.5525901225666914,
-      //       0.0},
-      //      {-1.7668291276135544,
-      //       -0.2249740447007933,
-      //       0.0}},
-      //     {{6.024887668976874,
-      //       0.6935140520363634,
-      //       0.0},
-      //      {-2.2168223426885336,
-      //       -0.5123579343646885,
-      //       0.0}},
-      //     {{6.7508695025234315,
-      //       0.4845594808940161,
-      //       0.0},
-      //      {-3.0907148521989902,
-      //       -0.5883936553713056,
-      //       0.0}},
-      //     {{7.7805583994232155,
-      //       0.9950775054073535,
-      //       0.0},
-      //      {-3.878124008651766,
-      //       0.0778756308579669,
-      //       0.0}},
-      //     {{8.70641312184571,
-      //       0.10383417447729038,
-      //       0.0},
-      //      {-3.2118547224224945,
-      //       1.271968637346792,
-      //       0.0}},
-      //     {{7.7805583994232155,
-      //       -1.7478752703676994,
-      //       0.0},
-      //      {-2.156207281903389,
-      //       -0.008652847873107383,
-      //       0.0}},
-      //     {{6.768175198269647,
-      //       -0.3893781542898349,
-      //       0.0},
-      //      {-3.168590483056957,
-      //       -0.951813266041817,
-      //       0.0}},
-      //     {{4.6222689257390055,
-      //       -2.1978233597692864,
-      //       0.0},
-      //      {-4.016569574621485,
-      //       0.0778756308579669,
-      //       0.0}},
-      //     {{2.4590569574621486,
-      //       -1.133523071377073,
-      //       0.0},
-      //      {-3.0993677000720976,
-      //       1.557512617159337,
-      //       0.0}},
-      //     {{1.4130438482124479,
-      //       -0.6316578947368421,
-      //       0.0},
-      //      {-2.243175735950045,
-      //       -0.060569935111751905,
-      //       0.0}}};
-      // m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-      //     points,
-      //     config);
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{0.8135041515130722, 1.7063822136828386, 0.0},
+           {-3.8112026350099506, 0.03294174157688934, 0.0}},
+          {{2.2168223426885336, 0.4677727303918209, 0.0},
+           {-3.0667192753722645, 0.42824264049955474, 0.0}},
+          {{3.0733076236876413, 0.7787023463356992, 0.0},
+           {-2.394707747203733, 0.3613962455806413, 0.0}},
+          {{4.6545112193783025, 0.9816638989912851, 0.0},
+           {-2.262940780896178, -0.01317669663075538, 0.0}},
+          {{5.735000343100255, 0.6343626836884848, 0.0},
+           {-2.4078844438344884, -0.24343475592221508, 0.0}},
+          {{6.571720579153229, 0.4845594808940161, 0.0},
+           {-2.954717354010843, -0.5883936553713056, 0.0}},
+          {{6.914314691552873, 0.28698266567154695, 0.0},
+           {-3.5476687023948394, -0.3646733696543395, 0.0}},
+          {{7.441382556783093, 0.4054078102558327, 0.0},
+           {-4.0417948260481715, -0.10027748387834926, 0.0}},
+          {{8.126570781582378, 0.3219497603242634, 0.0},
+           {-3.8639094215329717, 0.2700132398513276, 0.0}},
+          {{8.423046455774378, -0.05929513483840054, 0.0},
+           {-3.2511930282028407, 0.4480076854456865, 0.0}},
+          {{7.968450422013312, -0.3924668113337224, 0.0},
+           {-2.671418376449599, 0.15424064260709805, 0.0}},
+          {{7.250320455637138, -0.5270678652302188, 0.0},
+           {-2.7768319494956426, -0.46777273039182043, 0.0}},
+          {{6.848431208399094, -0.1844737528305771, 0.0},
+           {-3.376371646195018, -0.3491824607150211, 0.0}},
+          {{6.611250669045496, -0.25159249244867143, 0.0},
+           {-3.653082275440884, -0.24744924401458812, 0.0}},
+          {{6.038064365607632, -0.622512088798959, 0.0},
+           {-4.054971522678928, -0.2963626054758895, 0.0}},
+          {{4.628157826116792, -1.0059734155124578, 0.0},
+           {-4.173561792355726, 0.0028691170151164958, 0.0}},
+          {{3.02060083716462, -0.8486536601014543, 0.0},
+           {-4.008853084471283, 0.385997154367013, 0.0}},
+          {{2.012583544911823, -0.42165429218417616, 0.0},
+           {-3.191897893364441, 0.4216542921841766, 0.0}},
+          {{1.3142186234817816, -0.5559962209319393, 0.0},
+           {-2.421061140465244, 0.10899878597177906, 0.0}}};
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
     }
     else if (path == "Bounce")
     {
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Bounce-#.wpilib.json");
-      auto i = deployDirectory.rfind('#');
+      // wpi::SmallString<64> deployDirectory;
+      // frc::filesystem::GetDeployDirectory(deployDirectory);
+      // wpi::sys::path::append(deployDirectory, "output");
+      // wpi::sys::path::append(deployDirectory, "Bounce-#.wpilib.json");
+      // auto i = deployDirectory.rfind('#');
 
-      // Load each path
-      deployDirectory[i] = '1';
-      auto t1 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // // Load each path
+      // deployDirectory[i] = '1';
+      // auto t1 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // auto s1 = t1.States();
+
+      // deployDirectory[i] = '2';
+      // auto t2 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // auto s2 = t2.States();
+
+      // deployDirectory[i] = '3';
+      // auto t3 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // auto s3 = t3.States();
+
+      // deployDirectory[i] = '4';
+      // auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      // auto s4 = t4.States();
+
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+
+      frc::TrajectoryConfig config(17.5_fps, 13_fps_sq);
+      config.AddConstraint(m_drivetrain_constraint);
+
+      std::vector<frc::Spline<5>::ControlVector> p1{
+          {{0.9123293762437384, 1.0, 0.0},
+           {-2.295882522473067, 0.0, 0.0}},
+          {{1.5909292527276473, 0.5923188379890154, 0.0},
+           {-2.2299990393192894, 0.22780070097757024, 0.0}},
+          {{2.289294174157689, 0.01730569574621521, 0.0},
+           {-1.0704497358128044, 0.6749221341023793, 0.0}}};
+
+      std::vector<frc::Spline<5>::ControlVector> p2{
+          {{2.2761174775269333, -0.008652847873107383, 0.0},
+           {-1.08362643244356, 1.038341744772891, 0.0}},
+          {{3.3762588320115356, -0.9950775054073548, 0.0},
+           {-3.49739870223504, 0.5883936553713047, 0.0}},
+          {{4.293460706560923, -0.8047148521989902, 0.0},
+           {-3.49739870223504, -0.527823720259553, 0.0}},
+          {{4.588627736224526, 0.0, 0.0},
+           {-1.1692749605434711, -0.4018892472380433, 0.0}}};
+
+      std::vector<frc::Spline<5>::ControlVector> p3{
+          {{4.568862691278392, -0.1470984138428264, 0.0},
+           {-1.004566252659027, -1.8863208363374186, 0.0}},
+          {{5.054911319394376, 1.0693426360018272, 0.0},
+           {-3.5579686373467916, -0.45498981121525406, 0.0}},
+          {{6.430714131218457, 1.0834365779143758, 0.0},
+           {-3.644497116077866, 0.3176780179667277, 0.0}},
+          {{6.8681962533452285, 0.017305695746214766, 0.0},
+           {-1.1033914773896933, 0.7787563085796683, 0.0}}};
+
+      std::vector<frc::Spline<5>::ControlVector> p4{
+          {{6.8681962533452285, -0.06056993511175168, 0.0},
+           {-1.1363332189665822, 1.0037303532804613, 0.0}},
+          {{7.454559253413847, -0.5952027949320489, 0.0},
+           {-1.9664651067041792, 0.5291162912208613, 0.0}},
+          {{8.811759006381665, -0.7015575628225967, 0.0},
+           {-2.513298016880533, 0.19098313121751653, 0.0}}};
+
+      auto t1 = frc::TrajectoryGenerator::GenerateTrajectory(
+          p1,
+          config);
       auto s1 = t1.States();
 
-      deployDirectory[i] = '2';
-      auto t2 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      config.SetReversed(true);
+
+      auto t2 = frc::TrajectoryGenerator::GenerateTrajectory(
+          p2,
+          config);
       auto s2 = t2.States();
 
-      deployDirectory[i] = '3';
-      auto t3 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      config.SetReversed(false);
+
+      auto t3 = frc::TrajectoryGenerator::GenerateTrajectory(
+          p3,
+          config);
       auto s3 = t3.States();
 
-      deployDirectory[i] = '4';
-      auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      config.SetReversed(true);
+
+      auto t4 = frc::TrajectoryGenerator::GenerateTrajectory(
+          p4,
+          config);
       auto s4 = t4.States();
-
-      // Modify the time for each point in the second path
-      // {
-      //   auto start_time = s1.back().t + 10_ms;
-      //   for (size_t i = 0; i < s2.size(); i++)
-      //   {
-      //     s2[i].t += start_time;
-      //   }
-
-      //   // Add the second path to the overall path
-      //   s1.insert(s1.end(), s2.begin(), s2.end());
-      // }
-
-      // {
-      //   auto start_time = s1.back().t + 10_ms;
-      //   for (size_t i = 0; i < s3.size(); i++)
-      //   {
-      //     s3[i].t += start_time;
-      //   }
-
-      //   // Add the second path to the overall path
-      //   s1.insert(s1.end(), s3.begin(), s3.end());
-      // }
-
-      // {
-      //   auto start_time = s1.back().t + 10_ms;
-      //   for (size_t i = 0; i < s4.size(); i++)
-      //   {
-      //     s4[i].t += start_time;
-      //   }
-
-      //   // Add the second path to the overall path
-      //   s1.insert(s1.end(), s4.begin(), s4.end());
-      // }
 
       {
         auto start_time = s1.back().t;
@@ -366,7 +478,6 @@ public:
 
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
-      
     }
     else if (path == "Accuracy")
     {
@@ -556,7 +667,7 @@ public:
         //   m_autoTimer.Stop();
         //   return;
         // }
-        if(m_autoTimer.Get() > m_trajectory.TotalTime())
+        if (m_autoTimer.Get() > m_trajectory.TotalTime())
         {
           m_autoTimer.Reset();
           m_drive.Drive(0_mps, 0_deg_per_s);
@@ -576,6 +687,9 @@ public:
       //
       // Just Follow a Path...
       //
+
+      m_drive.SetImpel(-1.0);
+
       auto reference = m_trajectory.Sample(m_autoTimer.Get());
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
       m_drive.Drive(speeds.vx, speeds.omega);
@@ -585,6 +699,8 @@ public:
       auto reference_json = j.dump(0);
 
       frc::SmartDashboard::PutString("Reference", reference_json);
+
+      std::cout << reference.pose.X().value() << "," << reference.pose.Y().value() << "," << reference.pose.Rotation().Degrees().value() << "," << m_drive.GetPose().X().value() << "," << m_drive.GetPose().Y().value() << "," << m_drive.GetPose().Rotation().Degrees().value() << "," << speeds.vx.value() << "," << speeds.omega.value() << std::endl;
     }
   }
 
@@ -600,6 +716,9 @@ public:
 
     // m_drive.Drive(xSpeed, -rot);
     m_drive.Arcade(m_controller.GetRawAxis(1), (0.5 * m_controller.GetRawAxis(2)));
+    double impelSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
+    m_drive.SetImpel(impelSpd);
+    // m_drive.SetImpel(-1.0);
   }
 
   void DisabledPeriodic() override
@@ -710,7 +829,7 @@ private:
   frc::Trajectory m_trajectory;
   frc::Trajectory m_trajectory_PP;
   frc::Trajectory m_trajectory_IA[10];
-  frc::RamseteController m_ramsete;
+  frc::RamseteController m_ramsete{2.0, 0.7};
   frc2::Timer m_autoTimer;
 
   frc::Preferences *prefs;
@@ -719,6 +838,14 @@ private:
 
   // Auto State
   uint m_autoState = 0;
+
+  double prevVel = 0.0;
+  double topVel = 0.0;
+  double topAcc = 0.0;
+  double prevCol = 0.0;
+  int colCt = 0;
+
+  string pose_json;
 };
 
 #ifndef RUNNING_FRC_TESTS

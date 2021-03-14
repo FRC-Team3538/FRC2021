@@ -63,7 +63,7 @@ public:
         // Set the distance per pulse for the drive encoders. We can simply use the
         // distance traveled for one rotation of the wheel divided by the encoder
         // resolution.
-        auto dpp = empiricalDist/263386.5;//128173.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution);
+        auto dpp = empiricalDist/188960.5;//218325.5;//128173.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution);
         m_leftEncoder.SetDistancePerPulse(-dpp.value());
         m_rightEncoder.SetDistancePerPulse(dpp.value());
 
@@ -83,7 +83,14 @@ public:
         m_driveR1.SetNeutralMode(NeutralMode::Brake);
         m_driveR2.SetNeutralMode(NeutralMode::Brake);
 
+        impel.SetNeutralMode(NeutralMode::Coast);
+        impel2.SetNeutralMode(NeutralMode::Coast);
+
         frc::SmartDashboard::PutData("Field", &m_fieldSim);
+
+        SupplyCurrentLimitConfiguration config{true, 30.0, 40.0, 0.0};
+        impel.ConfigSupplyCurrentLimit(config);
+        impel2.ConfigSupplyCurrentLimit(config);
     }
 
     void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
@@ -98,6 +105,12 @@ public:
     void SimulationPeriodic();
     void Periodic();
 
+    void SetImpel(double speed)
+    {
+        impel.Set(speed);
+        impel2.Set(speed);
+    }
+
     void Log(UDPLogger &logger)
     {
         logger.LogExternalDevice(m_driveL0);
@@ -106,32 +119,40 @@ public:
         logger.LogExternalDevice(m_driveR0);
         logger.LogExternalDevice(m_driveR1);
         logger.LogExternalDevice(m_driveR2);
-
+        logger.LogExternalDevice(impel);
+        logger.LogExternalDevice(impel2);
+    
 #ifdef __FRC_ROBORIO__
         logger.LogExternalDevice(m_imu);
 #endif
+    }
+
+    double GetVel()
+    {
+        double vel = ((m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0) + (m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0))/2.0;
+        return vel;
     }
 
 private:
     /***************************************************************************/
     // CrossFire Characterization Values
 
-    static constexpr units::meter_t kTrackWidth = 0.622_m;
+    static constexpr units::meter_t kTrackWidth = 0.579_m; //.577
     static constexpr units::meter_t kWheelRadius = 2.125_in;
-    static constexpr units::meter_t empiricalDist = 240_in;
-    static constexpr double kGearRatio = 7.09;
+    static constexpr units::meter_t empiricalDist = 210_in;
+    static constexpr double kGearRatio = 5.95;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.576};
-    decltype(1_V / 1_mps) kVlinear{2.23};
-    decltype(1_V / 1_mps_sq) kAlinear{0.126};
-    decltype(1_V / 1_rad_per_s) kVangular{2.3};
-    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0744};
+    decltype(1_V) kStatic{0.706}; //.744
+    decltype(1_V / 1_mps) kVlinear{1.88}; //1.86
+    decltype(1_V / 1_mps_sq) kAlinear{0.088}; //0.0917
+    decltype(1_V / 1_rad_per_s) kVangular{1.97}; //1.94
+    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0737}; //0.0716
 
     // Velocity Control PID (Is this really required ???)
-    frc2::PIDController m_leftPIDController{1.9, 0.0, 0.0}; //2.75
-    frc2::PIDController m_rightPIDController{1.9, 0.0, 0.0};
+    frc2::PIDController m_leftPIDController{1.72, 0.0, 0.0}; //2.75
+    frc2::PIDController m_rightPIDController{1.72, 0.0, 0.0};
 
 public:
     // Teleop Values
@@ -157,6 +178,8 @@ private:
     WPI_TalonFX m_driveR0{3};
     WPI_TalonFX m_driveR1{4};
     WPI_TalonFX m_driveR2{5};
+    WPI_TalonFX impel{6};
+    WPI_TalonFX impel2{7};
 
     // Controller Groups
     frc::SpeedControllerGroup m_leftGroup{
