@@ -55,10 +55,12 @@ double StadiaController::GetY(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  */
 double StadiaController::GetTriggerAxis(JoystickHand hand) const {
+
+  // The raw axis reports -1 when not pulled and +1 when fully pulled.
   if (hand == kLeftHand) {
-    return GetRawAxis((int) Axis::kLeftTrigger);
+    return GetRawAxis((int) Axis::kLeftTrigger)/2.0 + 0.5;
   } else {
-    return GetRawAxis((int) Axis::kRightTrigger);
+    return GetRawAxis((int) Axis::kRightTrigger)/2.0 + 0.5;
   }
 }
 
