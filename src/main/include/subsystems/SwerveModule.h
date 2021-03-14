@@ -93,6 +93,7 @@ public:
     frc::Rotation2d GetAngle();
 
     void InitSendable(frc::SendableBuilder &builder) override;
+    void InitSendable(frc::SendableBuilder &builder, std::string name);
 
     void Set(double drive, double azimuth);
 

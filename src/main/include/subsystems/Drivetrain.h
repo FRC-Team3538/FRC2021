@@ -11,13 +11,19 @@
 #include <wpi/math>
 #include <frc/smartdashboard/Field2d.h>
 
+#include <frc/smartdashboard/Sendable.h>
+#include <frc/smartdashboard/SendableBuilder.h>
+#include <frc/smartdashboard/SendableHelper.h>
+
 #include "subsystems/SwerveModule.h"
 #include "adi/ADIS16470_IMU.h"
 
 /**
  * Represents a swerve drive style drivetrain.
  */
-class Drivetrain: public rj::Loggable
+class Drivetrain : public frc::Sendable,
+                   public frc::SendableHelper<SwerveModule>,
+                   public rj::Loggable
 {
 public:
     Drivetrain();
@@ -31,7 +37,7 @@ public:
     void ResetYaw();
     void Log(UDPLogger &logger);
     void SimPeriodic();
-
+    void InitSendable(frc::SendableBuilder &builder) override;
 
     static constexpr auto kMaxSpeed = 16_fps;
     // about 2.5 turns per second
@@ -92,55 +98,39 @@ private:
             3.26,
             0.0,
             0.0,
-            kMaxModuleLinearAcceleration, 
-            kMaxModuleLinearJerk
-        },
-        {
-            1.08,
-            0.0,
-            0.175,
-            kMaxModuleAngularVelocity, 
-            kMaxModuleAngularAcceleration
-        },
-        {
-            0.668_V, 
-            2.39_V / 1_mps, 
-            0.143_V / 1_mps_sq
-        },
-        {
-            0.983_V, 
-            0.588_V / 1_rad_per_s, 
-            0.0496_V / 1_rad_per_s_sq
-        }
-    };
-    
+            kMaxModuleLinearAcceleration,
+            kMaxModuleLinearJerk},
+        {1.08,
+         0.0,
+         0.175,
+         kMaxModuleAngularVelocity,
+         kMaxModuleAngularAcceleration},
+        {0.668_V,
+         2.39_V / 1_mps,
+         0.143_V / 1_mps_sq},
+        {0.983_V,
+         0.588_V / 1_rad_per_s,
+         0.0496_V / 1_rad_per_s_sq}};
+
     static constexpr SwerveModuleConfig m_frontRightConfig{
         units::degree_t(-125.684), // units::degree_t(-128.320),
         {
             3.26,
             0.0,
             0.0,
-            kMaxModuleLinearAcceleration, 
-            kMaxModuleLinearJerk
-        },
-        {
-            2.83,
-            0.0,
-            0.0385,
-            kMaxModuleAngularVelocity, 
-            kMaxModuleAngularAcceleration
-        },
-        {
-            0.668_V, 
-            2.39_V / 1_mps, 
-            0.143_V / 1_mps_sq
-        },
-        {
-            0.537_V, 
-            0.543_V / 1_rad_per_s, 
-            0.0204_V / 1_rad_per_s_sq
-        }
-    };
+            kMaxModuleLinearAcceleration,
+            kMaxModuleLinearJerk},
+        {2.83,
+         0.0,
+         0.0385,
+         kMaxModuleAngularVelocity,
+         kMaxModuleAngularAcceleration},
+        {0.668_V,
+         2.39_V / 1_mps,
+         0.143_V / 1_mps_sq},
+        {0.537_V,
+         0.543_V / 1_rad_per_s,
+         0.0204_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
         101.426_deg, // 97.822_deg,
@@ -148,27 +138,19 @@ private:
             3.26,
             0.0,
             0.0,
-            kMaxModuleLinearAcceleration, 
-            kMaxModuleLinearJerk
-        },
-        {
-            1.64,
-            0.0,
-            0.0988,
-            kMaxModuleAngularVelocity, 
-            kMaxModuleAngularAcceleration
-        },
-        {
-            0.668_V, 
-            2.39_V / 1_mps, 
-            0.143_V / 1_mps_sq
-        },
-        {
-            0.698_V, 
-            0.6_V / 1_rad_per_s, 
-            0.0387_V / 1_rad_per_s_sq
-        }
-    };
+            kMaxModuleLinearAcceleration,
+            kMaxModuleLinearJerk},
+        {1.64,
+         0.0,
+         0.0988,
+         kMaxModuleAngularVelocity,
+         kMaxModuleAngularAcceleration},
+        {0.668_V,
+         2.39_V / 1_mps,
+         0.143_V / 1_mps_sq},
+        {0.698_V,
+         0.6_V / 1_rad_per_s,
+         0.0387_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backRightConfig{
         126.650_deg, // 125.771_deg,
@@ -176,27 +158,17 @@ private:
             3.26,
             0.0,
             0.0,
-            kMaxModuleLinearAcceleration, 
-            kMaxModuleLinearJerk
-        },
-        {
-            0.943,
-            0.0,
-            0.174,
-            kMaxModuleAngularVelocity, 
-            kMaxModuleAngularAcceleration
-        },
-        {
-            0.668_V, 
-            2.39_V / 1_mps, 
-            0.143_V / 1_mps_sq
-        },
-        {
-            1.19_V, 
-            0.575_V / 1_rad_per_s, 
-            0.0496_V / 1_rad_per_s_sq
-        }
-    };
-
-
+            kMaxModuleLinearAcceleration,
+            kMaxModuleLinearJerk},
+        {0.943,
+         0.0,
+         0.174,
+         kMaxModuleAngularVelocity,
+         kMaxModuleAngularAcceleration},
+        {0.668_V,
+         2.39_V / 1_mps,
+         0.143_V / 1_mps_sq},
+        {1.19_V,
+         0.575_V / 1_rad_per_s,
+         0.0496_V / 1_rad_per_s_sq}};
 };

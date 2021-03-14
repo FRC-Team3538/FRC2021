@@ -12,11 +12,6 @@ Drivetrain::Drivetrain()
   m_gyro.Reset();
 #endif
 
-  frc::SmartDashboard::PutData("SwerveFL", &m_frontLeft);
-  frc::SmartDashboard::PutData("SwerveFR", &m_frontRight);
-  frc::SmartDashboard::PutData("SwerveBL", &m_backLeft);
-  frc::SmartDashboard::PutData("SwerveBR", &m_backRight);
-
   frc::SmartDashboard::PutData("Field", &m_fieldDisplay);
 }
 
@@ -106,4 +101,26 @@ void Drivetrain::SimPeriodic()
     m_backRight.GetState()});
   
   m_theta += dtheta * 20_ms;
+  (void)dx;
+  (void)dy;
+}
+
+void Drivetrain::InitSendable(frc::SendableBuilder &builder)
+{
+  builder.SetSmartDashboardType("DriveBase");
+  builder.SetActuator(true);
+
+  // Modules
+  m_frontLeft.InitSendable(builder, "FL");
+  m_frontRight.InitSendable(builder, "FR");
+  m_backLeft.InitSendable(builder, "BL");
+  m_backRight.InitSendable(builder, "BR");
+  
+  // Pose
+  builder.AddDoubleProperty(
+      "pose/x", [this] { return m_poseEstimator.GetPose().X().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "pose/y", [this] { return m_poseEstimator.GetPose().Y().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "pose/yaw", [this] { return m_poseEstimator.GetPose().Rotation().Degrees().value(); }, nullptr);
 }

@@ -178,46 +178,54 @@ void SwerveModule::Log(UDPLogger &logger)
 
 void SwerveModule::InitSendable(frc::SendableBuilder &builder)
 {
+  InitSendable(builder, "");
+}
+
+void SwerveModule::InitSendable(frc::SendableBuilder &builder, std::string name)
+{
   builder.SetSmartDashboardType("SwerveModule");
   builder.SetActuator(true);
 
+  // Prefix for nested objects
+  if(name != "") name += "/";
+
   // Drive Control
   builder.AddDoubleProperty(
-      "Drive kP", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
+      name + "Drive kP", [this] { return m_drivePIDController.GetP(); }, [this](double value) { m_drivePIDController.SetP(value); });
   builder.AddDoubleProperty(
-      "Drive kI", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
+      name + "Drive kI", [this] { return m_drivePIDController.GetI(); }, [this](double value) { m_drivePIDController.SetI(value); });
   builder.AddDoubleProperty(
-      "Drive kD", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
+      name + "Drive kD", [this] { return m_drivePIDController.GetD(); }, [this](double value) { m_drivePIDController.SetD(value); });
   builder.AddDoubleProperty(
-      "Drive Goal",
+      name + "Drive Goal",
       [this] { return units::meters_per_second_t(m_drivePIDController.GetGoal().position).value(); },
       [this](double value) { m_drivePIDController.SetGoal(units::meters_per_second_t(value)); });
   builder.AddDoubleProperty(
-      "Drive SP",
+      name + "Drive SP",
       [this] { return units::meters_per_second_t(m_drivePIDController.GetSetpoint().position).value(); }, nullptr);
   builder.AddDoubleProperty(
-      "Velocity", [this] { return units::meters_per_second_t(GetVelocity()).value(); }, nullptr);
+      name + "Velocity", [this] { return units::meters_per_second_t(GetVelocity()).value(); }, nullptr);
   builder.AddDoubleProperty(
-      "m_driveVolts", [this] { return m_driveVolts.value(); }, nullptr);
+      name + "m_driveVolts", [this] { return m_driveVolts.value(); }, nullptr);
 
   // Angle Control
   builder.AddDoubleProperty(
-      "Angle kP", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
+      name + "Angle kP", [this] { return m_turningPIDController.GetP(); }, [this](double value) { m_turningPIDController.SetP(value); });
   builder.AddDoubleProperty(
-      "Angle kI", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
+      name + "Angle kI", [this] { return m_turningPIDController.GetI(); }, [this](double value) { m_turningPIDController.SetI(value); });
   builder.AddDoubleProperty(
-      "Angle kD", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
+      name + "Angle kD", [this] { return m_turningPIDController.GetD(); }, [this](double value) { m_turningPIDController.SetD(value); });
   builder.AddDoubleProperty(
-      "Angle Goal",
+      name + "Angle Goal",
       [this] { return units::degree_t(m_turningPIDController.GetGoal().position).value(); },
       [this](double value) { m_turningPIDController.SetGoal(units::degree_t(value)); });
   builder.AddDoubleProperty(
-      "Angle SP",
+      name + "Angle SP",
       [this] { return units::degree_t(m_turningPIDController.GetSetpoint().position).value(); }, nullptr);
   builder.AddDoubleProperty(
-      "Angle", [this] { return GetAngle().Degrees().value(); }, nullptr);
+      name + "Angle", [this] { return GetAngle().Degrees().value(); }, nullptr);
   builder.AddDoubleProperty(
-      "m_turnVolts", [this] { return m_turnVolts.value(); }, nullptr);
+      name + "m_turnVolts", [this] { return m_turnVolts.value(); }, nullptr);
 
   // builder.AddDoubleProperty(
   //     "Angle Offset",
@@ -235,9 +243,9 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder)
 
   // Thermal
   builder.AddBooleanProperty(
-      "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
+      name + "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
   builder.AddDoubleProperty(
-      "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
+      name + "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
   builder.AddDoubleProperty(
-      "Angle Temp [C]", [this] { return m_turningMotor.GetMotorTemperature(); }, nullptr);
+      name + "Angle Temp [C]", [this] { return m_turningMotor.GetMotorTemperature(); }, nullptr);
 }
