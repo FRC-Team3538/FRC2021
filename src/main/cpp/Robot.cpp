@@ -64,6 +64,8 @@ public:
     frc::SmartDashboard::PutData(&m_chooser);
 
     // Smartdash
+    frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
+
     frc::SmartDashboard::SetDefaultNumber("auto/X1", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/Y1", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/R1", 0.0);
