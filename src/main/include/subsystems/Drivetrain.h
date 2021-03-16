@@ -144,7 +144,7 @@ private:
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.706}; //.744
+    decltype(1_V) kStatic{0.706}; //.706
     decltype(1_V / 1_mps) kVlinear{1.88}; //1.86
     decltype(1_V / 1_mps_sq) kAlinear{0.088}; //0.0917
     decltype(1_V / 1_rad_per_s) kVangular{1.97}; //1.94
@@ -157,7 +157,7 @@ private:
 public:
     // Teleop Values
     /// TODO(Dereck): Measure these too
-    static constexpr units::feet_per_second_t kMaxSpeed{14.0};
+    static constexpr units::feet_per_second_t kMaxSpeed{17.5};
     static constexpr units::degrees_per_second_t kMaxAngularSpeed{360.0};
 
     /***************************************************************************/
