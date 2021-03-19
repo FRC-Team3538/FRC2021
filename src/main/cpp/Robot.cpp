@@ -14,6 +14,7 @@
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
 #include "subsystems/SwerveModule.h"
+#include "subsystems/Shooter.h"
 #include "lib/UniversalController.hpp"
 #include <UDPLogger.hpp>
 #include <cmath>
@@ -57,6 +58,11 @@ public:
     m_chooserControllerType.AddOption(kControllerTypeStadia, frc::UniversalController::ControllerType::kStadia);
     frc::SmartDashboard::PutData(&m_chooserControllerType);
 
+    m_chooserOperatorType.SetDefaultOption(kControllerTypePS4, frc::UniversalController::ControllerType::kPS4);
+    m_chooserOperatorType.AddOption(kControllerTypeXbox, frc::UniversalController::ControllerType::kXbox);
+    m_chooserOperatorType.AddOption(kControllerTypeStadia, frc::UniversalController::ControllerType::kStadia);
+    frc::SmartDashboard::PutData(&m_chooserOperatorType);
+
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
     m_chooser.AddOption(kAutoConstant, kAutoConstant);
@@ -66,6 +72,7 @@ public:
 
     // Smartdash
     frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
+    frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     // frc::SmartDashboard::PutData("DriveBase", &m_swerve);
 
     frc::SmartDashboard::SetDefaultNumber("auto/X1", 0.0);
@@ -89,6 +96,7 @@ public:
   {
        // PS4 | xbox controller mapping
     m_controller.SetControllerType(m_chooserControllerType.GetSelected());
+    m_operator.SetControllerType(m_chooserOperatorType.GetSelected());
 
     // m_swerve.UpdateOdometry();
 
@@ -185,6 +193,17 @@ public:
 
   void TeleopPeriodic() override
   {
+    // Shooter
+    auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
+    auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
+    auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
+
+    auto shooterVoltage = m_shooterLimiter.Calculate(shooterInput) * Shooter::kMaxShooterVoltage;
+    auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
+    auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
+
+    m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
+
     // // Drivebase
     // auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     // auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
@@ -218,8 +237,11 @@ public:
 
 private:
   frc::UniversalController m_controller{0};
+  frc::UniversalController m_operator{1};
+
   // Drivetrain m_swerve;
   GlobalDevices m_globals;
+  Shooter m_shooter;
 
   UDPLogger m_udp_logger;
   std::thread m_logging_thread;
@@ -227,6 +249,7 @@ private:
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
     std::shared_ptr<rj::Loggable>(&m_globals),
     // std::shared_ptr<rj::Loggable>(&m_swerve),
+    std::shared_ptr<rj::Loggable>(&m_shooter),
   };
 
 
@@ -237,6 +260,10 @@ private:
   frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{10 / 1_s};
+
+  frc::SlewRateLimiter<units::scalar> m_shooterLimiter{10 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_gateLimiter{10 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_hoodLimiter{10 / 1_s};
 
   // Drive Mode
   bool m_fieldRelative = true;
@@ -249,6 +276,7 @@ private:
   static constexpr auto kAutoSweep = "3 - Sweep";
 
   frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserControllerType;
+  frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserOperatorType;
   static constexpr auto kControllerTypePS4 = "PS4";
   static constexpr auto kControllerTypeXbox = "Xbox";
   static constexpr auto kControllerTypeStadia = "Stadia";
