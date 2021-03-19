@@ -34,7 +34,7 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
   auto states = m_kinematics.ToSwerveModuleStates(m_command);
   m_kinematics.NormalizeWheelSpeeds(&states, kMaxSpeed);
 
-  std::cout << frc::Timer::GetFPGATimestamp() << "," << xSpeed.value() << "," << ySpeed.value() << "," << rot.value() << ",";
+  // std::cout << frc::Timer::GetFPGATimestamp() << "," << xSpeed.value() << "," << ySpeed.value() << "," << rot.value() << ",";
 
   // Set State of Each Module
   auto [fl, fr, bl, br] = states;
