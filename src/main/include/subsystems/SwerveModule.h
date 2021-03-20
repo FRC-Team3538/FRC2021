@@ -125,12 +125,8 @@ private:
 
     // Hardware
     WPI_TalonFX m_driveMotor;
-    rev::CANSparkMax m_turningMotor;
+    WPI_TalonSRX m_turningMotor;
     CANCoder m_turningEncoder;
-    // encoder returns position in turns, so no need to use the internal ticks for added precision
-    // here we convert motor turns to wheel radians
-    rev::CANEncoder m_neoEncoder = m_turningMotor.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor); 
-    rev::CANPIDController m_neoPIDController = m_turningMotor.GetPIDController();
 
     // Angle Offset
     // std::string m_angleOffsetPref = "SwerveAngleOffset";
