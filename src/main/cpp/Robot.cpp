@@ -92,6 +92,12 @@ public:
     m_logging_thread.detach();
   }
 
+  void DisabledInit() override
+  {
+    // Mostly for sim
+    m_swerve.Drive(0_mps, 0_mps, 0_deg_per_s, false);
+  }
+
   void RobotPeriodic() override
   {
        // PS4 | xbox controller mapping
