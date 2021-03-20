@@ -80,6 +80,7 @@ public:
     m_chooser.AddOption(kAutoConstant, kAutoConstant);
     m_chooser.AddOption(kAutoToggle, kAutoToggle);
     m_chooser.AddOption(kAutoSweep, kAutoSweep);
+    m_chooser.AddOption(kAutoDash, kAutoDash);
     frc::SmartDashboard::PutData(&m_chooser);
 
     // Smartdash
@@ -149,16 +150,16 @@ public:
     // Program Selection
     //
     auto program = m_chooser.GetSelected();
-    if (program == kAutoARed)
+    if (program == kAutoDash)
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           frc::Pose2d(30_in, 90_in, 0_deg), 
           {
             // frc::Translation2d(150_in, 60_in), 
-            // frc::Translation2d(180_in, 150_in)
+            frc::Translation2d(180_in, 150_in)
           },
-          frc::Pose2d(330_in, 60_in, 0_deg),
-          frc::TrajectoryConfig(3_fps, 3_fps_sq));
+          frc::Pose2d(330_in, 90_in, 0_deg),
+          frc::TrajectoryConfig(5_fps, 10_fps_sq));
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
@@ -188,9 +189,9 @@ public:
     {
       return;
     }
-    else if (program == kAutoARed)
+    else if (program == kAutoDash)
     {
-      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()));
+      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), 0_deg);
     }
     else if (program == kAutoConstant)
     {
@@ -323,6 +324,7 @@ private:
   static constexpr auto kAutoConstant = "90 - Constant";
   static constexpr auto kAutoToggle = "91 - Toggle";
   static constexpr auto kAutoSweep = "92 - Sweep";
+  static constexpr auto kAutoDash = "93 - Dash";
 
   frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserControllerType;
   frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserOperatorType;

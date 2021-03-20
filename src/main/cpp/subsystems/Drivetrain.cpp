@@ -15,12 +15,12 @@ Drivetrain::Drivetrain()
   frc::SmartDashboard::PutData("Field", &m_fieldDisplay);
 }
 
-void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint)
+void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint, units::radian_t yaw)
 {
   const auto command = m_trajectoryController.Calculate(
     m_poseEstimator.GetPose(), 
     trajectory.Sample(timepoint), 
-    GetYaw());
+    yaw);
   
   Drive(command.vx, command.vy, command.omega, true);
 }
