@@ -20,6 +20,9 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::radians_per_second_t rot,
                        bool fieldRelative)
 {
+  // Remember the last operating mode, for smartdash display
+  m_fieldRelative = fieldRelative;
+
   // Transform Field Oriented command to a Robot Relative Command
   if (fieldRelative)
   {
@@ -131,4 +134,8 @@ void Drivetrain::InitSendable(frc::SendableBuilder &builder)
       "cmd/y", [this] { return m_command.vy.value(); }, nullptr);
   builder.AddDoubleProperty(
       "cmd/yaw", [this] { return units::degrees_per_second_t(m_command.omega).value(); }, nullptr);
+
+  // Operating Mode
+  builder.AddBooleanProperty(
+      "cmd/fieldRelative", [this] { return m_fieldRelative; }, nullptr);
 }

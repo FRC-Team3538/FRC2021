@@ -207,8 +207,8 @@ public:
 
     // Drivebase
     auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
-    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
+    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
     if (xInput * xInput + yInput * yInput > 0) {
       auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
@@ -218,6 +218,7 @@ public:
       yInput = angle.Sin() * throttle;
     }
 
+    // Increase Low-end stick control ("Smoothing")
     if (rInput < 0) {
       rInput = -rInput * rInput;
     } else {
@@ -226,7 +227,7 @@ public:
 
     auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
     auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
-    auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
+    auto rot = m_rotLimiter.Calculate(rInput) * 360_deg_per_s;
     
     m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
   }
@@ -281,13 +282,20 @@ private:
   // Auto State
   frc::Timer m_autoTimer;
 
+  /// Deadband Function
   double deadband(double input, double band, double max)
   {
-    if (input < band && -input < band) 
+    if (fabs(input) < band) 
     {
-      return 0;
+      return 0.0;
     }
-    return (input - band) / (max - band);
+
+    if(input > 0.0)
+    {
+      return ((input - band) / (1.0 - band)) * max;
+    } else {
+      return ((input + band) / (1.0 - band)) * max;
+    }
   }
 };
 

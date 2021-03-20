@@ -52,6 +52,8 @@ private:
     frc::Translation2d m_backLeftLocation{-m_dist, -m_dist};
     frc::Translation2d m_backRightLocation{-m_dist, +m_dist};
 
+    bool m_fieldRelative;
+
     // Swerve Modules
     SwerveModule m_frontLeft{1, 2, 3, m_frontLeftConfig};
     SwerveModule m_frontRight{4, 5, 6, m_frontRightConfig};
