@@ -103,7 +103,7 @@ private:
     static constexpr auto kMaxModuleAngularAcceleration = 200_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
-        units::degree_t(-150.205), // units::degree_t(-145.107),
+        units::degree_t(-150.205),
         {
             3.26,
             0.0,
@@ -112,7 +112,7 @@ private:
             kMaxModuleLinearJerk},
         {1.08,
          0.0,
-         0.175,
+         1.1,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
@@ -123,7 +123,7 @@ private:
          0.0496_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_frontRightConfig{
-        units::degree_t(-125.684), // units::degree_t(-128.320),
+        units::degree_t(-125.684),
         {
             3.26,
             0.0,
@@ -132,7 +132,7 @@ private:
             kMaxModuleLinearJerk},
         {2.83,
          0.0,
-         0.0385,
+         1.1,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
@@ -143,7 +143,7 @@ private:
          0.0204_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
-        101.426_deg, // 97.822_deg,
+        101.426_deg,
         {
             3.26,
             0.0,
@@ -152,7 +152,7 @@ private:
             kMaxModuleLinearJerk},
         {1.64,
          0.0,
-         0.0988,
+         1.1,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
@@ -163,7 +163,7 @@ private:
          0.0387_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backRightConfig{
-        126.650_deg, // 125.771_deg,
+        126.650_deg,
         {
             3.26,
             0.0,
@@ -172,7 +172,7 @@ private:
             kMaxModuleLinearJerk},
         {0.943,
          0.0,
-         0.174,
+         1.1,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,

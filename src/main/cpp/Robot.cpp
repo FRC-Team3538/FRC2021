@@ -87,12 +87,12 @@ public:
     frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
 
-    frc::SmartDashboard::SetDefaultNumber("auto/X1", 0.0);
-    frc::SmartDashboard::SetDefaultNumber("auto/Y1", 0.0);
-    frc::SmartDashboard::SetDefaultNumber("auto/R1", 0.0);
-    frc::SmartDashboard::SetDefaultNumber("auto/X2", 0.0);
-    frc::SmartDashboard::SetDefaultNumber("auto/Y2", 0.0);
-    frc::SmartDashboard::SetDefaultNumber("auto/R2", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/A_R", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/B_X", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/B_Y", 0.0);
+    frc::SmartDashboard::SetDefaultNumber("auto/B_R", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/T", 4.0);
 
     // UDP Logger
@@ -152,30 +152,30 @@ public:
     if (program == kAutoARed)
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(40_in, 40_in, 0_deg), 
+          frc::Pose2d(30_in, 90_in, 0_deg), 
           {
             // frc::Translation2d(150_in, 60_in), 
             // frc::Translation2d(180_in, 150_in)
           },
-          frc::Pose2d(40_in, 120_in, 0_deg),
+          frc::Pose2d(330_in, 60_in, 0_deg),
           frc::TrajectoryConfig(3_fps, 3_fps_sq));
-    }
 
-    // Set initial pose of robot
-    m_swerve.ResetYaw();
-    m_swerve.ResetOdometry(m_trajectory.InitialPose());
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      m_swerve.ResetOdometry(m_trajectory.InitialPose());
+    }
   }
 
   void AutonomousPeriodic() override
   {
     // Shared Smartdash Inputs
-    auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X1", 0.0));
-    auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y1", 0.0));
-    auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R1", 0.0));
+    auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/A_X", 0.0));
+    auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/A_Y", 0.0));
+    auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/A_R", 0.0));
 
-    auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X2", 0.0));
-    auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y2", 0.0));
-    auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R2", 0.0));
+    auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/B_X", 0.0));
+    auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/B_Y", 0.0));
+    auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/B_R", 0.0));
 
     auto t = units::second_t(frc::SmartDashboard::GetNumber("auto/T", 4.0));
     auto autoTime = units::second_t(m_autoTimer.Get());
