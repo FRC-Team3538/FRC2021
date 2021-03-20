@@ -11,6 +11,9 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/livewindow/LiveWindow.h>
 
+#include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/trajectory/TrajectoryUtil.h>
+
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
 #include "subsystems/SwerveModule.h"
@@ -141,6 +144,26 @@ public:
   {
     m_autoTimer.Reset();
     m_autoTimer.Start();
+
+    //
+    // Program Selection
+    //
+    auto program = m_chooser.GetSelected();
+    if (program == kAutoARed)
+    {
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(40_in, 40_in, 0_deg), 
+          {
+            // frc::Translation2d(150_in, 60_in), 
+            // frc::Translation2d(180_in, 150_in)
+          },
+          frc::Pose2d(40_in, 120_in, 0_deg),
+          frc::TrajectoryConfig(3_fps, 3_fps_sq));
+    }
+
+    // Set initial pose of robot
+    m_swerve.ResetYaw();
+    m_swerve.ResetOdometry(m_trajectory.InitialPose());
   }
 
   void AutonomousPeriodic() override
@@ -164,6 +187,10 @@ public:
     if (program == kAutoNone)
     {
       return;
+    }
+    else if (program == kAutoARed)
+    {
+      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()));
     }
     else if (program == kAutoConstant)
     {
@@ -305,6 +332,9 @@ private:
 
   // Auto State
   frc::Timer m_autoTimer;
+
+  // Auto Paths
+  frc::Trajectory m_trajectory;
 
   /// Deadband Function
   double deadband(double input, double band, double max)

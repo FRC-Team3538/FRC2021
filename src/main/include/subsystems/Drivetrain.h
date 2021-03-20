@@ -15,6 +15,8 @@
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <frc/smartdashboard/SendableHelper.h>
 
+#include <frc/controller/HolonomicDriveController.h>
+
 #include "subsystems/SwerveModule.h"
 #include "adi/ADIS16470_IMU.h"
 
@@ -32,12 +34,14 @@ public:
                units::meters_per_second_t ySpeed,
                units::radians_per_second_t rot,
                bool fieldRelative = true);
+    void Drive(frc::Trajectory trajectory, units::second_t timepoint);
     void UpdateOdometry();
     frc::Rotation2d GetYaw();
     void ResetYaw();
     void Log(UDPLogger &logger);
     void SimPeriodic();
     void InitSendable(frc::SendableBuilder &builder) override;
+    void ResetOdometry(const frc::Pose2d& pose);
 
     static constexpr auto kMaxSpeed = 16_fps;
     // about 2.5 turns per second
@@ -177,4 +181,16 @@ private:
         {1.19_V,
          0.575_V / 1_rad_per_s,
          0.0496_V / 1_rad_per_s_sq}};
+    
+    // Trajectory Following
+    frc::HolonomicDriveController m_trajectoryController{
+        frc2::PIDController{2.0, 0.0, 0.0}, // X-error
+        frc2::PIDController{2.0, 0.0, 0.0}, // Y-error
+        frc::ProfiledPIDController<units::radian>{1.0, 0.0, 0.0,  // Rotation-error
+            frc::TrapezoidProfile<units::radian>::Constraints{
+                360_deg_per_s, 
+                720_deg_per_s / 1_s
+            }
+        }
+    };
 };

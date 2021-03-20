@@ -15,6 +15,16 @@ Drivetrain::Drivetrain()
   frc::SmartDashboard::PutData("Field", &m_fieldDisplay);
 }
 
+void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint)
+{
+  const auto command = m_trajectoryController.Calculate(
+    m_poseEstimator.GetPose(), 
+    trajectory.Sample(timepoint), 
+    GetYaw());
+  
+  Drive(command.vx, command.vy, command.omega, true);
+}
+
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
                        units::radians_per_second_t rot,
@@ -65,6 +75,8 @@ void Drivetrain::ResetYaw()
 {
 #ifdef __FRC_ROBORIO__
   m_imu.Reset();
+#else
+  m_theta = 0_deg;
 #endif // __FRC_ROBORIO__
 }
 
@@ -76,6 +88,11 @@ frc::Rotation2d Drivetrain::GetYaw()
   //return m_gyro.GetRotation2d();
   return m_theta;
 #endif
+}
+
+void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
+{
+  m_poseEstimator.ResetPosition(pose, m_theta);
 }
 
 void Drivetrain::Log(UDPLogger &logger)
