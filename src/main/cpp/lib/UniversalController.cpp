@@ -795,6 +795,11 @@ void UniversalController::InitSendable(frc::SendableBuilder &builder)
       "btn/BumperR", [this] { return GetBumper(JoystickHand::kRightHand); }, nullptr);
 
   builder.AddBooleanProperty(
+      "btn/StickL", [this] { return GetStickButton(JoystickHand::kLeftHand); }, nullptr);
+  builder.AddBooleanProperty(
+      "btn/StickR", [this] { return GetStickButton(JoystickHand::kRightHand); }, nullptr);
+
+  builder.AddBooleanProperty(
       "btn/Share", [this] { return GetShareButton(); }, nullptr);
   builder.AddBooleanProperty(
       "btn/Options", [this] { return GetOptionsButton(); }, nullptr);

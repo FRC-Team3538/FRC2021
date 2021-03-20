@@ -24,8 +24,6 @@ Shooter::Shooter()
   m_shooterMotor2.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Coast);
   m_shooterMotor2.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 55, 0.0));
 
-  m_shooterMotor2.Follow(m_shooterMotor1);
-
   m_gateMotor.ConfigFactoryDefault();
   m_hoodMotor.ConfigFactoryDefault();
 }
@@ -33,6 +31,7 @@ Shooter::Shooter()
 void Shooter::Set(units::volt_t shooter, units::volt_t gate, units::volt_t hood)
 {
     m_shooterMotor1.SetVoltage(shooter);
+    m_shooterMotor2.SetVoltage(shooter);
     m_gateMotor.SetVoltage(gate);
     m_hoodMotor.SetVoltage(hood);
 }

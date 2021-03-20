@@ -137,11 +137,7 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 
   m_turnVolts = units::volt_t{turnOutput} + turnFeedforward;
 
-  // std::cout << currentState.speed.value() << "," << opt_state.speed.value() << "," << units::volt_t(driveOutput).value() << "," << m_drivePIDController.GetSetpoint().position.value() << "," << m_drivePIDController.GetSetpoint().velocity.value() << "," << driveFeedforward.value() << ",";
-  // std::cout << currentState.angle.Radians().value() << "," << opt_state.angle.Radians().value() << "," << units::volt_t(turnOutput).value() << "," << "," << m_turningPIDController.GetSetpoint().velocity.value() << "," << turnFeedforward.value() << ",";
-
   // if we're moving at less than an inch per second just ignore
-  // std::cout << state.speed << " <? " << units::feet_per_second_t(1.0 / 12.0) << std::endl;
   if (units::math::abs(state.speed) < units::feet_per_second_t(1.0 / 12.0))
   {
     m_turnVolts = 0_V;

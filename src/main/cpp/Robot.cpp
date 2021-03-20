@@ -73,7 +73,7 @@ public:
     // Smartdash
     frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
     frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
-    // frc::SmartDashboard::PutData("DriveBase", &m_swerve);
+    frc::SmartDashboard::PutData("DriveBase", &m_swerve);
 
     frc::SmartDashboard::SetDefaultNumber("auto/X1", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/Y1", 0.0);
@@ -98,7 +98,8 @@ public:
     m_controller.SetControllerType(m_chooserControllerType.GetSelected());
     m_operator.SetControllerType(m_chooserOperatorType.GetSelected());
 
-    // m_swerve.UpdateOdometry();
+    // Update Drivebase Odometry
+    m_swerve.UpdateOdometry();
 
     // Toggle Drive mode (Field | Robot Relative)
     if(m_controller.GetOptionsButtonPressed()) 
@@ -113,12 +114,12 @@ public:
       }
     }
 
-    // // Toggle Drive mode (Field | Robot Relative)
-    // if(m_controller.GetShareButtonPressed()) 
-    // {
-    //   m_swerve.ResetYaw();
-    //   std::cout << "Reset Gyro" << std::endl;
-    // }
+    // Toggle Drive mode (Field | Robot Relative)
+    if(m_controller.GetShareButtonPressed()) 
+    {
+      m_swerve.ResetYaw();
+      std::cout << "Reset Gyro" << std::endl;
+    }
   }
 
   void AutonomousInit() override
@@ -129,66 +130,66 @@ public:
 
   void AutonomousPeriodic() override
   {
-    // // Shared Smartdash Inputs
-    // auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X1", 0.0));
-    // auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y1", 0.0));
-    // auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R1", 0.0));
+    // Shared Smartdash Inputs
+    auto x1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X1", 0.0));
+    auto y1 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y1", 0.0));
+    auto r1 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R1", 0.0));
 
-    // auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X2", 0.0));
-    // auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y2", 0.0));
-    // auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R2", 0.0));
+    auto x2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/X2", 0.0));
+    auto y2 = units::meters_per_second_t(frc::SmartDashboard::GetNumber("auto/Y2", 0.0));
+    auto r2 = units::degrees_per_second_t(frc::SmartDashboard::GetNumber("auto/R2", 0.0));
 
-    // auto t = units::second_t(frc::SmartDashboard::GetNumber("auto/T", 4.0));
-    // auto autoTime = units::second_t(m_autoTimer.Get());
+    auto t = units::second_t(frc::SmartDashboard::GetNumber("auto/T", 4.0));
+    auto autoTime = units::second_t(m_autoTimer.Get());
 
-    // //
-    // // Program Selection
-    // //
-    // auto program = m_chooser.GetSelected();
-    // if (program == kAutoNone)
-    // {
-    //   return;
-    // }
-    // else if (program == kAutoConstant)
-    // {
-    //   // Just go at a fixed command
-    //   m_swerve.Drive(x1, y1, r1, m_fieldRelative);
-    // }
-    // else if (program == kAutoToggle)
-    // {
-    //   // Toggle between two setpoints
-    //   if(autoTime > t/2)
-    //   {
-    //     m_swerve.Drive(x1, y1, r1, m_fieldRelative);
-    //   } else {
-    //     m_swerve.Drive(x2, y2, r2, m_fieldRelative);
-    //   }
+    //
+    // Program Selection
+    //
+    auto program = m_chooser.GetSelected();
+    if (program == kAutoNone)
+    {
+      return;
+    }
+    else if (program == kAutoConstant)
+    {
+      // Just go at a fixed command
+      m_swerve.Drive(x1, y1, r1, m_fieldRelative);
+    }
+    else if (program == kAutoToggle)
+    {
+      // Toggle between two setpoints
+      if(autoTime > t/2)
+      {
+        m_swerve.Drive(x1, y1, r1, m_fieldRelative);
+      } else {
+        m_swerve.Drive(x2, y2, r2, m_fieldRelative);
+      }
 
-    //   // Loop
-    //   if(autoTime >= t) m_autoTimer.Reset();
-    // }
-    // else if (program == kAutoSweep)
-    // {
-    //   // Protect div0
-    //   if(t <= 0.0_s) return;
+      // Loop
+      if(autoTime >= t) m_autoTimer.Reset();
+    }
+    else if (program == kAutoSweep)
+    {
+      // Protect div0
+      if(t <= 0.0_s) return;
 
-    //   auto a = units::math::abs(autoTime/t - 0.5) * 2.0;
-    //   auto x = a * x1 + (1.0 - a) * x2;
-    //   auto y = a * y1 + (1.0 - a) * y2;
-    //   auto r = a * r1 + (1.0 - a) * r2;
+      auto a = units::math::abs(autoTime/t - 0.5) * 2.0;
+      auto x = a * x1 + (1.0 - a) * x2;
+      auto y = a * y1 + (1.0 - a) * y2;
+      auto r = a * r1 + (1.0 - a) * r2;
 
-    //   m_swerve.Drive(x, y, r, m_fieldRelative);
+      m_swerve.Drive(x, y, r, m_fieldRelative);
 
-    //   // Loop
-    //   if(autoTime >= t) m_autoTimer.Reset();
+      // Loop
+      if(autoTime >= t) m_autoTimer.Reset();
 
-    //   frc::SmartDashboard::PutNumber("Auto-a", a);
-    // }
+      frc::SmartDashboard::PutNumber("Auto-a", a);
+    }
   }
 
   void TeleopInit() override
   {
-    // std::cout << "time,xSpeed,ySpeed,rot,FL_CurrentVelocity,FL_GoalVelocity,FL_drivePIDOutput,FL_drivePIDVelocity,FL_drivePIDAccel,FL_driveFF,FL_CurrentAngle,FL_GoalAngle,FL_turnPIDOutput,FL_turningSetpointPosition,FL_turningSetpointVelocity,FL_turnFeedforward,FR_CurrentVelocity,FR_GoalVelocity,FR_drivePIDOutput,FR_drivePIDVelocity,FR_drivePIDAccel,FR_driveFF,FR_CurrentAngle,FR_GoalAngle,FR_turnPIDOutput,FR_turningSetpointPosition,FR_turningSetpointVelocity,FR_turnFeedforward,BL_CurrentVelocity,BL_GoalVelocity,BL_drivePIDOutput,BL_drivePIDVelocity,BL_drivePIDAccel,BL_driveFF,BL_CurrentAngle,BL_GoalAngle,BL_turnPIDOutput,BL_turningSetpointPosition,BL_turningSetpointVelocity,BL_turnFeedforward,BR_CurrentVelocity,BR_GoalVelocity,BR_drivePIDOutput,BR_drivePIDVelocity,BR_drivePIDAccel,BR_driveFF,BR_CurrentAngle,BR_GoalAngle,BR_turnPIDOutput,BR_turningSetpointPosition,BR_turningSetpointVelocity,BR_turnFeedforward," << std::endl;
+    // NOP
   }
 
   void TeleopPeriodic() override
@@ -204,42 +205,42 @@ public:
 
     m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
 
-    // // Drivebase
-    // auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    // auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
-    // auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
+    // Drivebase
+    auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * 1.0;
+    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
 
-    // if (xInput * xInput + yInput * yInput > 0) {
-    //   auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-    //   // throttle = std::sqrt(xInput*xInput + yInput*yInput);
-    //   auto angle = frc::Rotation2d(xInput, yInput);
-    //   xInput = angle.Cos() * throttle;
-    //   yInput = angle.Sin() * throttle;
-    // }
+    if (xInput * xInput + yInput * yInput > 0) {
+      auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+      // throttle = std::sqrt(xInput*xInput + yInput*yInput);
+      auto angle = frc::Rotation2d(xInput, yInput);
+      xInput = angle.Cos() * throttle;
+      yInput = angle.Sin() * throttle;
+    }
 
-    // if (rInput < 0) {
-    //   rInput = -rInput * rInput;
-    // } else {
-    //   rInput = rInput * rInput;
-    // }
+    if (rInput < 0) {
+      rInput = -rInput * rInput;
+    } else {
+      rInput = rInput * rInput;
+    }
 
-    // auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
-    // auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
-    // auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
+    auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
+    auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
+    auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
     
-    // m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+    m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
   }
 
   void SimulationPeriodic() override
   {
-    // m_swerve.SimPeriodic();
+    m_swerve.SimPeriodic();
   }
 
 private:
   frc::UniversalController m_controller{0};
   frc::UniversalController m_operator{1};
 
-  // Drivetrain m_swerve;
+  Drivetrain m_swerve;
   GlobalDevices m_globals;
   Shooter m_shooter;
 
@@ -251,10 +252,6 @@ private:
     // std::shared_ptr<rj::Loggable>(&m_swerve),
     std::shared_ptr<rj::Loggable>(&m_shooter),
   };
-
-
-
-  // SwerveModule module{1, 2, 3};
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{10 / 1_s};
