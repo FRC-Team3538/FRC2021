@@ -65,6 +65,15 @@ public:
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
+    m_chooser.AddOption(kAutoARed, kAutoARed);
+    m_chooser.AddOption(kAutoABlue, kAutoABlue);
+    m_chooser.AddOption(kAutoBRed, kAutoBRed);
+    m_chooser.AddOption(kAutoBBlue, kAutoBBlue);
+    m_chooser.AddOption(kAutoBarrel, kAutoBarrel);
+    m_chooser.AddOption(kAutoSlalom, kAutoSlalom);
+    m_chooser.AddOption(kAutoAccuracy, kAutoAccuracy);
+    m_chooser.AddOption(kAutoPowerPort, kAutoPowerPort);
+
     m_chooser.AddOption(kAutoConstant, kAutoConstant);
     m_chooser.AddOption(kAutoToggle, kAutoToggle);
     m_chooser.AddOption(kAutoSweep, kAutoSweep);
@@ -275,9 +284,18 @@ private:
   // Smart Dash
   frc::SendableChooser<std::string> m_chooser;
   static constexpr auto kAutoNone = "0 - None";
-  static constexpr auto kAutoConstant = "1 - Constant";
-  static constexpr auto kAutoToggle = "2 - Toggle";
-  static constexpr auto kAutoSweep = "3 - Sweep";
+  static constexpr auto kAutoARed = "1 - A Red";
+  static constexpr auto kAutoABlue = "2 - A Blue";
+  static constexpr auto kAutoBRed = "3 - B Red";
+  static constexpr auto kAutoBBlue = "4 - B Blue";
+  static constexpr auto kAutoBarrel = "5 - Barrel";
+  static constexpr auto kAutoSlalom = "6 - Slalom";
+  static constexpr auto kAutoAccuracy = "7 - Accuracy";
+  static constexpr auto kAutoPowerPort = "8 - PowerPort";
+
+  static constexpr auto kAutoConstant = "90 - Constant";
+  static constexpr auto kAutoToggle = "91 - Toggle";
+  static constexpr auto kAutoSweep = "92 - Sweep";
 
   frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserControllerType;
   frc::SendableChooser<frc::UniversalController::ControllerType> m_chooserOperatorType;
