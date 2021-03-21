@@ -30,14 +30,14 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
   m_driveMotor.SetInverted(false); // Remember: forward-positive!
   m_driveMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 55, 0.0));
+  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, kDriveMotorCurrentLimit.value(), kDriveMotorCurrentLimit.value(), 0.0));
 
   // Turning Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
-  m_driveMotor.SetInverted(false); // Remember: forward-positive!
+  m_driveMotor.SetInverted(false); // Remember: CounterClockwise-positive!
   m_driveMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 30, 30, 0.0));
+  m_driveMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, kTurningMotorCurrentLimit.value(), kTurningMotorCurrentLimit.value(), 0.0));
 
   // Turning Encoder Config
   ctre::phoenix::sensors::CANCoderConfiguration encoderConfig;
@@ -53,10 +53,6 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
   m_turningPIDController.EnableContinuousInput(-units::radian_t(wpi::math::pi),
                                                units::radian_t(wpi::math::pi));
   m_turningPIDController.Reset(units::degree_t(m_turningEncoder.GetAbsolutePosition()));
-
-  // Use mag encoder to set start-up angle
-  // m_neoEncoder.SetPosition(0);
-  // m_turningEncoder.GetPosition() / 360);
 }
 
 frc::SwerveModuleState SwerveModule::GetState()
@@ -98,21 +94,6 @@ frc::Rotation2d SwerveModule::GetAngle()
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState &state)
 {
   const auto currentState = GetState();
-
-  // Protect the Neo550 from overheating
-  auto temp = units::celsius_t(m_turningMotor.GetTemperature());
-  if (m_faultTermal || temp > kTurningMotorTemperatureMax)
-  {
-    std::cout << "RJ: Neo550 Thermal Fault (Reboot Required) [ " << temp << "C ]" << std::endl;
-
-    m_turningMotor.StopMotor();
-    m_driveMotor.StopMotor();
-
-    // Latch this motor off to force someone to figure out what's wrong...
-    // Do not use this for competition code; R&D | Home Tasks only
-    m_faultTermal = true;
-    return;
-  }
 
   // Forward Kinematics
   const auto opt_state = SwerveModuleState::Optimize(state, currentState.angle);
@@ -232,13 +213,9 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder, std::string name)
 
   // Turning Encoders
   // builder.AddDoubleProperty(
-  //     "Encoder Neo", [this] { return frc::Rotation2d(units::radian_t(m_neoEncoder.GetPosition())).Degrees().value(); }, nullptr);
-  // builder.AddDoubleProperty(
   //     "Encoder CTRE", [this] { return m_turningEncoder.GetAbsolutePosition(); }, nullptr);
 
   // Thermal
-  builder.AddBooleanProperty(
-      name + "Thermal Fault", [this] { return m_faultTermal; }, [this](bool value) { m_faultTermal = value; });
   builder.AddDoubleProperty(
       name + "Drive Temp [C]", [this] { return m_driveMotor.GetTemperature(); }, nullptr);
   builder.AddDoubleProperty(

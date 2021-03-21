@@ -33,7 +33,6 @@
 
 // Vendor Libraries
 #include "ctre/Phoenix.h"
-#include "rev/CANSparkMax.h"
 
 struct SwerveModuleDrivePIDConfig
 {
@@ -106,7 +105,7 @@ private:
     static constexpr auto kWheelRadius = 1.5_in;
     static constexpr int kEncoderResolution = 2048;
     static constexpr double kDriveGearboxRatio = 5.25;
-    static constexpr double kTurnGearboxRatio = 5.33 * 2.89 * 3.61;
+    static constexpr double kTurnGearboxRatio = 20.0;
 
     static constexpr auto kDriveScaleFactor =
         (2 * wpi::math::pi * kWheelRadius) / (kDriveGearboxRatio * kEncoderResolution);
@@ -116,8 +115,8 @@ private:
     /********************************************************************************/
     /* Post in slack #controls-software if you change these!                        */
     /********************************************************************************/
-    static constexpr auto kTurningMotorCurrentLimit = 20_A;
-    static constexpr auto kTurningMotorTemperatureMax = units::celsius_t(45);
+    static constexpr auto kDriveMotorCurrentLimit = 55_A;
+    static constexpr auto kTurningMotorCurrentLimit = 30_A;
     /********************************************************************************/
 
     // Preferences
@@ -128,18 +127,12 @@ private:
     WPI_TalonSRX m_turningMotor;
     CANCoder m_turningEncoder;
 
-    // Angle Offset
-    // std::string m_angleOffsetPref = "SwerveAngleOffset";
-
     // Control
     frc::ProfiledPIDController<units::meters_per_second> m_drivePIDController;
     frc::ProfiledPIDController<units::radians> m_turningPIDController;
 
     frc::SimpleMotorFeedforward<units::meters> m_driveFeedforward;
     frc::SimpleMotorFeedforward<units::radians> m_turnFeedforward;
-
-    // Thermal Limit
-    bool m_faultTermal = false;
 
     //
     // Simulation
@@ -168,6 +161,6 @@ private:
 
     frc::sim::PositionSystemSim m_turnSim{
         m_turnPlant,
-        frc::DCMotor::NEO550(),
+        frc::DCMotor::BanebotsRS550(),
         kTurnGearboxRatio};
 };
