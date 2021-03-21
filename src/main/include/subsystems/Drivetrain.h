@@ -42,6 +42,7 @@ public:
     void SimPeriodic();
     void InitSendable(frc::SendableBuilder &builder) override;
     void ResetOdometry(const frc::Pose2d& pose);
+    void ShowTrajectory(const frc::Trajectory &trajectory);
 
     static constexpr auto kMaxSpeed = 16_fps;
     // about 2.5 turns per second
