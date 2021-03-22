@@ -95,6 +95,17 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
   m_poseEstimator.ResetPosition(pose, m_theta);
 }
 
+void Drivetrain::ShowTrajectory(const frc::Trajectory& trajectory)
+{
+  vector<frc::Pose2d> poselist;
+  for(units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime()/80)
+  {
+    poselist.push_back(trajectory.Sample(t).pose);
+  }
+  auto fo = m_fieldDisplay.GetObject("trajectory");
+  fo->SetPoses(poselist);
+}
+
 void Drivetrain::Log(UDPLogger &logger)
 {
   m_frontLeft.Log(logger);

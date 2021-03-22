@@ -25,16 +25,17 @@
 #include <memory>
 #include <thread>
 
-void
-logToUDPLogger(UDPLogger& logger, std::vector<std::shared_ptr<rj::Loggable>>& loggables)
+void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>> &loggables)
 {
   auto target =
-    std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
+      std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   logger.InitLogger();
-  while (true) {
+  while (true)
+  {
     logger.CheckForNewClient();
 
-    for (auto& loggable : loggables) {
+    for (auto &loggable : loggables)
+    {
       loggable->Log(logger);
     }
     logger.FlushLogBuffer();
@@ -101,7 +102,7 @@ public:
     auto time = std::chrono::system_clock::to_time_t(time_point);
     m_udp_logger.SetTitle(std::ctime(&time));
     m_logging_thread =
-      std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
+        std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
     m_logging_thread.detach();
   }
 
@@ -113,7 +114,7 @@ public:
 
   void RobotPeriodic() override
   {
-       // PS4 | xbox controller mapping
+    // PS4 | xbox controller mapping
     m_controller.SetControllerType(m_chooserControllerType.GetSelected());
     m_operator.SetControllerType(m_chooserOperatorType.GetSelected());
 
@@ -121,10 +122,11 @@ public:
     m_swerve.UpdateOdometry();
 
     // Toggle Drive mode (Field | Robot Relative)
-    if(m_controller.GetOptionsButtonPressed()) 
+    if (m_controller.GetOptionsButtonPressed())
     {
       m_fieldRelative = !m_fieldRelative;
-      if (m_fieldRelative) {
+      if (m_fieldRelative)
+      {
         std::cout << "Switching to Field Relative Control" << std::endl;
       }
       else
@@ -134,7 +136,7 @@ public:
     }
 
     // Toggle Drive mode (Field | Robot Relative)
-    if(m_controller.GetShareButtonPressed()) 
+    if (m_controller.GetShareButtonPressed())
     {
       m_swerve.ResetYaw();
       std::cout << "Reset Gyro" << std::endl;
@@ -153,17 +155,65 @@ public:
     if (program == kAutoDash)
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(30_in, 90_in, 0_deg), 
-          {
-            // frc::Translation2d(150_in, 60_in), 
-            frc::Translation2d(180_in, 150_in)
-          },
+          frc::Pose2d(30_in, 90_in, 0_deg),
+          {// frc::Translation2d(150_in, 60_in),
+           frc::Translation2d(180_in, 150_in)},
           frc::Pose2d(330_in, 90_in, 0_deg),
           frc::TrajectoryConfig(5_fps, 10_fps_sq));
+
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 2_m}, 0_deg});
+
+      // Display
+      m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
       m_swerve.ResetOdometry(m_trajectory.InitialPose());
+    }
+    else if (program == kAutoARed)
+    {
+      // m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+      //     frc::Pose2d(40_in, 120_in, -35_deg),
+      //     {frc::Translation2d(150_in, 60_in),
+      //      frc::Translation2d(180_in, 150_in)},
+      //     frc::Pose2d(360_in, 170_in, 0_deg),
+      //     frc::TrajectoryConfig(10_fps, 10_fps_sq));
+
+      frc::TrajectoryConfig config(16_fps, 13_fps_sq);
+
+      std::vector<frc::Spline<5>::ControlVector> points{
+          {{1.0, 0.7688146572428465, 0.0},
+           {-2.25, -0.019765044946133292, 0.0}},
+          {{2.262940780896178, 0.5231067062606225, 0.0},
+           {-2.421061140465244, -0.34679907826822465, 0.0}},
+          {{2.737301859603376, 0.36168073335682094, 0.0},
+           {-2.9151872641185754, -0.2754088851797216, 0.0}},
+          {{3.350018252933507, 0.5336562135455978, 0.0},
+           {-3.244604679887463, 0.1910621011459548, 0.0}},
+          {{3.7255541069100393, 0.21741549440746555, 0.0},
+           {-2.7702436011802654, 0.7510717079530638, 0.0}},
+          {{4.107678309201949, 0.530223803118944, 0.0},
+           {-1.189040005489604, 0.4734340164689319, 0.0}},
+          {{4.5490976463322585, 0.612716393330131, 0.0},
+           {-0.9057410279283608, 0.1910621011459549, 0.0}},
+          {{6.295009949907364, 0.7708367528991973, 0.0},
+           {-0.8200924998284499, 0.013176696630755491, 0.0}},
+          {{8.548225073766556, 0.6654231798531534, 0.0},
+           {-0.8003274548823166, 0.026353393261511426, 0.0}}};
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+      
+      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+
+      // Display
+      m_swerve.ShowTrajectory(m_trajectory);
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
     }
   }
 
@@ -189,7 +239,7 @@ public:
     {
       return;
     }
-    else if (program == kAutoDash)
+    else if (program == kAutoDash || program == kAutoARed)
     {
       m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), 0_deg);
     }
@@ -201,22 +251,26 @@ public:
     else if (program == kAutoToggle)
     {
       // Toggle between two setpoints
-      if(autoTime > t/2)
+      if (autoTime > t / 2)
       {
         m_swerve.Drive(x1, y1, r1, m_fieldRelative);
-      } else {
+      }
+      else
+      {
         m_swerve.Drive(x2, y2, r2, m_fieldRelative);
       }
 
       // Loop
-      if(autoTime >= t) m_autoTimer.Reset();
+      if (autoTime >= t)
+        m_autoTimer.Reset();
     }
     else if (program == kAutoSweep)
     {
       // Protect div0
-      if(t <= 0.0_s) return;
+      if (t <= 0.0_s)
+        return;
 
-      auto a = units::math::abs(autoTime/t - 0.5) * 2.0;
+      auto a = units::math::abs(autoTime / t - 0.5) * 2.0;
       auto x = a * x1 + (1.0 - a) * x2;
       auto y = a * y1 + (1.0 - a) * y2;
       auto r = a * r1 + (1.0 - a) * r2;
@@ -224,7 +278,8 @@ public:
       m_swerve.Drive(x, y, r, m_fieldRelative);
 
       // Loop
-      if(autoTime >= t) m_autoTimer.Reset();
+      if (autoTime >= t)
+        m_autoTimer.Reset();
 
       frc::SmartDashboard::PutNumber("Auto-a", a);
     }
@@ -253,7 +308,8 @@ public:
     auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
-    if (xInput * xInput + yInput * yInput > 0) {
+    if (xInput * xInput + yInput * yInput > 0)
+    {
       auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
       // throttle = std::sqrt(xInput*xInput + yInput*yInput);
       auto angle = frc::Rotation2d(xInput, yInput);
@@ -262,16 +318,19 @@ public:
     }
 
     // Increase Low-end stick control ("Smoothing")
-    if (rInput < 0) {
+    if (rInput < 0)
+    {
       rInput = -rInput * rInput;
-    } else {
+    }
+    else
+    {
       rInput = rInput * rInput;
     }
 
     auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
     auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
     auto rot = m_rotLimiter.Calculate(rInput) * 360_deg_per_s;
-    
+
     m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
   }
 
@@ -292,9 +351,9 @@ private:
   std::thread m_logging_thread;
 
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
-    std::shared_ptr<rj::Loggable>(&m_globals),
-    // std::shared_ptr<rj::Loggable>(&m_swerve),
-    std::shared_ptr<rj::Loggable>(&m_shooter),
+      std::shared_ptr<rj::Loggable>(&m_globals),
+      // std::shared_ptr<rj::Loggable>(&m_swerve),
+      std::shared_ptr<rj::Loggable>(&m_shooter),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
@@ -341,15 +400,17 @@ private:
   /// Deadband Function
   double deadband(double input, double band, double max)
   {
-    if (fabs(input) < band) 
+    if (fabs(input) < band)
     {
       return 0.0;
     }
 
-    if(input > 0.0)
+    if (input > 0.0)
     {
       return ((input - band) / (1.0 - band)) * max;
-    } else {
+    }
+    else
+    {
       return ((input + band) / (1.0 - band)) * max;
     }
   }
