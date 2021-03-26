@@ -153,7 +153,7 @@ private:
             kMaxModuleLinearJerk},
         {4.9251,
          0.0,
-         0.48966,
+         0.048966,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
