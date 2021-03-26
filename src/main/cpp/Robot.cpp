@@ -88,6 +88,7 @@ public:
     frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
     frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
+    frc::SmartDashboard::PutData("Shooter", &m_shooter);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -122,6 +123,8 @@ public:
     m_swerve.UpdateOdometry();
 
     // Toggle Drive mode (Field | Robot Relative)
+    if (m_controller.IsConnected())
+    {
     if (m_controller.GetOptionsButtonPressed())
     {
       m_fieldRelative = !m_fieldRelative;
@@ -141,6 +144,9 @@ public:
       m_swerve.ResetYaw();
       std::cout << "Reset Gyro" << std::endl;
     }
+  }
+
+    m_shooter.Periodic();
   }
 
   void AutonomousInit() override
@@ -293,6 +299,8 @@ public:
   void TeleopPeriodic() override
   {
     // Shooter
+    if (m_operator.IsConnected())
+    {
     auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
     auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
     auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
@@ -301,9 +309,12 @@ public:
     auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
     auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
 
-    m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
+      m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
+    }
 
     // Drivebase
+    if (m_controller.IsConnected())
+    {
     auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
@@ -311,7 +322,6 @@ public:
     if (xInput * xInput + yInput * yInput > 0)
     {
       auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-      // throttle = std::sqrt(xInput*xInput + yInput*yInput);
       auto angle = frc::Rotation2d(xInput, yInput);
       xInput = angle.Cos() * throttle;
       yInput = angle.Sin() * throttle;
@@ -329,9 +339,10 @@ public:
 
     auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
     auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
-    auto rot = m_rotLimiter.Calculate(rInput) * 360_deg_per_s;
+      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
 
     m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+  }
   }
 
   void SimulationPeriodic() override
