@@ -32,10 +32,10 @@ Shooter::Shooter()
 
 void Shooter::Set(units::volt_t shooter, units::volt_t gate, units::volt_t hood)
 {
-    m_shooterMotor1.SetVoltage(shooter);
-    m_shooterMotor2.SetVoltage(shooter);
-    m_gateMotor.SetVoltage(gate);
-    m_hoodMotor.SetVoltage(hood);
+  m_shooterMotor1.SetVoltage(shooter);
+  m_shooterMotor2.SetVoltage(shooter);
+  m_gateMotor.SetVoltage(gate);
+  m_hoodMotor.SetVoltage(hood);
 }
 
 void Shooter::SimPeriodic()
@@ -48,7 +48,7 @@ void Shooter::Periodic()
   if (!m_hoodZeroed)
   {
     // TODO
-  } 
+  }
   else
   {
     const auto hoodAngle = GetHoodAngle();
@@ -58,7 +58,6 @@ void Shooter::Periodic()
 
     m_hoodVolts = units::volt_t{hoodOutput} + hoodFf;
   }
-
 
   // Shooter
   const auto currentSpeed = GetShooterSpeed();
@@ -91,38 +90,38 @@ void Shooter::InitSendable(frc::SendableBuilder &builder)
 
   // Shooter
   builder.AddDoubleProperty(
-    "Shooter Velocity [RPM@Motor]", 
-    [this] { return GetShooterSpeed().value(); }, 
-    [this](double rpm) {m_targetShooterSpeed = units::revolutions_per_minute_t{rpm};});
+      "Shooter Velocity [RPM@Motor]",
+      [this] { return GetShooterSpeed().value(); },
+      [this](double rpm) { m_targetShooterSpeed = units::revolutions_per_minute_t{rpm}; });
   builder.AddDoubleProperty(
-    "Shooter Voltage", 
-    [this] { return m_shooterMotor1.GetMotorOutputVoltage(); }, 
-    nullptr);
+      "Shooter Voltage",
+      [this] { return m_shooterMotor1.GetMotorOutputVoltage(); },
+      nullptr);
 
   // Gate
   // TODO
 
   // Hood
   builder.AddBooleanProperty(
-    "Hood Lower Limit Switch", 
-    [this] { return m_hoodLowerLimit.Get(); }, 
-    nullptr);
+      "Hood Lower Limit Switch",
+      [this] { return m_hoodLowerLimit.Get(); },
+      nullptr);
   builder.AddDoubleProperty(
-    "Hood Angle", 
-    [this] {return GetHoodAngle().value();}, 
-    [this](double angle) {m_targetHoodAngle = units::degree_t{angle};});
+      "Hood Angle",
+      [this] { return GetHoodAngle().value(); },
+      [this](double angle) { m_targetHoodAngle = units::degree_t{angle}; });
   builder.AddBooleanProperty(
-    "Hood Zeroed", 
-    [this] { return m_hoodZeroed;}, 
-    [this](bool zeroed) {m_hoodZeroed = zeroed;});
+      "Hood Zeroed",
+      [this] { return m_hoodZeroed; },
+      [this](bool zeroed) { m_hoodZeroed = zeroed; });
 
   // Thermal
   builder.AddDoubleProperty(
-    "Shooter 1 Temp [C]", 
-    [this] { return m_shooterMotor1.GetTemperature(); }, 
-    nullptr);
+      "Shooter 1 Temp [C]",
+      [this] { return m_shooterMotor1.GetTemperature(); },
+      nullptr);
   builder.AddDoubleProperty(
-    "Shooter 2 Temp [C]", 
-    [this] { return m_shooterMotor2.GetTemperature(); }, 
-    nullptr);
+      "Shooter 2 Temp [C]",
+      [this] { return m_shooterMotor2.GetTemperature(); },
+      nullptr);
 }

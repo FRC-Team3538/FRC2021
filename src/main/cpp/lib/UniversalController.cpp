@@ -807,5 +807,4 @@ void UniversalController::InitSendable(frc::SendableBuilder &builder)
       "btn/PS", [this] { return GetPSButton(); }, nullptr);
   builder.AddBooleanProperty(
       "btn/Touchpad", [this] { return GetTouchPadButton(); }, nullptr);
-
 }

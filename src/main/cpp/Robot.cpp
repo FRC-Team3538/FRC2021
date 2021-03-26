@@ -167,7 +167,6 @@ public:
           frc::Pose2d(330_in, 90_in, 0_deg),
           frc::TrajectoryConfig(5_fps, 10_fps_sq));
 
-
       m_trajectory = m_trajectory.TransformBy({{0_m, 2_m}, 0_deg});
 
       // Display
@@ -210,7 +209,7 @@ public:
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
           config);
-      
+
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
@@ -302,12 +301,12 @@ public:
     if (m_operator.IsConnected())
     {
       auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
-    auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
-    auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
+      auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
+      auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
 
-    auto shooterVoltage = m_shooterLimiter.Calculate(shooterInput) * Shooter::kMaxShooterVoltage;
+      auto shooterVoltage = m_shooterLimiter.Calculate(shooterInput) * Shooter::kMaxShooterVoltage;
       auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
-    auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
+      auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
 
       m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
     }
@@ -316,8 +315,8 @@ public:
     if (m_controller.IsConnected())
     {
       auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-    auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
+      auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
       if (xInput * xInput + yInput * yInput > 0)
       {
