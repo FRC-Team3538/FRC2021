@@ -125,26 +125,26 @@ public:
     // Toggle Drive mode (Field | Robot Relative)
     if (m_controller.IsConnected())
     {
-    if (m_controller.GetOptionsButtonPressed())
-    {
-      m_fieldRelative = !m_fieldRelative;
-      if (m_fieldRelative)
+      if (m_controller.GetOptionsButtonPressed())
       {
-        std::cout << "Switching to Field Relative Control" << std::endl;
+        m_fieldRelative = !m_fieldRelative;
+        if (m_fieldRelative)
+        {
+          std::cout << "Switching to Field Relative Control" << std::endl;
+        }
+        else
+        {
+          std::cout << "Switching to Normal Control" << std::endl;
+        }
       }
-      else
-      {
-        std::cout << "Switching to Normal Control" << std::endl;
-      }
-    }
 
-    // Toggle Drive mode (Field | Robot Relative)
-    if (m_controller.GetShareButtonPressed())
-    {
-      m_swerve.ResetYaw();
-      std::cout << "Reset Gyro" << std::endl;
+      // Toggle Drive mode (Field | Robot Relative)
+      if (m_controller.GetShareButtonPressed())
+      {
+        m_swerve.ResetYaw();
+        std::cout << "Reset Gyro" << std::endl;
+      }
     }
-  }
 
     m_shooter.Periodic();
   }
@@ -301,12 +301,12 @@ public:
     // Shooter
     if (m_operator.IsConnected())
     {
-    auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
+      auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
     auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
     auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
 
     auto shooterVoltage = m_shooterLimiter.Calculate(shooterInput) * Shooter::kMaxShooterVoltage;
-    auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
+      auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
     auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
 
       m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
@@ -315,34 +315,34 @@ public:
     // Drivebase
     if (m_controller.IsConnected())
     {
-    auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+      auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
     auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
-    if (xInput * xInput + yInput * yInput > 0)
-    {
-      auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-      auto angle = frc::Rotation2d(xInput, yInput);
-      xInput = angle.Cos() * throttle;
-      yInput = angle.Sin() * throttle;
-    }
+      if (xInput * xInput + yInput * yInput > 0)
+      {
+        auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+        auto angle = frc::Rotation2d(xInput, yInput);
+        xInput = angle.Cos() * throttle;
+        yInput = angle.Sin() * throttle;
+      }
 
-    // Increase Low-end stick control ("Smoothing")
-    if (rInput < 0)
-    {
-      rInput = -rInput * rInput;
-    }
-    else
-    {
-      rInput = rInput * rInput;
-    }
+      // Increase Low-end stick control ("Smoothing")
+      if (rInput < 0)
+      {
+        rInput = -rInput * rInput;
+      }
+      else
+      {
+        rInput = rInput * rInput;
+      }
 
-    auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
-    auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
+      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
+      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
       auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
 
-    m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
-  }
+      m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+    }
   }
 
   void SimulationPeriodic() override
@@ -363,7 +363,7 @@ private:
 
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
       std::shared_ptr<rj::Loggable>(&m_globals),
-      // std::shared_ptr<rj::Loggable>(&m_swerve),
+      std::shared_ptr<rj::Loggable>(&m_swerve),
       std::shared_ptr<rj::Loggable>(&m_shooter),
   };
 
