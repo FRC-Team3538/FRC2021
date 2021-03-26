@@ -104,84 +104,84 @@ private:
     static constexpr auto kMaxModuleAngularAcceleration = 200_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
-        units::degree_t(-150.205),
+        units::degree_t(-171.650),
         {
             3.26,
             0.0,
             0.0,
             kMaxModuleLinearAcceleration,
             kMaxModuleLinearJerk},
-        {1.08,
+        {2.5179,
          0.0,
-         0.85,
+         0.15272,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
          2.39_V / 1_mps,
          0.143_V / 1_mps_sq},
-        {0.983_V,
-         0.588_V / 1_rad_per_s,
-         0.0496_V / 1_rad_per_s_sq}};
+        {0.49655_V,
+         0.65857_V / 1_rad_per_s,
+         0.042166_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_frontRightConfig{
-        units::degree_t(-125.684),
+        units::degree_t(32.783),
         {
             3.26,
             0.0,
             0.0,
             kMaxModuleLinearAcceleration,
             kMaxModuleLinearJerk},
-        {2.83,
+        {4.2946,
          0.0,
-         0.85,
+         0.050889,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
          2.39_V / 1_mps,
          0.143_V / 1_mps_sq},
-        {0.537_V,
-         0.543_V / 1_rad_per_s,
-         0.0204_V / 1_rad_per_s_sq}};
+        {0.58739_V,
+         0.64399_V / 1_rad_per_s,
+         0.018826_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
-        101.426_deg,
+        units::degree_t(59.766),
         {
             3.26,
             0.0,
             0.0,
             kMaxModuleLinearAcceleration,
             kMaxModuleLinearJerk},
-        {1.64,
+        {4.9251,
          0.0,
-         0.85,
+         0.48966,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
          2.39_V / 1_mps,
          0.143_V / 1_mps_sq},
-        {0.698_V,
-         0.6_V / 1_rad_per_s,
-         0.0387_V / 1_rad_per_s_sq}};
+        {1.0045_V,
+         0.6584_V / 1_rad_per_s,
+         0.015321_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backRightConfig{
-        126.650_deg,
+        units::degree_t(23.730),
         {
             3.26,
             0.0,
             0.0,
             kMaxModuleLinearAcceleration,
             kMaxModuleLinearJerk},
-        {0.943,
+        {3.5128,
          0.0,
-         0.85,
+         0.059802,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
          2.39_V / 1_mps,
          0.143_V / 1_mps_sq},
-        {1.19_V,
-         0.575_V / 1_rad_per_s,
-         0.0496_V / 1_rad_per_s_sq}};
+        {0.63069_V,
+         0.6333_V / 1_rad_per_s,
+         0.024316_V / 1_rad_per_s_sq}};
     
     // Trajectory Following
     frc::HolonomicDriveController m_trajectoryController{
