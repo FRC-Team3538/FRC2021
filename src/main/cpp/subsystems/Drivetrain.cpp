@@ -22,7 +22,7 @@ void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint, un
       trajectory.Sample(timepoint),
       yaw);
 
-  Drive(command.vx, command.vy, command.omega, true);
+  Drive(command.vx, command.vy, command.omega, false);
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
@@ -98,12 +98,12 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 void Drivetrain::ShowTrajectory(const frc::Trajectory &trajectory)
 {
   vector<frc::Pose2d> poselist;
-  for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime() / 80)
+  for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime()/15)
   {
     poselist.push_back(trajectory.Sample(t).pose);
   }
   auto fo = m_fieldDisplay.GetObject("trajectory");
-  fo->SetPoses(poselist);
+   fo->SetPoses(poselist);
 }
 
 void Drivetrain::Log(UDPLogger &logger)
