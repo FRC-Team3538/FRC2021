@@ -3,9 +3,10 @@
 from pynput import keyboard
 from serial import *
 from tkinter import *
+import tkinter.font as tkFont
 import time
 
-serialPort = "COM5"
+serialPort = "COM3"
 baudRate = 115200
 ser = Serial(serialPort , baudRate, timeout=0, writeTimeout=0) #ensure non-blocking
 
@@ -13,12 +14,15 @@ ser = Serial(serialPort , baudRate, timeout=0, writeTimeout=0) #ensure non-block
 root = Tk()
 root.wm_title("RoboJackets FRC3538")
 
-Label(root, width=40, text="FRC @ Home Timer").pack()
+# TkInter Font
+fontStyle = tkFont.Font(family="Times New Roman Baltic",size=60,weight="bold")
+
+Label(root, width=40, text="FRC @ Home Timer", font=fontStyle, fg="#ffffff", bg = "#009696").pack()
 
 # Text box for Beam Status
 BeamLatch = False
 BeamStatustxt = StringVar()
-BeamStatusLabel = Label(root, width=40, textvariable=BeamStatustxt)
+BeamStatusLabel = Label(root, width=40, textvariable=BeamStatustxt, font=fontStyle, fg="#ffffff", bg = "#009696")
 BeamStatusLabel.pack()
 
 # Text Box for Timer
@@ -26,7 +30,7 @@ TimerRunning = False
 StartTime = time.time()
 StopTime = time.time()
 Timertxt = StringVar()
-TimerLabel = Label(root, width=40, textvariable=Timertxt)
+TimerLabel = Label(root, width=40, textvariable=Timertxt, font=fontStyle, fg="#ffffff", bg = "#009696")
 TimerLabel.pack()
 
 # Enable Robot Hotkey
