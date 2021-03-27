@@ -10,6 +10,11 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/livewindow/LiveWindow.h>
+#include <frc/Preferences.h>
+#include <frc/Filesystem.h>
+#include <wpi/Path.h>
+#include <wpi/SmallString.h>
+#include <wpi/json.h>
 
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/TrajectoryUtil.h>
@@ -75,6 +80,7 @@ public:
     m_chooser.AddOption(kAutoBBlue, kAutoBBlue);
     m_chooser.AddOption(kAutoBarrel, kAutoBarrel);
     m_chooser.AddOption(kAutoSlalom, kAutoSlalom);
+    m_chooser.AddOption(kAutoBounce, kAutoBounce);
     m_chooser.AddOption(kAutoAccuracy, kAutoAccuracy);
     m_chooser.AddOption(kAutoPowerPort, kAutoPowerPort);
 
@@ -210,7 +216,7 @@ public:
           points,
           config);
 
-      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+     m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
       m_swerve.ShowTrajectory(m_trajectory);
@@ -220,7 +226,147 @@ public:
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
     }
+  
+    else if (program == kAutoABlue)
+    {
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 35_in, 0_deg), {frc::Translation2d(170_in, 35_in), frc::Translation2d(210_in, 110_in)},
+          frc::Pose2d(360_in, 70_in, 0_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+          
+          m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+       
+       m_swerve.ShowTrajectory(m_trajectory);
+       
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
+    }
+    else if (program == kAutoBRed)
+    {
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 150_in, -45_deg), {frc::Translation2d(150_in, 70_in), frc::Translation2d(210_in, 110_in)},
+          frc::Pose2d(360_in, 160_in, 0_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+
+           m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+       
+          m_swerve.ShowTrajectory(m_trajectory);
+       
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
+    }
+    else if (program == kAutoBBlue)
+    {
+         m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          frc::Pose2d(45_in, 60_in, 0_deg), {frc::Translation2d(170_in, 60_in), frc::Translation2d(240_in, 110_in)},
+          frc::Pose2d(360_in, 20_in, -35_deg),
+          frc::TrajectoryConfig(10_fps, 10_fps_sq));
+    
+         m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+       
+          m_swerve.ShowTrajectory(m_trajectory);
+       
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);   
+    }
+    else if (program == kAutoBarrel)
+  {
+      wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Barrel.wpilib.json");
+
+      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+       m_swerve.ResetYaw();
+      m_swerve.ResetOdometry(m_trajectory.InitialPose());
   }
+    else if (program == kAutoSlalom)
+  {
+    wpi::SmallString<64> deployDirectory;
+    frc::filesystem::GetDeployDirectory(deployDirectory);
+    wpi::sys::path::append(deployDirectory, "output");
+    wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
+
+    m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+    m_swerve.ResetYaw();
+    m_swerve.ResetOdometry(m_trajectory.InitialPose());
+  }
+    else if (program == kAutoBounce)
+  {
+    wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Bounce#.wpilib.json");
+      auto i = deployDirectory.rfind('#');
+
+      // Load each path
+      deployDirectory[i] = '1';
+      auto t1 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s1 = t1.States();
+
+      deployDirectory[i] = '2';
+      auto t2 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s2 = t2.States();
+
+      deployDirectory[i] = '3';
+      auto t3 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s3 = t3.States();
+
+      deployDirectory[i] = '4';
+      auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto s4 = t4.States();
+
+      // Modify the time for each point in the second path
+      {
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s2.size(); i++)
+        {
+          s2[i].t += start_time;
+        }
+
+        // Add the second path to the overall path
+        s1.insert(s1.end(), s2.begin(), s2.end());
+      }
+
+      {
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s3.size(); i++)
+        {
+          s3[i].t += start_time;
+        }
+
+        // Add the second path to the overall path
+        s1.insert(s1.end(), s3.begin(), s3.end());
+      }
+
+      {
+        auto start_time = s1.back().t + 10_ms;
+        for (size_t i = 0; i < s4.size(); i++)
+        {
+          s4[i].t += start_time;
+        }
+
+        // Add the second path to the overall path
+        s1.insert(s1.end(), s4.begin(), s4.end());
+      }
+
+      // Save this Trajectory
+      m_trajectory = frc::Trajectory(s1);
+      m_swerve.ResetYaw();
+      m_swerve.ResetOdometry(m_trajectory.InitialPose());
+       
+    }
+  }
+  
 
   void AutonomousPeriodic() override
   {
@@ -244,9 +390,10 @@ public:
     {
       return;
     }
-    else if (program == kAutoDash || program == kAutoARed)
+    else if (program == kAutoDash || program == kAutoARed || program == kAutoABlue || program == kAutoBRed
+     || program == kAutoBBlue || program == kAutoBarrel || program ==kAutoSlalom || program == kAutoBounce)
     {
-      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), 0_deg);
+      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), -135_deg);
     }
     else if (program == kAutoConstant)
     {
@@ -423,8 +570,9 @@ private:
   static constexpr auto kAutoBBlue = "4 - B Blue";
   static constexpr auto kAutoBarrel = "5 - Barrel";
   static constexpr auto kAutoSlalom = "6 - Slalom";
-  static constexpr auto kAutoAccuracy = "7 - Accuracy";
-  static constexpr auto kAutoPowerPort = "8 - PowerPort";
+  static constexpr auto kAutoBounce = "7 - Bounce";
+  static constexpr auto kAutoAccuracy = "8 - Accuracy";
+  static constexpr auto kAutoPowerPort = "9 - PowerPort";
 
   static constexpr auto kAutoConstant = "90 - Constant";
   static constexpr auto kAutoToggle = "91 - Toggle";
