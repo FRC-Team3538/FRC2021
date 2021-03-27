@@ -48,6 +48,16 @@ void Shooter::Periodic()
   if (!m_hoodZeroed)
   {
     // TODO
+    const auto lowHoodReturnSpeed = -5_deg_per_s;
+    m_hoodVolts = m_hoodFeedforward.Calculate(lowHoodReturnSpeed);
+
+    // normally closed
+    if (!m_hoodLowerLimit.Get())
+    {
+      m_hoodEncoder.Reset();
+      m_hoodZeroed = true;
+      m_hoodVolts = 0_V;
+    }
   } 
   else
   {
