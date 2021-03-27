@@ -74,6 +74,11 @@ public:
         m_gateMotor.SetVoltage(gate);
     }
 
+    void ReZeroHood()
+    {
+        m_hoodZeroed = false;
+    }
+
     void Log(UDPLogger &logger);
 
     void SimPeriodic();
