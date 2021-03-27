@@ -63,7 +63,7 @@ public:
     {
         return units::revolutions_per_minute_t{m_shooterMotor1.GetSelectedSensorVelocity() * 600.0 / 4096.0};
     };
-    
+
     units::radian_t GetHoodAngle()
     {
         return units::degree_t{m_hoodEncoder.GetDistance()};
@@ -83,7 +83,7 @@ public:
 
     void SimPeriodic();
     void Periodic();
-    
+
     static constexpr auto kMaxShooterVoltage = 12_V;
     static constexpr auto kMaxGateVoltage = 12_V;
     static constexpr auto kMaxHoodVoltage = 12_V;
@@ -118,10 +118,8 @@ private:
     bool m_hoodZeroed = false;
 
     const std::array<units::radians_per_second_t, 1> m_speed_setpoints{
-        0_rpm
-    };
+        0_rpm};
 
     const std::array<units::radian_t, 1> m_pitch_setpoints{
-        0_rad
-    };
+        0_rad};
 };

@@ -41,7 +41,7 @@ public:
     void Log(UDPLogger &logger);
     void SimPeriodic();
     void InitSendable(frc::SendableBuilder &builder) override;
-    void ResetOdometry(const frc::Pose2d& pose);
+    void ResetOdometry(const frc::Pose2d &pose);
     void ShowTrajectory(const frc::Trajectory &trajectory);
 
     static constexpr auto kMaxSpeed = 16_fps;
@@ -87,7 +87,7 @@ private:
         m_kinematics,
         frc::Rotation2d(),
         frc::Pose2d()};
-    
+
     frc::ChassisSpeeds m_robotVelocity;
 
     frc::Field2d m_fieldDisplay;
@@ -105,12 +105,11 @@ private:
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
         units::degree_t(-171.650),
-        {
-            3.26,
-            0.0,
-            0.0,
-            kMaxModuleLinearAcceleration,
-            kMaxModuleLinearJerk},
+        {3.26,
+         0.0,
+         0.0,
+         kMaxModuleLinearAcceleration,
+         kMaxModuleLinearJerk},
         {2.5179,
          0.0,
          0.15272,
@@ -125,12 +124,11 @@ private:
 
     static constexpr SwerveModuleConfig m_frontRightConfig{
         units::degree_t(32.783),
-        {
-            3.26,
-            0.0,
-            0.0,
-            kMaxModuleLinearAcceleration,
-            kMaxModuleLinearJerk},
+        {3.26,
+         0.0,
+         0.0,
+         kMaxModuleLinearAcceleration,
+         kMaxModuleLinearJerk},
         {4.2946,
          0.0,
          0.050889,
@@ -145,15 +143,14 @@ private:
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
         units::degree_t(59.766),
-        {
-            3.26,
-            0.0,
-            0.0,
-            kMaxModuleLinearAcceleration,
-            kMaxModuleLinearJerk},
+        {3.26,
+         0.0,
+         0.0,
+         kMaxModuleLinearAcceleration,
+         kMaxModuleLinearJerk},
         {4.9251,
          0.0,
-         0.48966,
+         0.048966,
          kMaxModuleAngularVelocity,
          kMaxModuleAngularAcceleration},
         {0.668_V,
@@ -165,12 +162,11 @@ private:
 
     static constexpr SwerveModuleConfig m_backRightConfig{
         units::degree_t(23.730),
-        {
-            3.26,
-            0.0,
-            0.0,
-            kMaxModuleLinearAcceleration,
-            kMaxModuleLinearJerk},
+        {3.26,
+         0.0,
+         0.0,
+         kMaxModuleLinearAcceleration,
+         kMaxModuleLinearJerk},
         {3.5128,
          0.0,
          0.059802,
@@ -182,16 +178,13 @@ private:
         {0.63069_V,
          0.6333_V / 1_rad_per_s,
          0.024316_V / 1_rad_per_s_sq}};
-    
+
     // Trajectory Following
     frc::HolonomicDriveController m_trajectoryController{
-        frc2::PIDController{2.0, 0.0, 0.0}, // X-error
-        frc2::PIDController{2.0, 0.0, 0.0}, // Y-error
-        frc::ProfiledPIDController<units::radian>{1.0, 0.0, 0.0,  // Rotation-error
-            frc::TrapezoidProfile<units::radian>::Constraints{
-                360_deg_per_s, 
-                720_deg_per_s / 1_s
-            }
-        }
-    };
+        frc2::PIDController{2.0, 0.0, 0.0},                      // X-error
+        frc2::PIDController{2.0, 0.0, 0.0},                      // Y-error
+        frc::ProfiledPIDController<units::radian>{1.0, 0.0, 0.0, // Rotation-error
+                                                  frc::TrapezoidProfile<units::radian>::Constraints{
+                                                      360_deg_per_s,
+                                                      720_deg_per_s / 1_s}}};
 };

@@ -163,7 +163,8 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder, std::string name)
   builder.SetActuator(true);
 
   // Prefix for nested objects
-  if(name != "") name += "/";
+  if (name != "")
+    name += "/";
 
   // Drive Control
   builder.AddDoubleProperty(

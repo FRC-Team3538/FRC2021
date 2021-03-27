@@ -18,10 +18,10 @@ Drivetrain::Drivetrain()
 void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint, units::radian_t yaw)
 {
   const auto command = m_trajectoryController.Calculate(
-    m_poseEstimator.GetPose(), 
-    trajectory.Sample(timepoint), 
-    yaw);
-  
+      m_poseEstimator.GetPose(),
+      trajectory.Sample(timepoint),
+      yaw);
+
   Drive(command.vx, command.vy, command.omega, true);
 }
 
@@ -95,10 +95,10 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
   m_poseEstimator.ResetPosition(pose, m_theta);
 }
 
-void Drivetrain::ShowTrajectory(const frc::Trajectory& trajectory)
+void Drivetrain::ShowTrajectory(const frc::Trajectory &trajectory)
 {
   vector<frc::Pose2d> poselist;
-  for(units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime()/80)
+  for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime() / 80)
   {
     poselist.push_back(trajectory.Sample(t).pose);
   }

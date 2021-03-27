@@ -19,7 +19,8 @@ using namespace frc;
  * @param port The port on the Driver Station that the controller is plugged
  *             into (0-5).
  */
-StadiaController::StadiaController(int port) : GenericHID(port) {
+StadiaController::StadiaController(int port) : GenericHID(port)
+{
   HAL_Report(HALUsageReporting::kResourceType_Joystick, port);
 }
 
@@ -28,11 +29,15 @@ StadiaController::StadiaController(int port) : GenericHID(port) {
  *
  * @param hand Side of controller whose value should be returned.
  */
-double StadiaController::GetX(JoystickHand hand) const {
-  if (hand == kLeftHand) {
-    return GetRawAxis((int) Axis::kLeftX);
-  } else {
-    return GetRawAxis((int) Axis::kRightX);
+double StadiaController::GetX(JoystickHand hand) const
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawAxis((int)Axis::kLeftX);
+  }
+  else
+  {
+    return GetRawAxis((int)Axis::kRightX);
   }
 }
 
@@ -41,11 +46,15 @@ double StadiaController::GetX(JoystickHand hand) const {
  *
  * @param hand Side of controller whose value should be returned.
  */
-double StadiaController::GetY(JoystickHand hand) const {
-  if (hand == kLeftHand) {
-    return GetRawAxis((int) Axis::kLeftY);
-  } else {
-    return GetRawAxis((int) Axis::kRightY);
+double StadiaController::GetY(JoystickHand hand) const
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawAxis((int)Axis::kLeftY);
+  }
+  else
+  {
+    return GetRawAxis((int)Axis::kRightY);
   }
 }
 
@@ -54,13 +63,17 @@ double StadiaController::GetY(JoystickHand hand) const {
  *
  * @param hand Side of controller whose value should be returned.
  */
-double StadiaController::GetTriggerAxis(JoystickHand hand) const {
+double StadiaController::GetTriggerAxis(JoystickHand hand) const
+{
 
   // The raw axis reports -1 when not pulled and +1 when fully pulled.
-  if (hand == kLeftHand) {
-    return GetRawAxis((int) Axis::kLeftTrigger)/2.0 + 0.5;
-  } else {
-    return GetRawAxis((int) Axis::kRightTrigger)/2.0 + 0.5;
+  if (hand == kLeftHand)
+  {
+    return GetRawAxis((int)Axis::kLeftTrigger) / 2.0 + 0.5;
+  }
+  else
+  {
+    return GetRawAxis((int)Axis::kRightTrigger) / 2.0 + 0.5;
   }
 }
 
@@ -69,11 +82,15 @@ double StadiaController::GetTriggerAxis(JoystickHand hand) const {
  *
  * @param hand Side of controller whose value should be returned.
  */
-bool StadiaController::GetBumper(JoystickHand hand) const {
-  if (hand == kLeftHand) {
-    return GetRawButton((int) Button::kLeftBumper);
-  } else {
-    return GetRawButton((int) Button::kRightBumper);
+bool StadiaController::GetBumper(JoystickHand hand) const
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButton((int)Button::kLeftBumper);
+  }
+  else
+  {
+    return GetRawButton((int)Button::kRightBumper);
   }
 }
 
@@ -83,11 +100,15 @@ bool StadiaController::GetBumper(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetBumperPressed(JoystickHand hand) {
-  if (hand == kLeftHand) {
-    return GetRawButtonPressed((int) Button::kLeftBumper);
-  } else {
-    return GetRawButtonPressed((int) Button::kRightBumper);
+bool StadiaController::GetBumperPressed(JoystickHand hand)
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButtonPressed((int)Button::kLeftBumper);
+  }
+  else
+  {
+    return GetRawButtonPressed((int)Button::kRightBumper);
   }
 }
 
@@ -97,11 +118,15 @@ bool StadiaController::GetBumperPressed(JoystickHand hand) {
  * @param hand Side of controller whose value should be returned.
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetBumperReleased(JoystickHand hand) {
-  if (hand == kLeftHand) {
-    return GetRawButtonReleased((int) Button::kLeftBumper);
-  } else {
-    return GetRawButtonReleased((int) Button::kRightBumper);
+bool StadiaController::GetBumperReleased(JoystickHand hand)
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButtonReleased((int)Button::kLeftBumper);
+  }
+  else
+  {
+    return GetRawButtonReleased((int)Button::kRightBumper);
   }
 }
 
@@ -111,11 +136,15 @@ bool StadiaController::GetBumperReleased(JoystickHand hand) {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetStickButton(JoystickHand hand) const {
-  if (hand == kLeftHand) {
-    return GetRawButton((int) Button::kL3);
-  } else {
-    return GetRawButton((int) Button::kR3);
+bool StadiaController::GetStickButton(JoystickHand hand) const
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButton((int)Button::kL3);
+  }
+  else
+  {
+    return GetRawButton((int)Button::kR3);
   }
 }
 
@@ -125,11 +154,15 @@ bool StadiaController::GetStickButton(JoystickHand hand) const {
  * @param hand Side of controller whose value should be returned.
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetStickButtonPressed(JoystickHand hand) {
-  if (hand == kLeftHand) {
-    return GetRawButtonPressed((int) Button::kL3);
-  } else {
-    return GetRawButtonPressed((int) Button::kR3);
+bool StadiaController::GetStickButtonPressed(JoystickHand hand)
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButtonPressed((int)Button::kL3);
+  }
+  else
+  {
+    return GetRawButtonPressed((int)Button::kR3);
   }
 }
 
@@ -139,11 +172,15 @@ bool StadiaController::GetStickButtonPressed(JoystickHand hand) {
  * @param hand Side of controller whose value should be returned.
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetStickButtonReleased(JoystickHand hand) {
-  if (hand == kLeftHand) {
-    return GetRawButtonReleased((int) Button::kL3);
-  } else {
-    return GetRawButtonReleased((int) Button::kR3);
+bool StadiaController::GetStickButtonReleased(JoystickHand hand)
+{
+  if (hand == kLeftHand)
+  {
+    return GetRawButtonReleased((int)Button::kL3);
+  }
+  else
+  {
+    return GetRawButtonReleased((int)Button::kR3);
   }
 }
 
@@ -152,8 +189,9 @@ bool StadiaController::GetStickButtonReleased(JoystickHand hand) {
  *
  * @return The state of the button.
  */
-bool StadiaController::GetAButton() const {
-  return GetRawButton((int) Button::kA);
+bool StadiaController::GetAButton() const
+{
+  return GetRawButton((int)Button::kA);
 }
 
 /**
@@ -161,8 +199,9 @@ bool StadiaController::GetAButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetAButtonPressed() {
-  return GetRawButtonPressed((int) Button::kA);
+bool StadiaController::GetAButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kA);
 }
 
 /**
@@ -170,8 +209,9 @@ bool StadiaController::GetAButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetAButtonReleased() {
-  return GetRawButtonReleased((int) Button::kA);
+bool StadiaController::GetAButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kA);
 }
 
 /**
@@ -179,8 +219,9 @@ bool StadiaController::GetAButtonReleased() {
  *
  * @return The state of the button.
  */
-bool StadiaController::GetBButton() const {
-  return GetRawButton((int) Button::kB);
+bool StadiaController::GetBButton() const
+{
+  return GetRawButton((int)Button::kB);
 }
 
 /**
@@ -188,8 +229,9 @@ bool StadiaController::GetBButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetBButtonPressed() {
-  return GetRawButtonPressed((int) Button::kB);
+bool StadiaController::GetBButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kB);
 }
 
 /**
@@ -197,8 +239,9 @@ bool StadiaController::GetBButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetBButtonReleased() {
-  return GetRawButtonReleased((int) Button::kB);
+bool StadiaController::GetBButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kB);
 }
 
 /**
@@ -206,8 +249,9 @@ bool StadiaController::GetBButtonReleased() {
  *
  * @return The state of the button.
  */
-bool StadiaController::GetXButton() const {
-  return GetRawButton((int) Button::kX);
+bool StadiaController::GetXButton() const
+{
+  return GetRawButton((int)Button::kX);
 }
 
 /**
@@ -215,8 +259,9 @@ bool StadiaController::GetXButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetXButtonPressed() {
-  return GetRawButtonPressed((int) Button::kX);
+bool StadiaController::GetXButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kX);
 }
 
 /**
@@ -224,8 +269,9 @@ bool StadiaController::GetXButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetXButtonReleased() {
-  return GetRawButtonReleased((int) Button::kX);
+bool StadiaController::GetXButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kX);
 }
 
 /**
@@ -233,8 +279,9 @@ bool StadiaController::GetXButtonReleased() {
  *
  * @return The state of the button.
  */
-bool StadiaController::GetYButton() const {
-  return GetRawButton((int) Button::kY);
+bool StadiaController::GetYButton() const
+{
+  return GetRawButton((int)Button::kY);
 }
 
 /**
@@ -242,8 +289,9 @@ bool StadiaController::GetYButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetYButtonPressed() {
-  return GetRawButtonPressed((int) Button::kY);
+bool StadiaController::GetYButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kY);
 }
 
 /**
@@ -251,8 +299,9 @@ bool StadiaController::GetYButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetYButtonReleased() {
-  return GetRawButtonReleased((int) Button::kY);
+bool StadiaController::GetYButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kY);
 }
 
 /**
@@ -261,8 +310,9 @@ bool StadiaController::GetYButtonReleased() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetOptionsButton() const {
-  return GetRawButton((int) Button::kOptions);
+bool StadiaController::GetOptionsButton() const
+{
+  return GetRawButton((int)Button::kOptions);
 }
 
 /**
@@ -270,8 +320,9 @@ bool StadiaController::GetOptionsButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetOptionsButtonPressed() {
-  return GetRawButtonPressed((int) Button::kOptions);
+bool StadiaController::GetOptionsButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kOptions);
 }
 
 /**
@@ -279,8 +330,9 @@ bool StadiaController::GetOptionsButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetOptionsButtonReleased() {
-  return GetRawButtonReleased((int) Button::kOptions);
+bool StadiaController::GetOptionsButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kOptions);
 }
 
 /**
@@ -289,8 +341,9 @@ bool StadiaController::GetOptionsButtonReleased() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetMenuButton() const {
-  return GetRawButton((int) Button::kMenu);
+bool StadiaController::GetMenuButton() const
+{
+  return GetRawButton((int)Button::kMenu);
 }
 
 /**
@@ -298,8 +351,9 @@ bool StadiaController::GetMenuButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetMenuButtonPressed() {
-  return GetRawButtonPressed((int) Button::kMenu);
+bool StadiaController::GetMenuButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kMenu);
 }
 
 /**
@@ -307,8 +361,9 @@ bool StadiaController::GetMenuButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetMenuButtonReleased() {
-  return GetRawButtonReleased((int) Button::kMenu);
+bool StadiaController::GetMenuButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kMenu);
 }
 
 /**
@@ -317,8 +372,9 @@ bool StadiaController::GetMenuButtonReleased() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetStadiaButton() const {
-  return GetRawButton((int) Button::kStadia);
+bool StadiaController::GetStadiaButton() const
+{
+  return GetRawButton((int)Button::kStadia);
 }
 
 /**
@@ -326,8 +382,9 @@ bool StadiaController::GetStadiaButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetStadiaButtonPressed() {
-  return GetRawButtonPressed((int) Button::kStadia);
+bool StadiaController::GetStadiaButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kStadia);
 }
 
 /**
@@ -335,8 +392,9 @@ bool StadiaController::GetStadiaButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetStadiaButtonReleased() {
-  return GetRawButtonReleased((int) Button::kStadia);
+bool StadiaController::GetStadiaButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kStadia);
 }
 
 /**
@@ -345,8 +403,9 @@ bool StadiaController::GetStadiaButtonReleased() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetCaptureButton() const {
-  return GetRawButton((int) Button::kCapture);
+bool StadiaController::GetCaptureButton() const
+{
+  return GetRawButton((int)Button::kCapture);
 }
 
 /**
@@ -354,8 +413,9 @@ bool StadiaController::GetCaptureButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetCaptureButtonPressed() {
-  return GetRawButtonPressed((int) Button::kCapture);
+bool StadiaController::GetCaptureButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kCapture);
 }
 
 /**
@@ -364,8 +424,9 @@ bool StadiaController::GetCaptureButtonPressed() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetAssistantButton() const {
-  return GetRawButton((int) Button::kAssistant);
+bool StadiaController::GetAssistantButton() const
+{
+  return GetRawButton((int)Button::kAssistant);
 }
 
 /**
@@ -373,8 +434,9 @@ bool StadiaController::GetAssistantButton() const {
  *
  * @return Whether the button was pressed since the last check.
  */
-bool StadiaController::GetAssistantButtonPressed() {
-  return GetRawButtonPressed((int) Button::kAssistant);
+bool StadiaController::GetAssistantButtonPressed()
+{
+  return GetRawButtonPressed((int)Button::kAssistant);
 }
 
 /**
@@ -382,8 +444,9 @@ bool StadiaController::GetAssistantButtonPressed() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetAssistantButtonReleased() {
-  return GetRawButtonReleased((int) Button::kAssistant);
+bool StadiaController::GetAssistantButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kAssistant);
 }
 
 /**
@@ -391,8 +454,9 @@ bool StadiaController::GetAssistantButtonReleased() {
  *
  * @return Whether the button was released since the last check.
  */
-bool StadiaController::GetCaptureButtonReleased() {
-  return GetRawButtonReleased((int) Button::kCapture);
+bool StadiaController::GetCaptureButtonReleased()
+{
+  return GetRawButtonReleased((int)Button::kCapture);
 }
 
 /**
@@ -401,8 +465,9 @@ bool StadiaController::GetCaptureButtonReleased() {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetUpButton() const {
-  return (GetPOV() == 315 || GetPOV() == 0 || GetPOV() == 45 );
+bool StadiaController::GetUpButton() const
+{
+  return (GetPOV() == 315 || GetPOV() == 0 || GetPOV() == 45);
 }
 
 /**
@@ -411,8 +476,9 @@ bool StadiaController::GetUpButton() const {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetRightButton() const {
-  return (GetPOV() == 45 || GetPOV() == 90 || GetPOV() == 135 );
+bool StadiaController::GetRightButton() const
+{
+  return (GetPOV() == 45 || GetPOV() == 90 || GetPOV() == 135);
 }
 
 /**
@@ -421,8 +487,9 @@ bool StadiaController::GetRightButton() const {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetDownButton() const {
-  return (GetPOV() == 135 || GetPOV() == 180 || GetPOV() == 225 );
+bool StadiaController::GetDownButton() const
+{
+  return (GetPOV() == 135 || GetPOV() == 180 || GetPOV() == 225);
 }
 
 /**
@@ -431,6 +498,7 @@ bool StadiaController::GetDownButton() const {
  * @param hand Side of controller whose value should be returned.
  * @return The state of the button.
  */
-bool StadiaController::GetLeftButton() const {
-  return (GetPOV() == 225 || GetPOV() == 270 || GetPOV() == 315 );
+bool StadiaController::GetLeftButton() const
+{
+  return (GetPOV() == 225 || GetPOV() == 270 || GetPOV() == 315);
 }
