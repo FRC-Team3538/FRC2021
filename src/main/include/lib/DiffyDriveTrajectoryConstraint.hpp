@@ -43,7 +43,7 @@ namespace rj
 
             velocity = (velocity_left + velocity_right) / 2;
 
-            units::force::newton_t available_downforce = (drivetrain_model.mass * 9.80665_mps_sq + (vacuum * 144_sq_in));
+            units::force::newton_t available_downforce = (drivetrain_model.mass * 9.80665_mps_sq + (vacuum * 130_sq_in));
             units::force::newton_t forward_force = drivetrain_model.State(velocity).force_on_surface;
             units::force::newton_t centripetal_force = drivetrain_model.mass * velocity * velocity * curvature / 1_rad;
             while (available_downforce * available_downforce < forward_force * forward_force + centripetal_force * centripetal_force)

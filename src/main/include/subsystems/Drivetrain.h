@@ -32,7 +32,7 @@
 /**
  * Represents a differential drive style drivetrain.
  */
-class Drivetrain: public rj::Loggable
+class Drivetrain : public rj::Loggable
 {
 public:
     Drivetrain(bool isSimulation)
@@ -63,7 +63,7 @@ public:
         // Set the distance per pulse for the drive encoders. We can simply use the
         // distance traveled for one rotation of the wheel divided by the encoder
         // resolution.
-        auto dpp = empiricalDist/188960.5;//218325.5;//128173.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution);
+        auto dpp = empiricalDist / 188960.5; //218325.5;//128173.5;//((2 * wpi::math::pi * kWheelRadius) / kEncoderResolution);
         m_leftEncoder.SetDistancePerPulse(-dpp.value());
         m_rightEncoder.SetDistancePerPulse(dpp.value());
 
@@ -121,7 +121,7 @@ public:
         logger.LogExternalDevice(m_driveR2);
         logger.LogExternalDevice(impel);
         logger.LogExternalDevice(impel2);
-    
+
 #ifdef __FRC_ROBORIO__
         logger.LogExternalDevice(m_imu);
 #endif
@@ -129,7 +129,7 @@ public:
 
     double GetVel()
     {
-        double vel = ((m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0) + (m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0))/2.0;
+        double vel = ((m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0) + (m_driveL0.GetSelectedSensorVelocity(0) * m_leftEncoder.GetDistancePerPulse() * 10.0)) / 2.0;
         return vel;
     }
 
@@ -137,18 +137,18 @@ private:
     /***************************************************************************/
     // CrossFire Characterization Values
 
-    static constexpr units::meter_t kTrackWidth = 0.579_m; //.577
+    static constexpr units::meter_t kTrackWidth = 0.579_m; //.579
     static constexpr units::meter_t kWheelRadius = 2.125_in;
     static constexpr units::meter_t empiricalDist = 210_in;
     static constexpr double kGearRatio = 5.95;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.706}; //.706
-    decltype(1_V / 1_mps) kVlinear{1.88}; //1.86
-    decltype(1_V / 1_mps_sq) kAlinear{0.088}; //0.0917
-    decltype(1_V / 1_rad_per_s) kVangular{1.97}; //1.94
-    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0737}; //0.0716
+    decltype(1_V) kStatic{0.835};                     //.706
+    decltype(1_V / 1_mps) kVlinear{1.95};             //1.86
+    decltype(1_V / 1_mps_sq) kAlinear{0.0678};         //0.0917
+    decltype(1_V / 1_rad_per_s) kVangular{1.97};      //1.94
+    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0454}; //0.0716
 
     // Velocity Control PID (Is this really required ???)
     frc2::PIDController m_leftPIDController{1.72, 0.0, 0.0}; //2.75
@@ -159,6 +159,9 @@ public:
     /// TODO(Dereck): Measure these too
     static constexpr units::feet_per_second_t kMaxSpeed{17.5};
     static constexpr units::degrees_per_second_t kMaxAngularSpeed{360.0};
+
+    WPI_TalonFX impel{6};
+    WPI_TalonFX impel2{7};
 
     /***************************************************************************/
 
@@ -178,8 +181,6 @@ private:
     WPI_TalonFX m_driveR0{3};
     WPI_TalonFX m_driveR1{4};
     WPI_TalonFX m_driveR2{5};
-    WPI_TalonFX impel{6};
-    WPI_TalonFX impel2{7};
 
     // Controller Groups
     frc::SpeedControllerGroup m_leftGroup{

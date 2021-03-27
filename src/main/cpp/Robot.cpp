@@ -10,6 +10,7 @@
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc2/Timer.h>
+#include <frc/Timer.h>
 #include <frc/Filesystem.h>
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <wpi/Path.h>
@@ -93,6 +94,8 @@ public:
     frc::SmartDashboard::PutNumber("m_autoState", m_autoState);
     frc::SmartDashboard::PutNumber("m_autoTimer", m_autoTimer.Get().value());
 
+    frc::SmartDashboard::PutBoolean("SLOS", slewOS);
+
     wpi::json j;
     frc::to_json(j, m_drive.GetPose());
     pose_json = j.dump(0);
@@ -102,18 +105,14 @@ public:
     double vel = m_drive.GetVel();
     double acc = (vel - prevVel) / 0.02;
     double smoothAcc = 0.0;
-    if (colCt < 10)
-    {
-      prevCol += acc;
-      colCt++;
-    }
 
-    if (colCt >= 10)
-    {
-      smoothAcc = prevCol / 10.0;
-      colCt = 0;
-      prevCol = 0.0;
-    }
+    vels.push_back(acc);
+    if (vels.size() > 5)
+      vels.erase(vels.begin());
+
+    if (vels.size() == 5)
+      smoothAcc = (vels[0] + vels[1] + vels[2] + vels[3] + vels[4]) / 5.0;
+
     prevVel = vel;
     topVel = (abs(vel) > abs(topVel)) ? vel : topVel;
     topAcc = (smoothAcc > topAcc) ? smoothAcc : topAcc;
@@ -233,6 +232,7 @@ public:
     }
     else if (path == "Barrel")
     {
+
       // wpi::SmallString<64> deployDirectory;
       // frc::filesystem::GetDeployDirectory(deployDirectory);
       // wpi::sys::path::append(deployDirectory, "output");
@@ -240,7 +240,7 @@ public:
 
       // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.0875_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.075_psi}; //.125
 
       frc::TrajectoryConfig config(17.5_fps, 17.5_fps_sq); //17.5 15
       config.AddConstraint(m_drivetrain_constraint);
@@ -268,20 +268,25 @@ public:
            {-0.7542090166746724, -0.00658834831537769, 0.0}},
           {{5.155225691347012, 0.08564852809990953, 0.0},
            {-1.5711642077815142, -1.2913162698140397, 0.0}},
-          {{7.309615590475538, 0.9882522473066633, 0.0},
-           {-3.718965758594662, -0.40188924723804265, 0.0}},
-          {{8.304456186097578, 0.19106210114595434, 0.0},
-           {-3.3829599945103968, 0.546832910176354, 0.0}},
-          {{8.284691141151445, -0.16805917386588848, 0.0},
-           {-2.7307135112879988, 0.4468430272935321, 0.0}},
-          {{7.612679612982914, -0.5731863034378639, 0.0},
-           {-2.1377621629040005, 0.013176696630754936, 0.0}},
-          {{6.591485624099363, -1.4626133260138605, 0.0},
-           {-2.0982320730117343, 0.01317669663075538, 0.0}},
-          {{3.2314279832567077, -1.936991483458907, 0.0},
-           {-2.0587019831194677, 0.015632643990627984, 0.0}},
-          {{0.7805624099361834, -0.5204795169148426, 0.0},
-           {-2.0455252864887123, 0.013176696630756268, 0.0}}};
+          {{6.466307006107185, 0.9995890523603889, 0.0},
+           {-3.593787140602484, -0.5577937055637383, 0.0}},
+          {{7.559972826459893, 0.9684872023605298, 0.0},
+           {-3.9363812530021276, -0.02635339326151076, 0.0}},
+          {{8.337397927674466, 0.19106210114595434, 0.0},
+           {-3.415901736087285, 0.546832910176354, 0.0}},
+          {{8.343986275989844, -0.19915021721723716, 0.0},
+           {-2.710948466341866, 0.3188855464217166, 0.0}},
+          {{7.869625197282646, -0.5474632981619556, 0.0},
+           {-2.394707747203733, 0.2599708292526851, 0.0}},
+          {{6.59807397241474, -1.4626133260138605, 0.0},
+           {-2.2695291292115556, 0.01317669663075538, 0.0}},
+          {{4.476625814863103, -1.280327901792936, 0.0},
+           {-2.2497640842654225, -0.005496352723977101, 0.0}},
+          {{2.757066904549509, -1.223235666513848, 0.0},
+           {-2.2761174775269333, -0.0022164655378387743, 0.0}},
+          {{0.8069158031976945, -0.5204795169148426, 0.0},
+           {-2.2497640842654225, 0.013176696630756268, 0.0}}};
+
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
           config);
@@ -295,13 +300,13 @@ public:
 
       // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.04_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.08_psi}; //0.04
 
       frc::TrajectoryConfig config(17.5_fps, 15.5_fps_sq);
       config.AddConstraint(m_drivetrain_constraint);
 
       std::vector<frc::Spline<5>::ControlVector> points{
-          {{0.8135041515130722, 1.7063822136828386, 0.0},
+          {{1.1875, 1.7063822136828386, 0.0},
            {-3.8112026350099506, 0.03294174157688934, 0.0}},
           {{2.2168223426885336, 0.4677727303918209, 0.0},
            {-3.0667192753722645, 0.42824264049955474, 0.0}},
@@ -700,6 +705,13 @@ public:
     }
   }
 
+  void TeleopInit() override
+  {
+    SupplyCurrentLimitConfiguration config{true, 40.0, 50.0, 0.0};
+    m_drive.impel.ConfigSupplyCurrentLimit(config);
+    m_drive.impel2.ConfigSupplyCurrentLimit(config);
+  }
+
   void TeleopPeriodic() override
   {
     // auto xSpeed = -m_speedLimiter.Calculate(
@@ -711,7 +723,32 @@ public:
     //            Drivetrain::kMaxAngularSpeed; //3
 
     // m_drive.Drive(xSpeed, -rot);
-    m_drive.Arcade(m_controller.GetRawAxis(1), (0.5 * m_controller.GetRawAxis(2)));
+
+    double forward = deadband(pow(m_controller.GetRawAxis(1), 1));
+    if ((fabs(forward) > 0.5) && !slewOS)
+    {
+      Slew.Reset();
+      Slew.Start();
+      slewOS = true;
+      std::cout << "AHHHHHHHHHHH" << std::endl;
+    }
+    if (Slew.Get() < 0.5)
+    {
+      forward = m_speedLimiter.Calculate(forward);
+    }
+    else if (!impelOS && (Slew.Get() > 0.5) && slewOS)
+    {
+      SupplyCurrentLimitConfiguration config{true, 25.0, 25.0, 0.0};
+      m_drive.impel.ConfigSupplyCurrentLimit(config);
+      m_drive.impel2.ConfigSupplyCurrentLimit(config);
+      impelOS = true;
+    }
+    else
+    {
+      double yeet = m_speedLimiter.Calculate(forward);
+    }
+
+    m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 1)));
     double impelSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
     m_drive.SetImpel(impelSpd);
     // m_drive.SetImpel(-1.0);
@@ -720,6 +757,9 @@ public:
   void DisabledPeriodic() override
   {
     m_drive.Drive(0_mps, 0_deg_per_s);
+    slewOS = false;
+    impelOS = false;
+    m_speedLimiter.Reset(0.0);
   }
 
   double deadband(double in)
@@ -810,14 +850,18 @@ private:
   UDPLogger m_udp_logger;
   std::thread m_logging_thread;
 
+  frc::Timer Slew;
+  bool slewOS = false;
+  bool impelOS = false;
+
   std::vector<std::shared_ptr<rj::Loggable>> loggables{
       std::shared_ptr<rj::Loggable>(&m_globals),
       std::shared_ptr<rj::Loggable>(&m_drive),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-  frc::SlewRateLimiter<units::scalar> m_speedLimiter{3 / 1_s};
-  frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_speedLimiter{2 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_rotLimiter{2 / 1_s};
 
   Drivetrain m_drive{IsSimulation()};
   GlobalDevices m_globals;
@@ -840,6 +884,8 @@ private:
   double topAcc = 0.0;
   double prevCol = 0.0;
   int colCt = 0;
+
+  vector<double> vels;
 
   string pose_json;
 };

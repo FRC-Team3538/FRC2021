@@ -25,5 +25,5 @@ constexpr rj::DiffyDriveModel grasshopper{
     // Per Motor
     .current_limit = 55_A,
     .friction_coefficient = 0.9,
-    .track_width = 0.579_m,
+    .track_width = .579_m, //.579
     .motor_model = falcon};
