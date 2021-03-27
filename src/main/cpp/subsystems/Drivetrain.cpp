@@ -22,7 +22,7 @@ void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint, un
       trajectory.Sample(timepoint),
       yaw);
 
-  Drive(command.vx, command.vy, command.omega, true);
+  Drive(command.vx, command.vy, command.omega, false);
 }
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
