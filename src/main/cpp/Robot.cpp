@@ -85,8 +85,8 @@ public:
     frc::SmartDashboard::PutData(&m_chooser);
 
     // Smartdash
-    frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
-    frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
+    // frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
+    // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
 
@@ -300,6 +300,7 @@ public:
     // Shooter
     if (m_operator.IsConnected())
     {
+      /*
       auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
       auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
       auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
@@ -309,6 +310,33 @@ public:
       auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
 
       m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
+      */
+     
+      auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
+      auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
+
+      m_shooter.SetGate(gateVoltage);
+
+      if (m_operator.GetTouchPadButton())
+      {
+        m_shooter.GotoSetpoint(0);
+      }
+      else if (m_operator.GetPOV() == 0)
+      {
+        m_shooter.GotoSetpoint(1);
+      }
+      else if (m_operator.GetPOV() == 90)
+      {
+        m_shooter.GotoSetpoint(2);
+      }
+      else if (m_operator.GetPOV() == 180)
+      {
+        m_shooter.GotoSetpoint(3);
+      }
+      else if (m_operator.GetPOV() == 270)
+      {
+        m_shooter.GotoSetpoint(4);
+      }       
     }
 
     // Drivebase
@@ -316,15 +344,23 @@ public:
     {
       auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
       auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
+      // auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+      
+      // auto angle = frc::Rotation2d(xInput, yInput);
+      // if (xInput * xInput + yInput * yInput > 0)
+      // {
+      //   xInput = angle.Cos() * throttle;
+      //   yInput = angle.Sin() * throttle;
+      // }
 
-      if (xInput * xInput + yInput * yInput > 0)
-      {
-        auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-        auto angle = frc::Rotation2d(xInput, yInput);
-        xInput = angle.Cos() * throttle;
-        yInput = angle.Sin() * throttle;
-      }
+      // if (m_controller.GetPOV() != -1)
+      // {
+      //   auto angle = frc::Rotation2d(units::degree_t{m_controller.GetPOV()});
+      //   xInput = angle.Cos() * throttle;
+      //   yInput = angle.Sin() * throttle;
+      // }
+      
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
       // Increase Low-end stick control ("Smoothing")
       if (rInput < 0)
@@ -336,9 +372,9 @@ public:
         rInput = rInput * rInput;
       }
 
-      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
-      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
-      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
+      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed / 4;
+      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed / 4;
+      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed / 4;
 
       m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
     }

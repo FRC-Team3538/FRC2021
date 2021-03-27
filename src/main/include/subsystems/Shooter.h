@@ -61,12 +61,12 @@ public:
 
     units::radians_per_second_t GetShooterSpeed()
     {
-        return units::revolutions_per_minute_t{m_shooterMotor1.GetSelectedSensorVelocity() * 600.0 / 4096.0};
+        return units::revolutions_per_minute_t{m_shooterMotor1.GetSelectedSensorVelocity() * 600.0 / 2048.0};
     };
 
     units::radian_t GetHoodAngle()
     {
-        return units::degree_t{m_hoodEncoder.GetDistance()};
+        return units::radian_t{m_hoodEncoder.GetDistance()};
     };
 
     void SetGate(units::volt_t gate)
@@ -98,15 +98,15 @@ private:
     WPI_VictorSPX m_hoodMotor{23};
     WPI_VictorSPX m_gateMotor{24};
 
-    frc::Encoder m_hoodEncoder{1, 2, false, frc::CounterBase::EncodingType::k4X};
+    frc::Encoder m_hoodEncoder{1, 2, true, frc::CounterBase::EncodingType::k4X};
     frc::DigitalInput m_hoodLowerLimit{4};
 
     // MAX HOOD ANGLE: 60 deg
-    frc::ProfiledPIDController<units::radians_per_second> m_shooterPIDController{0.216, 0, 0, {1400_rad_per_s_sq, 6000_rad_per_s_sq / 1_s}};
-    frc::ProfiledPIDController<units::radians> m_hoodPIDController{0.133, 0, 0.000536, {110_deg_per_s, 20000_deg_per_s_sq}};
+    frc::ProfiledPIDController<units::revolutions_per_minute> m_shooterPIDController{0, /*1.21 / 60.,*/ 0, 0, {2000_rad_per_s_sq, 6000_rad_per_s_sq / 1_s}};
+    frc::ProfiledPIDController<units::radians> m_hoodPIDController{5.12, 0, 0.0134, {2_rad_per_s, 3_rad_per_s_sq}};
 
-    frc::SimpleMotorFeedforward<units::radians> m_shooterFeedforward{0.689_V, 0.228_V / 60_rpm, 0.0478_V / 60_rpm * 1_s};
-    frc::SimpleMotorFeedforward<units::radians> m_hoodFeedforward{0.983_V, 0.0927_V / 1_deg_per_s, 0.00039_V / 1_deg_per_s_sq};
+    frc::SimpleMotorFeedforward<units::radians> m_shooterFeedforward{0.73_V, 0.115_V / 60_rpm, 0.026_V / 60_rpm * 1_s};
+    frc::SimpleMotorFeedforward<units::radians> m_hoodFeedforward{1.16_V, 4.9_V / 1_rad_per_s, 0.0315_V / 1_rad_per_s_sq};
 
     units::volt_t m_shooterVolts = 0_V;
     units::volt_t m_hoodVolts = 0_V;
@@ -117,9 +117,19 @@ private:
     units::radian_t hoodPosition = 0_rad;
     bool m_hoodZeroed = false;
 
-    const std::array<units::radians_per_second_t, 1> m_speed_setpoints{
-        0_rpm};
+    const std::array<units::radians_per_second_t, 5> m_speed_setpoints{
+        0_rpm,
+        2500_rpm,
+        2450_rpm,
+        2950_rpm,
+        3200_rpm
+    };
 
-    const std::array<units::radian_t, 1> m_pitch_setpoints{
-        0_rad};
+    const std::array<units::radian_t, 5> m_pitch_setpoints{
+        0_deg,
+        31_deg,
+        38_deg,
+        43_deg,
+        45_deg
+    };
 };

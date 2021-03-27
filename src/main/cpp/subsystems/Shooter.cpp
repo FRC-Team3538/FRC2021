@@ -14,7 +14,7 @@ using namespace frc;
 
 Shooter::Shooter()
 {
-  m_hoodEncoder.SetDistancePerPulse(0.04696044921875);
+  m_hoodEncoder.SetDistancePerPulse(1.7473678478167824898284906743e-4);
 
   m_shooterMotor1.ConfigFactoryDefault();
   m_shooterMotor1.SetInverted(true);
@@ -27,7 +27,9 @@ Shooter::Shooter()
   m_shooterMotor2.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 55, 0.0));
 
   m_gateMotor.ConfigFactoryDefault();
+  m_gateMotor.SetInverted(true);
   m_hoodMotor.ConfigFactoryDefault();
+  m_hoodMotor.SetInverted(true);
 }
 
 void Shooter::Set(units::volt_t shooter, units::volt_t gate, units::volt_t hood)
@@ -100,12 +102,24 @@ void Shooter::InitSendable(frc::SendableBuilder &builder)
 
   // Shooter
   builder.AddDoubleProperty(
-      "Shooter Velocity [RPM@Motor]",
-      [this] { return GetShooterSpeed().value(); },
+      "Shooter Velocity [RPM]",
+      [this] { return GetShooterSpeed().value() / 2 / 3.14159 * 60; },
+      nullptr);
+    builder.AddDoubleProperty(
+      "Shooter Velocity Target [RPM]",
+      [this] { return m_targetShooterSpeed.value() / 2 / 3.14159 * 60; },
       [this](double rpm) { m_targetShooterSpeed = units::revolutions_per_minute_t{rpm}; });
   builder.AddDoubleProperty(
       "Shooter Voltage",
       [this] { return m_shooterMotor1.GetMotorOutputVoltage(); },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Shooter Position Error",
+      [this] { return m_shooterPIDController.GetPositionError().value(); },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Shooter Velocity Error",
+      [this] { return m_shooterPIDController.GetVelocityError().value(); },
       nullptr);
 
   // Gate
@@ -117,13 +131,33 @@ void Shooter::InitSendable(frc::SendableBuilder &builder)
       [this] { return m_hoodLowerLimit.Get(); },
       nullptr);
   builder.AddDoubleProperty(
-      "Hood Angle",
-      [this] { return GetHoodAngle().value(); },
+      "Hood Angle [deg]",
+      [this] { return GetHoodAngle().value() * 180 / 3.14159; },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Hood Angle [deg]",
+      [this] { return GetHoodAngle().value() * 180 / 3.14159; },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Hood Angle Target [deg]",
+      [this] { return m_targetHoodAngle.value() * 180 / 3.14159; },
       [this](double angle) { m_targetHoodAngle = units::degree_t{angle}; });
   builder.AddBooleanProperty(
       "Hood Zeroed",
       [this] { return m_hoodZeroed; },
       [this](bool zeroed) { m_hoodZeroed = zeroed; });
+  builder.AddDoubleProperty(
+      "Hood Position Error [rad]",
+      [this] { return m_hoodPIDController.GetPositionError().value(); },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Hood Velocity Error [rad/s]",
+      [this] { return m_hoodPIDController.GetVelocityError().value(); },
+      nullptr);
+  builder.AddDoubleProperty(
+      "Hood Encoder Position [rad]",
+      [this] { return m_hoodEncoder.GetDistance(); },
+      nullptr);
 
   // Thermal
   builder.AddDoubleProperty(

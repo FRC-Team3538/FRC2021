@@ -24,7 +24,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
       m_driveFeedforward{config.driveFf.kS, config.driveFf.kV, config.driveFf.kA},
       m_turnFeedforward{config.turnFf.kS, config.turnFf.kV, config.turnFf.kA}
 {
-  m_turningPIDController.SetTolerance(0.1_rad, units::radians_per_second_t(std::numeric_limits<double>::infinity()));
+  // m_turningPIDController.SetTolerance(0.1_rad, units::radians_per_second_t(std::numeric_limits<double>::infinity()));
   // Drive Motor Configuration
   m_driveMotor.ConfigFactoryDefault();
   m_driveMotor.SetStatusFramePeriod(ctre::phoenix::motorcontrol::StatusFrameEnhanced::Status_3_Quadrature, 18);
