@@ -22,6 +22,7 @@
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
 #include "subsystems/SwerveModule.h"
+#include "subsystems/Vacuum.h"
 #include "subsystems/Shooter.h"
 #include "lib/UniversalController.hpp"
 #include <UDPLogger.hpp>
@@ -95,6 +96,7 @@ public:
     // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
+    frc::SmartDashboard::PutData("Shooter", &m_vacuum);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -524,6 +526,9 @@ public:
       auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed / 4;
 
       m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+
+      auto succ = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand) * Vacuum::kMaxImpellerVoltage;
+      m_vacuum.Set(succ);
     }
   }
 
@@ -537,6 +542,7 @@ private:
   frc::UniversalController m_operator{1};
 
   Drivetrain m_swerve;
+  Vacuum m_vacuum;
   GlobalDevices m_globals;
   Shooter m_shooter;
 
@@ -547,6 +553,7 @@ private:
       std::shared_ptr<rj::Loggable>(&m_globals),
       std::shared_ptr<rj::Loggable>(&m_swerve),
       std::shared_ptr<rj::Loggable>(&m_shooter),
+      std::shared_ptr<rj::Loggable>(&m_vacuum),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
