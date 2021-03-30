@@ -218,7 +218,7 @@ public:
           points,
           config);
 
-     m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
       m_swerve.ShowTrajectory(m_trajectory);
@@ -228,18 +228,17 @@ public:
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
     }
-  
+
     else if (program == kAutoABlue)
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           frc::Pose2d(45_in, 35_in, 0_deg), {frc::Translation2d(170_in, 35_in), frc::Translation2d(210_in, 110_in)},
           frc::Pose2d(360_in, 70_in, 0_deg),
           frc::TrajectoryConfig(10_fps, 10_fps_sq));
-          
-          m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-       
-       m_swerve.ShowTrajectory(m_trajectory);
-       
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+
+      m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
@@ -253,10 +252,9 @@ public:
           frc::Pose2d(360_in, 160_in, 0_deg),
           frc::TrajectoryConfig(10_fps, 10_fps_sq));
 
-           m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-       
-          m_swerve.ShowTrajectory(m_trajectory);
-       
+      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+
+      m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
@@ -265,46 +263,55 @@ public:
     }
     else if (program == kAutoBBlue)
     {
-         m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           frc::Pose2d(45_in, 60_in, 0_deg), {frc::Translation2d(170_in, 60_in), frc::Translation2d(240_in, 110_in)},
           frc::Pose2d(360_in, 20_in, -35_deg),
           frc::TrajectoryConfig(10_fps, 10_fps_sq));
-    
-         m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-       
-          m_swerve.ShowTrajectory(m_trajectory);
-       
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
+
+      m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);   
+      m_swerve.ResetOdometry(p);
     }
     else if (program == kAutoBarrel)
-  {
+    {
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
       wpi::sys::path::append(deployDirectory, "output");
       wpi::sys::path::append(deployDirectory, "Barrel.wpilib.json");
 
       m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-       m_swerve.ResetYaw();
-      m_swerve.ResetOdometry(m_trajectory.InitialPose());
-  }
-    else if (program == kAutoSlalom)
-  {
-    wpi::SmallString<64> deployDirectory;
-    frc::filesystem::GetDeployDirectory(deployDirectory);
-    wpi::sys::path::append(deployDirectory, "output");
-    wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
 
-    m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-    m_swerve.ResetYaw();
-    m_swerve.ResetOdometry(m_trajectory.InitialPose());
-  }
+      m_swerve.ShowTrajectory(m_trajectory);
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
+    }
+    else if (program == kAutoSlalom)
+    {
+      wpi::SmallString<64> deployDirectory;
+      frc::filesystem::GetDeployDirectory(deployDirectory);
+      wpi::sys::path::append(deployDirectory, "output");
+      wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
+
+      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+
+      m_swerve.ShowTrajectory(m_trajectory);
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
+    }
     else if (program == kAutoBounce)
-  {
-    wpi::SmallString<64> deployDirectory;
+    {
+      wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
       wpi::sys::path::append(deployDirectory, "output");
       wpi::sys::path::append(deployDirectory, "Bounce#.wpilib.json");
@@ -363,12 +370,15 @@ public:
 
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
+
+      m_swerve.ShowTrajectory(m_trajectory);
+
+      // Set initial pose of robot
       m_swerve.ResetYaw();
-      m_swerve.ResetOdometry(m_trajectory.InitialPose());
-       
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
     }
   }
-  
 
   void AutonomousPeriodic() override
   {
@@ -392,10 +402,16 @@ public:
     {
       return;
     }
-    else if (program == kAutoDash || program == kAutoARed || program == kAutoABlue || program == kAutoBRed
-     || program == kAutoBBlue || program == kAutoBarrel || program ==kAutoSlalom || program == kAutoBounce)
+    else if (program == kAutoDash ||
+             program == kAutoARed ||
+             program == kAutoABlue ||
+             program == kAutoBRed ||
+             program == kAutoBBlue ||
+             program == kAutoBarrel ||
+             program == kAutoSlalom ||
+             program == kAutoBounce)
     {
-      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), -135_deg);
+      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), 0_deg);
     }
     else if (program == kAutoConstant)
     {
