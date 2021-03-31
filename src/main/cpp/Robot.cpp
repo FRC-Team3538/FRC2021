@@ -748,7 +748,7 @@ public:
       double yeet = m_speedLimiter.Calculate(forward);
     }
 
-    m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 1)));
+    m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 3)));
     double impelSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
     m_drive.SetImpel(impelSpd);
     // m_drive.SetImpel(-1.0);
