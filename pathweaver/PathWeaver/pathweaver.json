@@ -4,6 +4,6 @@
   "maxVelocity": 4.0,
   "maxAcceleration": 3.5,
   "wheelBase": 0.61464,
-  "gameName": "Barrel Racing Path",
+  "gameName": "Galactic Search B",
   "outputDir": "../../src/main/deploy"
 }

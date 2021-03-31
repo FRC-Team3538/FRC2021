@@ -16,6 +16,8 @@
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
 #include <wpi/json.h>
+#include <frc/DigitalInput.h>
+#include <frc/Servo.h>
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
@@ -85,6 +87,9 @@ public:
     m_logging_thread =
         std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
     m_logging_thread.detach();
+
+    SupplyCurrentLimitConfiguration config{true, 30.0, 40.0, 0.0};
+    intake.ConfigSupplyCurrentLimit(config);
   }
 
   void RobotPeriodic() override
@@ -123,6 +128,8 @@ public:
 
   void AutonomousInit() override
   {
+
+    intakeRetention.SetAngle(100);
     // Generate / load paths
     auto path = m_chooser.GetSelected();
     if (m_chooser.GetSelected() == "None")
@@ -134,39 +141,39 @@ public:
       //     frc::Pose2d(40_in, 120_in, -35_deg), {frc::Translation2d(150_in, 60_in), frc::Translation2d(180_in, 150_in)},
       //     frc::Pose2d(360_in, 170_in, 0_deg),
       //     frc::TrajectoryConfig(10_fps, 10_fps_sq));
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.05_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.12_psi};
 
-      frc::TrajectoryConfig config(16_fps, 13_fps_sq); //17.5 15
+      frc::TrajectoryConfig config(17_fps, 20_fps_sq); //17.5 15
       config.AddConstraint(m_drivetrain_constraint);
 
       std::vector<frc::Spline<5>::ControlVector> points{
-          {{1.0, 0.7688146572428465, 0.0},
-           {-2.25, -0.019765044946133292, 0.0}},
-          {{2.262940780896178, 0.5231067062606225, 0.0},
-           {-2.421061140465244, -0.34679907826822465, 0.0}},
-          {{2.737301859603376, 0.36168073335682094, 0.0},
-           {-2.9151872641185754, -0.2754088851797216, 0.0}},
-          {{3.350018252933507, 0.5336562135455978, 0.0},
-           {-3.244604679887463, 0.1910621011459548, 0.0}},
-          {{3.7255541069100393, 0.21741549440746555, 0.0},
-           {-2.7702436011802654, 0.7510717079530638, 0.0}},
-          {{4.107678309201949, 0.530223803118944, 0.0},
-           {-1.189040005489604, 0.4734340164689319, 0.0}},
-          {{4.5490976463322585, 0.612716393330131, 0.0},
-           {-0.9057410279283608, 0.1910621011459549, 0.0}},
-          {{6.295009949907364, 0.7708367528991973, 0.0},
-           {-0.8200924998284499, 0.013176696630755491, 0.0}},
-          {{8.548225073766556, 0.6654231798531534, 0.0},
-           {-0.8003274548823166, 0.026353393261511426, 0.0}}};
+          {{1.0968031290743157, 0.7688146572428465, 0.0},
+           {-2.2827058258423114, -0.019765044946133292, 0.0}},
+          {{2.262940780896178, 0.4994686720059077, 0.0},
+           {-2.421061140465244, -0.3175195846141736, 0.0}},
+          {{2.737301859603376, 0.3377271470884056, 0.0},
+           {-2.9151872641185754, -0.26524492373057096, 0.0}},
+          {{3.264369724833597, 0.45191897219055505, 0.0},
+           {-3.2314279832567077, -0.09214189888175706, 0.0}},
+          {{4.107678309201949, 0.4545960337610646, 0.0},
+           {-2.921775612433953, 0.9750755506759081, 0.0}},
+          {{4.674276264324435, 0.831989609263623, 0.0},
+           {-0.7673857133054278, 0.5155006942950877, 0.0}},
+          {{5.3726411857544765, 0.6983649214300414, 0.0},
+           {-0.4972634323749401, 0.03294174157688878, 0.0}},
+          {{6.492660399368697, 0.7708367528991973, 0.0},
+           {-0.5433818705825841, 0.013176696630755491, 0.0}},
+          {{9.095057983942908, 0.6654231798531534, 0.0},
+           {-0.5433818705825841, 0.026353393261511426, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
           config);
     }
     else if (path == "A-Blue")
     {
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.05_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.04_psi};
 
-      frc::TrajectoryConfig config(16_fps, 13_fps_sq); //17.5 15
+      frc::TrajectoryConfig config(17.5_fps, 17.5_fps_sq); //17.5 15
       config.AddConstraint(m_drivetrain_constraint);
 
       std::vector<frc::Spline<5>::ControlVector> points{
@@ -188,31 +195,31 @@ public:
     }
     else if (path == "B-Red")
     {
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.05_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.06_psi};
 
-      frc::TrajectoryConfig config(16_fps, 13_fps_sq); //17.5 15
+      frc::TrajectoryConfig config(17_fps, 16.5_fps_sq); //17.5 15
       config.AddConstraint(m_drivetrain_constraint);
 
       std::vector<frc::Spline<5>::ControlVector> points{
-          {{1.0, 1.0, 0.0},
-           {-2.25, 0.0, 0.0}},
-          {{2.342000960680711, 1.6339103822136831, 0.0},
-           {-1.7358729156659576, 0.006588348315377912, 0.0}},
-          {{3.837556028271461, 1.0936658203527072, 0.0},
-           {-2.7438902079187537, 0.026353393261511204, 0.0}},
-          {{5.3726411857544765, 1.5774332819335444, 0.0},
-           {-1.7424612639813353, 0.6748846597214968, 0.0}},
-          {{8.805170658066288, 1.2968588485555488, 0.0},
-           {-1.5382224662046253, -0.005542578741508208, 0.0}}};
+          {{1.1231565223358266, 1.0, 0.0},
+           {-0.7344439717285393, 0.0, 0.0}},
+          {{2.3222359157345775, 0.45459603376106505, 0.0},
+           {-1.5250457695738697, -1.1266075619295959, 0.0}},
+          {{3.9232045563713718, 1.9501511013518154, 0.0},
+           {-3.07989597200302, 0.00658834831537769, 0.0}},
+          {{5.5571149385850545, 1.5352086668993854, 0.0},
+           {-1.755637960612091, 0.7265955807415221, 0.0}},
+          {{8.765640568174021, 1.2968588485555488, 0.0},
+           {-1.5777525560968915, -0.005542578741508208, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
           config);
     }
     else if (path == "B-Blue")
     {
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.05_psi};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.04_psi};
 
-      frc::TrajectoryConfig config(16_fps, 13_fps_sq); //17.5 15
+      frc::TrajectoryConfig config(17.5_fps, 17.5_fps_sq); //17.5 15
       config.AddConstraint(m_drivetrain_constraint);
 
       std::vector<frc::Spline<5>::ControlVector> points{
@@ -652,7 +659,8 @@ public:
 
       if ((path == "A-Red" || path == "A-Blue" || path == "B-Red" || path == "A-Blue"))
       {
-        if (m_drive.GetPose().X() > (330.0_in - BumperDist))
+        intake.Set(-1.0);
+        if (m_drive.GetPose().X() > (340.0_in - BumperDist))
         {
           m_drive.Drive(0_mps, 0_deg_per_s);
           m_autoTimer.Stop();
@@ -710,6 +718,7 @@ public:
     SupplyCurrentLimitConfiguration config{true, 40.0, 50.0, 0.0};
     m_drive.impel.ConfigSupplyCurrentLimit(config);
     m_drive.impel2.ConfigSupplyCurrentLimit(config);
+    intakeRetention.SetAngle(100);
   }
 
   void TeleopPeriodic() override
@@ -749,8 +758,14 @@ public:
     }
 
     m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 3)));
-    double impelSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
-    m_drive.SetImpel(impelSpd);
+    double intakeSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
+
+    if (m_controller.GetBumper(frc::GenericHID::JoystickHand::kRightHand))
+      m_drive.SetImpel(-1.0);
+    else
+      m_drive.SetImpel(0.0);
+
+    intake.Set(intakeSpd);
     // m_drive.SetImpel(-1.0);
   }
 
@@ -888,6 +903,10 @@ private:
   vector<double> vels;
 
   string pose_json;
+
+  WPI_TalonFX intake{8};
+
+  frc::Servo intakeRetention{9};
 };
 
 #ifndef RUNNING_FRC_TESTS
