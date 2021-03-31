@@ -83,7 +83,7 @@ void Drivetrain::ResetYaw()
 frc::Rotation2d Drivetrain::GetYaw()
 {
 #ifdef __FRC_ROBORIO__
-  return m_imu.GetRotation2d();
+  return frc::Rotation2d{units::degree_t{m_imu.GetAngle()}};
 #else
   //return m_gyro.GetRotation2d();
   return m_theta;

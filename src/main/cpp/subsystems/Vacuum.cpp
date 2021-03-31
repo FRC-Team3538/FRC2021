@@ -15,9 +15,9 @@ using namespace frc;
 Vacuum::Vacuum()
 {
   m_impellerMotor.ConfigFactoryDefault();
-  m_impellerMotor.SetInverted(false);
+  m_impellerMotor.SetInverted(true);
   m_impellerMotor.SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Coast);
-  m_impellerMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 55, 55, 0.0));
+  m_impellerMotor.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 30, 30, 0.0));
 }
 
 void Vacuum::SimPeriodic()

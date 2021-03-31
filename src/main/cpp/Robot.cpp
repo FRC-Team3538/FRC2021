@@ -96,7 +96,7 @@ public:
     // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
-    frc::SmartDashboard::PutData("Shooter", &m_vacuum);
+    frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -537,9 +537,9 @@ public:
         rInput = rInput * rInput;
       }
 
-      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed / 4;
-      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed / 4;
-      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed / 4;
+      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
+      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
+      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
 
       m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
