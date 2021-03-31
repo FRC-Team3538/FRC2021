@@ -152,6 +152,19 @@ public:
         m_swerve.ResetYaw();
         std::cout << "Reset Gyro" << std::endl;
       }
+
+      if (m_controller.GetPSButtonPressed())
+      {
+        m_driverControls = !m_driverControls;
+        if (m_driverControls)
+        {
+          std::cout << "Switching to Driver Controls" << std::endl;
+        }
+        else
+        {
+          std::cout << "Switching to Programmer Controls" << std::endl;
+        }
+      }
     }
 
     m_shooter.Periodic();
@@ -509,21 +522,25 @@ public:
     {
       auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
       auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-      // auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-      
-      // auto angle = frc::Rotation2d(xInput, yInput);
-      // if (xInput * xInput + yInput * yInput > 0)
-      // {
-      //   xInput = angle.Cos() * throttle;
-      //   yInput = angle.Sin() * throttle;
-      // }
 
-      // if (m_controller.GetPOV() != -1)
-      // {
-      //   auto angle = frc::Rotation2d(units::degree_t{m_controller.GetPOV()});
-      //   xInput = angle.Cos() * throttle;
-      //   yInput = angle.Sin() * throttle;
-      // }
+      if (m_driverControls)
+      {
+        auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+        
+        auto angle = frc::Rotation2d(xInput, yInput);
+        if (xInput * xInput + yInput * yInput > 0)
+        {
+          xInput = angle.Cos() * throttle;
+          yInput = angle.Sin() * throttle;
+        }
+
+        if (m_controller.GetPOV() != -1)
+        {
+          auto angle = frc::Rotation2d(units::degree_t{m_controller.GetPOV()});
+          xInput = angle.Cos() * throttle;
+          yInput = angle.Sin() * throttle;
+        }
+      }
       
       auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
@@ -583,6 +600,7 @@ private:
 
   // Drive Mode
   bool m_fieldRelative = true;
+  bool m_driverControls = true;
 
   // Smart Dash
   frc::SendableChooser<std::string> m_chooser;
