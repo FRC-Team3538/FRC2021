@@ -757,7 +757,7 @@ public:
       double yeet = m_speedLimiter.Calculate(forward);
     }
 
-    m_drive.Arcade(forward, deadband(pow(m_controller.GetRawAxis(2), 3)));
+    m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 1)));
     double intakeSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);
 
     if (m_controller.GetBumper(frc::GenericHID::JoystickHand::kRightHand))
