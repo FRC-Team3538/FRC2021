@@ -525,7 +525,7 @@ public:
       //   yInput = angle.Sin() * throttle;
       // }
       
-      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * 1.0;
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
       // Increase Low-end stick control ("Smoothing")
       if (rInput < 0)

@@ -52,10 +52,10 @@ public:
 private:
     // Configuration
     static constexpr auto m_dist = 15.75_in / 2;
-    frc::Translation2d m_frontLeftLocation{+m_dist, -m_dist};
-    frc::Translation2d m_frontRightLocation{+m_dist, +m_dist};
-    frc::Translation2d m_backLeftLocation{-m_dist, -m_dist};
-    frc::Translation2d m_backRightLocation{-m_dist, +m_dist};
+    frc::Translation2d m_frontLeftLocation{+m_dist, +m_dist};
+    frc::Translation2d m_frontRightLocation{+m_dist, -m_dist};
+    frc::Translation2d m_backLeftLocation{-m_dist, +m_dist};
+    frc::Translation2d m_backRightLocation{-m_dist, -m_dist};
 
     bool m_fieldRelative;
 
@@ -104,7 +104,7 @@ private:
     static constexpr auto kMaxModuleAngularAcceleration = 200_rad_per_s_sq;
 
     static constexpr SwerveModuleConfig m_frontLeftConfig{
-        units::degree_t(169.014),
+        units::degree_t(-170.420),
         {3.26,
          0.0,
          0.0,
@@ -123,7 +123,7 @@ private:
          0.042166_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_frontRightConfig{
-        units::degree_t(-37.417),
+        units::degree_t(36.650),
         {3.26,
          0.0,
          0.0,
@@ -142,7 +142,7 @@ private:
          0.018826_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backLeftConfig{
-        units::degree_t(2.461),
+        units::degree_t(61.348),
         {3.26,
          0.0,
          0.0,
@@ -161,7 +161,7 @@ private:
          0.015321_V / 1_rad_per_s_sq}};
 
     static constexpr SwerveModuleConfig m_backRightConfig{
-        units::degree_t(24.346),
+        units::degree_t(22.061),
         {3.26,
          0.0,
          0.0,
