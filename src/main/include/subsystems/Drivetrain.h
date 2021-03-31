@@ -144,11 +144,11 @@ private:
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.835};                     //.706
-    decltype(1_V / 1_mps) kVlinear{1.95};             //1.86
-    decltype(1_V / 1_mps_sq) kAlinear{0.0678};         //0.0917
+    decltype(1_V) kStatic{0.823};                     //.706
+    decltype(1_V / 1_mps) kVlinear{1.94};             //1.86
+    decltype(1_V / 1_mps_sq) kAlinear{0.0904};         //0.0917
     decltype(1_V / 1_rad_per_s) kVangular{1.97};      //1.94
-    decltype(1_V / 1_rad_per_s_sq) kAangular{0.0454}; //0.0716
+    decltype(1_V / 1_rad_per_s_sq) kAangular{0.07}; //0.0716
 
     // Velocity Control PID (Is this really required ???)
     frc2::PIDController m_leftPIDController{1.72, 0.0, 0.0}; //2.75
