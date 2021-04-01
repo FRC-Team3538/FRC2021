@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <thread>
+#include "lib/csv.h"
 
 void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>> &loggables)
 {
@@ -292,13 +293,23 @@ public:
     }
     else if (program == kAutoBarrel)
     {
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Barrel.wpilib.json");
+      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
+      std::vector<frc::Spline<5>::ControlVector> points;
 
-      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      io::CSVReader<4> path("/home/lvuser/deploy/paths/Barrel.csv");
+      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
+      double x, y, dx, dy;
+      while (path.read_row(x, y, dx, dy)) {
+        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
+      }
 
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+
+      // Display
       m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
@@ -308,13 +319,23 @@ public:
     }
     else if (program == kAutoSlalom)
     {
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Slalom.wpilib.json");
+      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
+      std::vector<frc::Spline<5>::ControlVector> points;
 
-      m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      io::CSVReader<4> path("/home/lvuser/deploy/paths/Slalom.csv");
+      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
+      double x, y, dx, dy;
+      while (path.read_row(x, y, dx, dy)) {
+        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
+      }
 
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+
+      // Display
       m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
@@ -324,6 +345,30 @@ public:
     }
     else if (program == kAutoBounce)
     {
+      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
+      std::vector<frc::Spline<5>::ControlVector> points;
+
+      io::CSVReader<4> path("/home/lvuser/deploy/paths/Bounce-1.csv");
+      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
+      double x, y, dx, dy;
+      while (path.read_row(x, y, dx, dy)) {
+        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
+      }
+
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+
+      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
+
+      // Display
+      m_swerve.ShowTrajectory(m_trajectory);
+
+      // Set initial pose of robot
+      m_swerve.ResetYaw();
+      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
+      m_swerve.ResetOdometry(p);
+      /*
       wpi::SmallString<64> deployDirectory;
       frc::filesystem::GetDeployDirectory(deployDirectory);
       wpi::sys::path::append(deployDirectory, "output");
@@ -390,6 +435,7 @@ public:
       m_swerve.ResetYaw();
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
+      */
     }
   }
 
@@ -424,7 +470,9 @@ public:
              program == kAutoSlalom ||
              program == kAutoBounce)
     {
-      m_swerve.Drive(m_trajectory, units::second_t(m_autoTimer.Get()), 0_deg);
+      auto time = units::second_t(m_autoTimer.Get());
+      auto state = m_trajectory.Sample(time);
+      m_swerve.Drive(state, 0_deg); // state.pose.Rotation().Degrees());
     }
     else if (program == kAutoConstant)
     {

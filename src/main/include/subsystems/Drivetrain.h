@@ -34,7 +34,7 @@ public:
                units::meters_per_second_t ySpeed,
                units::radians_per_second_t rot,
                bool fieldRelative = true);
-    void Drive(frc::Trajectory trajectory, units::second_t timepoint, units::radian_t yaw = 0_rad);
+    void Drive(frc::Trajectory::State trajectoryState, units::radian_t yaw = 0_rad);
     void UpdateOdometry();
     frc::Rotation2d GetYaw();
     void ResetYaw();

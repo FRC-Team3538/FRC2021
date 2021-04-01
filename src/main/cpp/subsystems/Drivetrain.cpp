@@ -15,11 +15,11 @@ Drivetrain::Drivetrain()
   frc::SmartDashboard::PutData("Field", &m_fieldDisplay);
 }
 
-void Drivetrain::Drive(frc::Trajectory trajectory, units::second_t timepoint, units::radian_t yaw)
+void Drivetrain::Drive(frc::Trajectory::State trajectoryState, units::radian_t yaw)
 {
   const auto command = m_trajectoryController.Calculate(
       m_poseEstimator.GetPose(),
-      trajectory.Sample(timepoint),
+      trajectoryState,
       yaw);
 
   Drive(command.vx, command.vy, command.omega, false);
@@ -98,7 +98,7 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 void Drivetrain::ShowTrajectory(const frc::Trajectory &trajectory)
 {
   vector<frc::Pose2d> poselist;
-  for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime()/15)
+  for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime()/100)
   {
     poselist.push_back(trajectory.Sample(t).pose);
   }

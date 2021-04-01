@@ -102,7 +102,7 @@ public:
 
 private:
     // Configuration
-    static constexpr auto kWheelRadius = 1.5_in;
+    static constexpr auto kWheelRadius = 1.49_in;
     static constexpr int kEncoderResolution = 2048;
     static constexpr double kDriveGearboxRatio = 5.25;
     static constexpr double kTurnGearboxRatio = 20.0;
