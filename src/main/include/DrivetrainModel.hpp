@@ -15,7 +15,7 @@ constexpr rj::MotorModel falcon{
 constexpr rj::DiffyDriveModel grasshopper{
     .mass = 41.95_lb,
     .wheel_diameter = 4.25_in,
-    .gear_ratio = 7.09,
+    .gear_ratio = 5.95,
     // This will be different for every run - TODO: set this in AutonomousInit()
     .open_circuit_voltage = 12.8_V,
     // This will be different for every battery, but there's no good way to get this on-bot.
@@ -25,5 +25,5 @@ constexpr rj::DiffyDriveModel grasshopper{
     // Per Motor
     .current_limit = 55_A,
     .friction_coefficient = 0.9,
-    .track_width = 0.622_m,
+    .track_width = .579_m, //.579
     .motor_model = falcon};
