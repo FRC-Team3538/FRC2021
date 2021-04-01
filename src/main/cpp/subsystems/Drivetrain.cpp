@@ -18,7 +18,7 @@ Drivetrain::Drivetrain()
 void Drivetrain::Drive(frc::Trajectory::State trajectoryState, units::radian_t yaw)
 {
   const auto command = m_trajectoryController.Calculate(
-      m_poseEstimator.GetPose(),
+      m_odometry.GetPose(),
       trajectoryState,
       yaw);
 
@@ -57,6 +57,12 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 
 void Drivetrain::UpdateOdometry()
 {
+  m_odometry.Update(GetYaw(),
+                         m_frontLeft.GetState(),
+                         m_frontRight.GetState(),
+                         m_backLeft.GetState(),
+                         m_backRight.GetState());
+  
   m_poseEstimator.Update(GetYaw(),
                          m_frontLeft.GetState(),
                          m_frontRight.GetState(),
@@ -68,7 +74,7 @@ void Drivetrain::UpdateOdometry()
                                                   m_backLeft.GetState(),
                                                   m_backRight.GetState()});
 
-  m_fieldDisplay.SetRobotPose(m_poseEstimator.GetPose());
+  m_fieldDisplay.SetRobotPose(m_odometry.GetPose());
 }
 
 void Drivetrain::ResetYaw()
@@ -92,7 +98,13 @@ frc::Rotation2d Drivetrain::GetYaw()
 
 void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 {
+#ifdef __FRC_ROBORIO__
+  m_odometry.ResetPosition(pose, GetYaw());
+  m_poseEstimator.ResetPosition(pose, GetYaw());
+#else
+  m_odometry.ResetPosition(pose, m_theta);
   m_poseEstimator.ResetPosition(pose, m_theta);
+#endif
 }
 
 void Drivetrain::ShowTrajectory(const frc::Trajectory &trajectory)
@@ -141,11 +153,18 @@ void Drivetrain::InitSendable(frc::SendableBuilder &builder)
 
   // Pose
   builder.AddDoubleProperty(
-      "pose/x", [this] { return m_poseEstimator.GetPose().X().value(); }, nullptr);
+      "poseEstimator/x", [this] { return m_poseEstimator.GetEstimatedPosition().X().value(); }, nullptr);
   builder.AddDoubleProperty(
-      "pose/y", [this] { return m_poseEstimator.GetPose().Y().value(); }, nullptr);
+      "poseEstimator/y", [this] { return m_poseEstimator.GetEstimatedPosition().Y().value(); }, nullptr);
   builder.AddDoubleProperty(
-      "pose/yaw", [this] { return m_poseEstimator.GetPose().Rotation().Degrees().value(); }, nullptr);
+      "poseEstimator/yaw", [this] { return m_poseEstimator.GetEstimatedPosition().Rotation().Degrees().value(); }, nullptr);
+
+  builder.AddDoubleProperty(
+      "odometry/x", [this] { return m_odometry.GetPose().X().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "odometry/y", [this] { return m_odometry.GetPose().Y().value(); }, nullptr);
+  builder.AddDoubleProperty(
+      "odometry/yaw", [this] { return m_odometry.GetPose().Rotation().Degrees().value(); }, nullptr);
 
   // Velocity
   builder.AddDoubleProperty(

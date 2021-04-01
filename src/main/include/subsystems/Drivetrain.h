@@ -7,6 +7,7 @@
 #include <frc/geometry/Translation2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 #include <frc/AnalogGyro.h>
 #include <wpi/math>
 #include <frc/smartdashboard/Field2d.h>
@@ -83,10 +84,19 @@ private:
         m_backLeftLocation,
         m_backRightLocation};
 
-    frc::SwerveDriveOdometry<4> m_poseEstimator{
+    frc::SwerveDriveOdometry<4> m_odometry{
         m_kinematics,
         frc::Rotation2d(),
         frc::Pose2d()};
+
+    frc::SwerveDrivePoseEstimator<4> m_poseEstimator{
+        frc::Rotation2d(),
+        frc::Pose2d(),
+        m_kinematics,
+        {0.2, 0.2, 0.05},
+        {0.05},
+        {0.0, 0.0, 0.0}
+    };
 
     frc::ChassisSpeeds m_robotVelocity;
 
