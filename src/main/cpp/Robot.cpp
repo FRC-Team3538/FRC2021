@@ -18,6 +18,7 @@
 
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/TrajectoryUtil.h>
+#include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/GlobalDevices.h"
@@ -50,6 +51,23 @@ void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>
     std::this_thread::sleep_until(target);
     target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
   }
+}
+
+frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
+{
+  std::vector<frc::Spline<5>::ControlVector> points;
+
+  io::CSVReader<6> csv(path);
+  csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+  double x, y, dx, dy, ddx=0, ddy=0;
+  while (csv.read_row(x, y, dx, dy, ddx, ddy)) {
+    // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+    points.push_back({{x, dx, ddx}, {y, dy, ddy}});
+  }
+
+  return frc::TrajectoryGenerator::GenerateTrajectory(
+      points,
+      config);
 }
 
 class Robot : public frc::TimedRobot
@@ -97,7 +115,7 @@ public:
     // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
-    frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
+    // frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -242,7 +260,6 @@ public:
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
     }
-
     else if (program == kAutoABlue)
     {
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
@@ -293,20 +310,10 @@ public:
     }
     else if (program == kAutoBarrel)
     {
-      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
-      std::vector<frc::Spline<5>::ControlVector> points;
+      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
+      config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      io::CSVReader<4> path("/home/lvuser/deploy/paths/Barrel.csv");
-      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
-      double x, y, dx, dy;
-      while (path.read_row(x, y, dx, dy)) {
-        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
-      }
-
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          points,
-          config);
-
+      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/paths/Barrel-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
@@ -319,20 +326,10 @@ public:
     }
     else if (program == kAutoSlalom)
     {
-      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
-      std::vector<frc::Spline<5>::ControlVector> points;
+      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
+      config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      io::CSVReader<4> path("/home/lvuser/deploy/paths/Slalom.csv");
-      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
-      double x, y, dx, dy;
-      while (path.read_row(x, y, dx, dy)) {
-        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
-      }
-
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          points,
-          config);
-
+      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/paths/Slalom-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
@@ -345,54 +342,24 @@ public:
     }
     else if (program == kAutoBounce)
     {
-      frc::TrajectoryConfig config(5_fps, 5_fps_sq);
-      std::vector<frc::Spline<5>::ControlVector> points;
+      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
+      config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      io::CSVReader<4> path("/home/lvuser/deploy/paths/Bounce-1.csv");
-      path.read_header(io::ignore_extra_column, "X", "Y", "Tangent X", "Tangent Y");
-      double x, y, dx, dy;
-      while (path.read_row(x, y, dx, dy)) {
-        points.push_back({{x, dx, 0.0}, {y, dy, 0.0}});
-      }
-
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          points,
-          config);
-
-      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
-
-      // Display
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-      /*
-      wpi::SmallString<64> deployDirectory;
-      frc::filesystem::GetDeployDirectory(deployDirectory);
-      wpi::sys::path::append(deployDirectory, "output");
-      wpi::sys::path::append(deployDirectory, "Bounce#.wpilib.json");
-      auto i = deployDirectory.rfind('#');
-
-      // Load each path
-      deployDirectory[i] = '1';
-      auto t1 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      auto t1 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-1.csv", config);
       auto s1 = t1.States();
 
-      deployDirectory[i] = '2';
-      auto t2 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      config.SetReversed(true);
+      auto t2 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-2.csv", config);
       auto s2 = t2.States();
-
-      deployDirectory[i] = '3';
-      auto t3 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      
+      config.SetReversed(false);
+      auto t3 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-3.csv", config);
       auto s3 = t3.States();
 
-      deployDirectory[i] = '4';
-      auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      config.SetReversed(true);
+      auto t4 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-4.csv", config);
       auto s4 = t4.States();
 
-      // Modify the time for each point in the second path
       {
         auto start_time = s1.back().t + 10_ms;
         for (size_t i = 0; i < s2.size(); i++)
@@ -426,16 +393,15 @@ public:
         s1.insert(s1.end(), s4.begin(), s4.end());
       }
 
-      // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
 
+      // Display
       m_swerve.ShowTrajectory(m_trajectory);
 
       // Set initial pose of robot
       m_swerve.ResetYaw();
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
-      */
     }
   }
 
@@ -609,7 +575,7 @@ public:
       m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
       auto succ = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand) * Vacuum::kMaxImpellerVoltage;
-      m_vacuum.Set(succ);
+      // m_vacuum.Set(succ);
     }
   }
 
@@ -623,7 +589,7 @@ private:
   frc::UniversalController m_operator{1};
 
   Drivetrain m_swerve;
-  Vacuum m_vacuum;
+  // Vacuum m_vacuum;
   GlobalDevices m_globals;
   Shooter m_shooter;
 
@@ -634,7 +600,7 @@ private:
       std::shared_ptr<rj::Loggable>(&m_globals),
       std::shared_ptr<rj::Loggable>(&m_swerve),
       std::shared_ptr<rj::Loggable>(&m_shooter),
-      std::shared_ptr<rj::Loggable>(&m_vacuum),
+      // std::shared_ptr<rj::Loggable>(&m_vacuum),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
