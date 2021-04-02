@@ -313,7 +313,7 @@ public:
       frc::TrajectoryConfig config(10_fps, 10_fps_sq);
       config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/paths/Barrel-Quintic-25.csv", config);
+      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Barrel-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
@@ -329,7 +329,7 @@ public:
       frc::TrajectoryConfig config(10_fps, 10_fps_sq);
       config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/paths/Slalom-Quintic-25.csv", config);
+      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Slalom-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
 
       // Display
@@ -345,19 +345,19 @@ public:
       frc::TrajectoryConfig config(10_fps, 10_fps_sq);
       config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      auto t1 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-1.csv", config);
+      auto t1 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-1.csv", config);
       auto s1 = t1.States();
 
       config.SetReversed(true);
-      auto t2 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-2.csv", config);
+      auto t2 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-2.csv", config);
       auto s2 = t2.States();
       
       config.SetReversed(false);
-      auto t3 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-3.csv", config);
+      auto t3 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-3.csv", config);
       auto s3 = t3.States();
 
       config.SetReversed(true);
-      auto t4 = LoadWaypointCSV("/home/lvuser/deploy/paths/Bounce-4.csv", config);
+      auto t4 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-4.csv", config);
       auto s4 = t4.States();
 
       {
@@ -550,7 +550,7 @@ public:
 
         if (m_controller.GetPOV() != -1)
         {
-          auto angle = frc::Rotation2d(units::degree_t{m_controller.GetPOV()});
+          auto angle = frc::Rotation2d(units::degree_t{-m_controller.GetPOV()});
           xInput = angle.Cos() * throttle;
           yInput = angle.Sin() * throttle;
         }
