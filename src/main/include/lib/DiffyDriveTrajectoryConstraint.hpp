@@ -14,7 +14,7 @@ namespace rj
         const DiffyDriveModel drivetrain_model;
         const units::pounds_per_square_inch_t vacuum;
 
-        DiffyDriveTrajectoryConstraint(const DiffyDriveModel model, units::pounds_per_square_inch_t vacuum = 1_psi) : drivetrain_model(model), vacuum(vacuum) {}
+        DiffyDriveTrajectoryConstraint(const DiffyDriveModel model, units::pounds_per_square_inch_t vacuum = 0_psi) : drivetrain_model(model), vacuum(vacuum) {}
         /**
      * Returns the max velocity given the current pose and curvature.
      *
@@ -82,8 +82,8 @@ namespace rj
 
            So, for now, just get the overall potential acceleration
         */
-            auto velocity_left = speed * (2 - drivetrain_model.track_width * curvature) / 2;
-            auto velocity_right = speed * (2 + drivetrain_model.track_width * curvature) / 2;
+            auto velocity_left = speed * (2 - drivetrain_model.track_width * curvature / 1_rad) / 2;
+            auto velocity_right = speed * (2 + drivetrain_model.track_width * curvature / 1_rad) / 2;
 
             auto actual_max = units::math::max(units::math::abs(velocity_left), units::math::abs(velocity_right));
 
@@ -96,8 +96,8 @@ namespace rj
             auto accel_left = drivetrain_model.State(velocity_left).wheel_acceleration;
             auto accel_right = drivetrain_model.State(velocity_right).wheel_acceleration;
 
-            auto accel_from_left = 2.0 * accel_left / (2.0 - drivetrain_model.track_width * curvature);
-            auto accel_from_right = 2.0 * accel_right / (2.0 + drivetrain_model.track_width * curvature);
+            auto accel_from_left = 2.0 * accel_left / (2.0 - drivetrain_model.track_width * curvature / 1_rad);
+            auto accel_from_right = 2.0 * accel_right / (2.0 + drivetrain_model.track_width * curvature / 1_rad);
 
             auto max_accel = 0_mps_sq;
             if (units::math::abs(accel_from_right) > drivetrain_model.MaxAccel())

@@ -137,14 +137,14 @@ private:
     /***************************************************************************/
     // CrossFire Characterization Values
 
-    static constexpr units::meter_t kTrackWidth = 0.579_m; //.579
+    static constexpr units::meter_t kTrackWidth = 0.7_m; //.579
     static constexpr units::meter_t kWheelRadius = 2.125_in;
     static constexpr units::meter_t empiricalDist = 210_in;
     static constexpr double kGearRatio = 5.95;
     static constexpr int kEncoderResolution = 2048;
     static constexpr int kMotorCount = 2;
 
-    decltype(1_V) kStatic{0.863};                     //.706
+    decltype(1_V) kStatic{1.16};  //0.863                   //.706
     decltype(1_V / 1_mps) kVlinear{1.96};             //1.86
     decltype(1_V / 1_mps_sq) kAlinear{0.0911};         //0.0917
     decltype(1_V / 1_rad_per_s) kVangular{1.95};      //1.94
@@ -157,8 +157,8 @@ private:
 public:
     // Teleop Values
     /// TODO(Dereck): Measure these too
-    static constexpr units::feet_per_second_t kMaxSpeed{17.5};
-    static constexpr units::degrees_per_second_t kMaxAngularSpeed{360.0};
+    static constexpr units::feet_per_second_t kMaxSpeed{18.0};
+    static constexpr units::degrees_per_second_t kMaxAngularSpeed{720.0};
 
     WPI_TalonFX impel{6};
     WPI_TalonFX impel2{7};
