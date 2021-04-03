@@ -119,17 +119,17 @@ private:
 
     const std::array<units::radians_per_second_t, 5> m_speed_setpoints{
         0_rpm,
-        2500_rpm,
         2450_rpm,
-        2950_rpm,
-        3200_rpm
+        2450_rpm,
+        3050_rpm,
+        3250_rpm
     };
 
     const std::array<units::radian_t, 5> m_pitch_setpoints{
         0_deg,
-        31_deg,
+        32.5_deg,
         38_deg,
-        43_deg,
-        45_deg
+        45_deg,
+        47.5_deg
     };
 };
