@@ -4,6 +4,6 @@
   "maxVelocity": 4.0,
   "maxAcceleration": 3.5,
   "wheelBase": 0.762,
-  "gameName": "Slalom Path",
+  "gameName": "Barrel Racing Path",
   "outputDir": "../../deploy"
 }

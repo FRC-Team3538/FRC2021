@@ -59,8 +59,9 @@ frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
 
   io::CSVReader<6> csv(path);
   csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
-  double x, y, dx, dy, ddx=0, ddy=0;
-  while (csv.read_row(x, y, dx, dy, ddx, ddy)) {
+  double x, y, dx, dy, ddx = 0, ddy = 0;
+  while (csv.read_row(x, y, dx, dy, ddx, ddy))
+  {
     // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
     points.push_back({{x, dx, ddx}, {y, dy, ddy}});
   }
@@ -311,8 +312,9 @@ public:
     }
     else if (program == kAutoBarrel)
     {
-      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
-      config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
+      frc::TrajectoryConfig config(16_fps, 25_fps_sq);
+      config.AddConstraint(frc::CentripetalAccelerationConstraint{12_mps_sq});
+      config.SetEndVelocity(16_fps);
 
       m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Barrel-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
@@ -327,8 +329,9 @@ public:
     }
     else if (program == kAutoSlalom)
     {
-      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
-      config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
+      frc::TrajectoryConfig config(15_fps, 20_fps_sq);
+      config.AddConstraint(frc::CentripetalAccelerationConstraint{10_mps_sq});
+      config.SetEndVelocity(15_fps);
 
       m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Slalom-Quintic-25.csv", config);
       m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
@@ -352,7 +355,7 @@ public:
       config.SetReversed(true);
       auto t2 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-2.csv", config);
       auto s2 = t2.States();
-      
+
       config.SetReversed(false);
       auto t3 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-3.csv", config);
       auto s3 = t3.States();
@@ -507,7 +510,7 @@ public:
 
       m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
       */
-     
+
       auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
       auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
 
@@ -532,7 +535,7 @@ public:
       else if (m_operator.GetPOV() == 270)
       {
         m_shooter.GotoSetpoint(4);
-      }       
+      }
     }
 
     // Drivebase
@@ -544,7 +547,7 @@ public:
       if (m_driverControls)
       {
         auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-        
+
         auto angle = frc::Rotation2d(xInput, yInput);
         if (xInput * xInput + yInput * yInput > 0)
         {
@@ -559,7 +562,7 @@ public:
           yInput = angle.Sin() * throttle;
         }
       }
-      
+
       auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
 
       // Increase Low-end stick control ("Smoothing")
