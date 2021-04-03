@@ -136,6 +136,7 @@ public:
 
   void DisabledInit() override
   {
+    std::cout << "Auto Time Elapsed: " << m_autoTimer.Get() << std::endl;
     // Mostly for sim
     m_swerve.Drive(0_mps, 0_mps, 0_deg_per_s, false);
   }
@@ -342,7 +343,7 @@ public:
     }
     else if (program == kAutoBounce)
     {
-      frc::TrajectoryConfig config(10_fps, 10_fps_sq);
+      frc::TrajectoryConfig config(15_fps, 20_fps_sq);
       config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
       auto t1 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-1.csv", config);
@@ -357,6 +358,7 @@ public:
       auto s3 = t3.States();
 
       config.SetReversed(true);
+      config.SetEndVelocity(10_fps);
       auto t4 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-4.csv", config);
       auto s4 = t4.States();
 
@@ -403,6 +405,8 @@ public:
       auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
       m_swerve.ResetOdometry(p);
     }
+
+    std::cout << "Expected Time for this Path: " << m_trajectory.TotalTime() << std::endl;
   }
 
   void AutonomousPeriodic() override
