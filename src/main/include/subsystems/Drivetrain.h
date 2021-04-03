@@ -38,6 +38,7 @@ public:
     void Drive(frc::Trajectory::State trajectoryState, units::radian_t yaw = 0_rad);
     void UpdateOdometry();
     frc::Rotation2d GetYaw();
+    units::radians_per_second_t GetYawRate();
     void ResetYaw();
     void Log(UDPLogger &logger);
     void SimPeriodic();
@@ -58,7 +59,7 @@ private:
     frc::Translation2d m_backLeftLocation{-m_dist, +m_dist};
     frc::Translation2d m_backRightLocation{-m_dist, -m_dist};
 
-    bool m_fieldRelative;
+    bool m_fieldRelative = true;
 
     // Swerve Modules
     SwerveModule m_frontLeft{1, 2, 3, m_frontLeftConfig};
@@ -74,8 +75,12 @@ private:
         frc::ADIS16470CalibrationTime::_4s};
 #else
     // The ADI gyro is not simulator compatible on linux
-    frc::AnalogGyro m_gyro{0};
+    units::radian_t m_theta = 0_rad;
 #endif
+
+    // Heading Lock
+    bool m_YawLockActive = true;
+    frc2::PIDController m_yawLockPID{5.0, 0.0, 0.1};
 
     // Odometry
     frc::SwerveDriveKinematics<4> m_kinematics{
@@ -102,7 +107,6 @@ private:
 
     frc::Field2d m_fieldDisplay;
 
-    units::radian_t m_theta = 0_rad;
 
     // Control
     frc::ChassisSpeeds m_command;
