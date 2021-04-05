@@ -163,6 +163,16 @@ public:
     WPI_TalonFX impel{6};
     WPI_TalonFX impel2{7};
 
+    frc::DifferentialDriveKinematics GetKinematics()
+    {
+        return m_kinematics;
+    }
+
+    frc::SimpleMotorFeedforward GetFeedForward()
+    {
+        return m_feedforward;
+    }
+
     /***************************************************************************/
 
 private:
