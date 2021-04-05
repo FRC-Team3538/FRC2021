@@ -3,13 +3,18 @@
 #include <lib/DiffyDriveModel.hpp>
 #include <frc/trajectory/constraint/TrajectoryConstraint.h>
 #include <units/pressure.h>
-#include <units/math.h>
 
 namespace rj
 {
 
     class DiffyDriveTrajectoryConstraint : public frc::TrajectoryConstraint
     {
+    private:
+        units::meters_per_second_t clamp(units::meters_per_second_t value, units::meters_per_second_t bound)
+        {
+            return units::math::min(units::math::max(value, bound), -bound);
+        }
+
     public:
         const DiffyDriveModel drivetrain_model;
         const units::pounds_per_square_inch_t vacuum;
@@ -77,47 +82,20 @@ namespace rj
             your acceleration can be forced negative
            and consequently in a path with high initial curvature this fails to calculate positive initial acceleration
            although clearly we can achieve the desired velocity / acceleration pair
-
            The end goal for this approach is to get an overall acceleration that is constrained by the possible acceleration on either side
-
            So, for now, just get the overall potential acceleration
+        auto velocity_left = clamp(speed * (2 - drivetrain_model.track_width * curvature) / 2, drivetrain_model.MaxVelocity());
+        auto velocity_right = clamp(speed * (2 + drivetrain_model.track_width * curvature) / 2, drivetrain_model.MaxVelocity());
+        auto accel_left = drivetrain_model.State(velocity_left).wheel_acceleration;
+        auto accel_right = drivetrain_model.State(velocity_right).wheel_acceleration;
+        auto accel_from_left = 2.0 * accel_left / (2.0 - drivetrain_model.track_width * curvature);
+        auto accel_from_right = 2.0 * accel_right / (2.0 + drivetrain_model.track_width * curvature);
         */
-            auto velocity_left = speed * (2 - drivetrain_model.track_width * curvature) / 2;
-            auto velocity_right = speed * (2 + drivetrain_model.track_width * curvature) / 2;
-
-            auto actual_max = units::math::max(units::math::abs(velocity_left), units::math::abs(velocity_right));
-
-            if (actual_max > drivetrain_model.MaxVelocity())
-            {
-                velocity_left = velocity_left / actual_max * drivetrain_model.MaxVelocity();
-                velocity_right = velocity_right / actual_max * drivetrain_model.MaxVelocity();
-            }
-            
-            auto accel_left = drivetrain_model.State(velocity_left).wheel_acceleration;
-            auto accel_right = drivetrain_model.State(velocity_right).wheel_acceleration;
-
-            auto accel_from_left = 2.0 * accel_left / (2.0 - drivetrain_model.track_width * curvature);
-            auto accel_from_right = 2.0 * accel_right / (2.0 + drivetrain_model.track_width * curvature);
-
-            auto max_accel = 0_mps_sq;
-            if (units::math::abs(accel_from_right) > drivetrain_model.MaxAccel())
-            {
-                max_accel = accel_from_left;
-            } 
-            else if (units::math::abs(accel_from_left) > drivetrain_model.MaxAccel())
-            {
-                max_accel = accel_from_right;
-            }
-            else
-            {
-                max_accel = units::math::min(accel_from_left, accel_from_right);
-            }
-        
-            // auto middle_accel = drivetrain_model.State(speed).wheel_acceleration;
+            auto middle_accel = drivetrain_model.State(speed).wheel_acceleration;
 
             return {
                 minAcceleration : -drivetrain_model.MaxAccel(),
-                maxAcceleration : max_accel
+                maxAcceleration : middle_accel
             };
         }
     };
