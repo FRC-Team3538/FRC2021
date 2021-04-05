@@ -49,6 +49,24 @@ void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>
   }
 }
 
+frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
+{
+  std::vector<frc::Spline<5>::ControlVector> points;
+
+  io::CSVReader<6> csv(path);
+  csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+  double x, y, dx, dy, ddx = 0, ddy = 0;
+  while (csv.read_row(x, y, dx, dy, ddx, ddy))
+  {
+    // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+    points.push_back({{x, dx, ddx}, {y, dy, ddy}});
+  }
+
+  return frc::TrajectoryGenerator::GenerateTrajectory(
+      points,
+      config);
+}
+
 class Robot : public frc::TimedRobot
 {
 public:
