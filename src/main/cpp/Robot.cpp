@@ -25,6 +25,11 @@
 
 #include <lib/DiffyDriveTrajectoryConstraint.hpp>
 #include <DrivetrainModel.hpp>
+#include <lib/EllipticAccelerationConstraint.h>
+#include <frc/trajectory/constraint/DifferentialDriveKinematicsConstraint.h>
+#include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
+#include <frc/trajectory/constraint/RectangularRegionConstraint.h>
+#include <lib/csv.h>
 
 #include <memory>
 #include <thread>
@@ -58,7 +63,7 @@ frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
   double x, y, dx, dy, ddx = 0, ddy = 0;
   while (csv.read_row(x, y, dx, dy, ddx, ddy))
   {
-    // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+    //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
     points.push_back({{x, dx, ddx}, {y, dy, ddy}});
   }
 
@@ -108,6 +113,26 @@ public:
 
     SupplyCurrentLimitConfiguration config{true, 30.0, 40.0, 0.0};
     intake.ConfigSupplyCurrentLimit(config);
+
+    auto maxLinearVel = 17.5_fps;
+    auto maxCentripetalAcc = 1_SG;
+    auto maxLinearAcc = 20_fps_sq;
+
+    frc::EllipticAccelerationConstraint m_elliptic_constraint{maxCentripetalAcc, maxLinearAcc};
+
+    frc::DifferentialDriveKinematicsConstraint m_kinematic_constraint{m_drive.GetKinematics(), maxLinearVel};
+
+    frc::DifferentialDriveVoltageConstraint m_voltage_constraint{m_drive.GetFeedForward(), m_drive.GetKinematics(), 12.5_V};
+
+    rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.065_psi}; //.125
+
+    frc::TrajectoryConfig tjconfig(maxLinearVel, maxLinearAcc); //17.5 15
+    tjconfig.AddConstraint(m_elliptic_constraint);
+    tjconfig.AddConstraint(m_voltage_constraint);
+    tjconfig.AddConstraint(m_kinematic_constraint);
+    tjconfig.SetEndVelocity(maxLinearVel);
+
+    m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Slalom", tjconfig);
   }
 
   void RobotPeriodic() override
@@ -271,51 +296,85 @@ public:
 
       // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
+      auto maxLinearVel = 17.5_fps;
+      auto maxCentripetalAcc = 1.1_SG;
+      auto initCentripetalAcc = 0.875_SG;
+      auto maxLinearAcc = 15_fps_sq;
+      auto initLinearAcc = 10_fps_sq;
+
+      frc::EllipticAccelerationConstraint m_elliptic_constraint{maxCentripetalAcc, maxLinearAcc};
+
+      frc::DifferentialDriveKinematicsConstraint m_kinematic_constraint{m_drive.GetKinematics(), maxLinearVel};
+
+      frc::DifferentialDriveVoltageConstraint m_voltage_constraint{m_drive.GetFeedForward(), m_drive.GetKinematics(), 12.5_V};
+
       rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.065_psi}; //.125
 
-      frc::TrajectoryConfig config(17.5_fps, 15_fps_sq); //17.5 15
-      config.AddConstraint(m_drivetrain_constraint);
+      frc::Translation2d m_blBoundingBox{120_in, -150_in};
+      frc::Translation2d m_trBoundingBox{210_in, -90_in};
+      frc::EllipticAccelerationConstraint m_initial_elliptic_constraint{initCentripetalAcc, initLinearAcc};
+      frc::RectangularRegionConstraint<frc::EllipticAccelerationConstraint> m_firstTurnConstraint{m_blBoundingBox, m_trBoundingBox, m_initial_elliptic_constraint};
 
-      std::vector<frc::Spline<5>::ControlVector> points{
+      frc::TrajectoryConfig config(maxLinearVel, maxLinearAcc); //17.5 15
+      config.AddConstraint(m_elliptic_constraint);
+      config.AddConstraint(m_voltage_constraint);
+      config.AddConstraint(m_kinematic_constraint);
+      config.SetEndVelocity(maxLinearVel);
+      config.AddConstraint(m_firstTurnConstraint);
+
+      std::vector<frc::Spline<5>::ControlVector> points;
+
+      io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Barrel2Cop.path");
+      csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+      double x, y, dx, dy, ddx = 0, ddy = 0;
+      while (csv.read_row(x, y, dx, dy, ddx, ddy))
+      {
+        //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+        points.push_back({{x, dx, ddx}, {y, dy, ddy}});
+      }
+
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+
+      /*std::vector<frc::Spline<5>::ControlVector> points{
           {{1.2483351403280039, 1.6866171687367046, 0.0},
            {-2.2695291292115556, 0.01317669663075538, 0.0}},
-          {{3.686024017017773, 1.31766966307555, 0.0},
-           {-2.2563524325808, -0.00658834831537769, 0.0}},
-          {{4.77968983737048, -0.07247183146915503, 0.0},
-           {-3.1655445001029303, -0.9882522473066637, 0.0}},
-          {{3.8112026350099506, -0.7049532697454195, 0.0},
-           {-4.015441432786661, 0.032941741576888894, 0.0}},
-          {{2.96130570232622, 0.006588348315378578, 0.0},
-           {-3.0535425787415083, 1.3044929664447955, 0.0}},
-          {{3.8704977698483503, 0.5863630000686197, 0.0},
-           {-2.342000960680711, -0.013176696630755824, 0.0}},
-          {{4.496390859809237, 0.434830988814932, 0.0},
-           {-2.3815310505729768, 0.006588348315376802, 0.0}},
-          {{5.945827489192344, 1.1002541686680836, 0.0},
-           {-2.262940780896178, 0.20423879777671017, 0.0}},
-          {{6.953844781445139, 0.02635339326151165, 0.0},
-           {-1.4921040279969808, 1.2451978316063956, 0.0}},
-          {{6.051241062238384, -1.1002541686680827, 0.0},
-           {-0.7542090166746724, -0.00658834831537769, 0.0}},
-          {{5.155225691347012, 0.08564852809990953, 0.0},
-           {-1.5711642077815142, -1.2913162698140397, 0.0}},
-          {{5.879944006038565, 0.7942227806306225, 0.0},
-           {-3.0864843203183976, -0.8293664465237991, 0.0}},
-          {{7.6917397927674465, 1.047547382145062, 0.0},
-           {-3.896851163109861, 0.0, 0.0}},
-          {{8.844700747958555, 0.07906017978453406, 0.0},
-           {-3.07989597200302, 1.4823783709599943, 0.0}},
-          {{7.592914568036781, -1.4757900226446186, 0.0},
-           {-2.124585466273245, -0.01317669663075538, 0.0}},
-          {{4.542509298016881, -1.5798214712754093, 0.0},
-           {-2.3024708707884445, -0.044663678550604546, 0.0}},
+          {{3.8704977698483503, 1.357199752967818, 0.0},
+           {-2.1509388595347563, 0.026353393261511204, 0.0}},
+          {{4.7994548823166125, -0.019765044946132626, 0.0},
+           {-3.02060083716462, -1.0541357304604406, 0.0}},
+          {{3.784849241748439, -1.0673124270911964, 0.0},
+           {-3.8902628147944833, 0.01976504494613307, 0.0}},
+          {{2.829538736018665, 0.006588348315378578, 0.0},
+           {-3.060130927056886, 1.3044929664447955, 0.0}},
+          {{3.837556028271461, 0.9882522473066624, 0.0},
+           {-2.157527207850134, 0.0, 0.0}},
+          {{6.143477938653675, 1.1002541686680836, 0.0},
+           {-2.1970572977424006, 0.20423879777671017, 0.0}},
+          {{6.953844781445139, 0.01317669663075538, 0.0},
+           {-1.4921040279969808, 0.8103668427914638, 0.0}},
+          {{6.229126466753585, -1.1002541686680827, 0.0},
+           {-0.8596225897207165, -0.00658834831537769, 0.0}},
+          {{5.445113017223633, 0.08564852809990953, 0.0},
+           {-1.834698140396624, -1.2913162698140397, 0.0}},
+          {{6.281833253276608, 0.4545960337610646, 0.0},
+           {-3.1589561517875526, -0.3294174157688876, 0.0}},
+          {{7.6917397927674465, 1.666852123790573, 0.0},
+           {-3.896851163109861, -0.01317669663075538, 0.0}},
+          {{8.811759006381665, 0.013176696630754492, 0.0},
+           {-3.060130927056886, 1.2781395731832847, 0.0}},
+          {{7.56656117477527, -1.4757900226446186, 0.0},
+           {-2.309059219103822, -0.01317669663075538, 0.0}},
+          {{4.542509298016881, -1.5701995764296477, 0.0},
+           {-2.3024708707884445, -0.01058716807032005, 0.0}},
           {{2.8558921292801758, -1.3220538892623614, 0.0},
            {-2.3222359157345775, -0.005654328072778406, 0.0}},
           {{0.576323612159473, -0.7576600562684417, 0.0},
            {-2.309059219103822, -0.00658834831537769, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
-          config);
+          config);*/
     }
     else if (path == "Slalom")
     {
@@ -326,53 +385,82 @@ public:
 
       // m_trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.125_psi}; //0.04
+      // rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.125_psi}; //0.04
 
-      frc::TrajectoryConfig config(17.5_fps, 15.5_fps_sq);
-      config.AddConstraint(m_drivetrain_constraint);
+      // frc::TrajectoryConfig config(17.5_fps, 15.5_fps_sq);
+      // config.AddConstraint(m_drivetrain_constraint);
 
+      auto maxLinearVel = 17.5_fps;
+      auto maxCentripetalAcc = 1_SG;
+      auto maxLinearAcc = 15_fps_sq;
+
+      frc::EllipticAccelerationConstraint m_elliptic_constraint{maxCentripetalAcc, maxLinearAcc};
+
+      frc::DifferentialDriveKinematicsConstraint m_kinematic_constraint{m_drive.GetKinematics(), maxLinearVel};
+
+      frc::DifferentialDriveVoltageConstraint m_voltage_constraint{m_drive.GetFeedForward(), m_drive.GetKinematics(), 12.5_V};
+
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.065_psi}; //.125
+
+      frc::TrajectoryConfig config(maxLinearVel, maxLinearAcc); //17.5 15
+      config.AddConstraint(m_elliptic_constraint);
+      config.AddConstraint(m_voltage_constraint);
+      config.AddConstraint(m_kinematic_constraint);
+      config.SetEndVelocity(maxLinearVel);
+
+      std::vector<frc::Spline<5>::ControlVector> points;
+
+      io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Slalom");
+      csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+      double x, y, dx, dy, ddx = 0, ddy = 0;
+      while (csv.read_row(x, y, dx, dy, ddx, ddy))
+      {
+        //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+        points.push_back({{x, dx, ddx}, {y, dy, ddy}});
+      }
+
+      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+          points,
+          config);
+
+      //m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Slalom", config);
+
+      /*
       std::vector<frc::Spline<5>::ControlVector> points{
           {{1.1875, 1.7063822136828386, 0.0},
            {-3.8112026350099506, 0.03294174157688934, 0.0}},
           {{2.2168223426885336, 0.4677727303918209, 0.0},
            {-3.0667192753722645, 0.42824264049955474, 0.0}},
-          {{3.0733076236876413, 0.7787023463356992, 0.0},
-           {-2.394707747203733, 0.3613962455806413, 0.0}},
-          {{4.6545112193783025, 0.7708367528991973, 0.0},
-           {-2.262940780896178, 0.0, 0.0}},
-          {{5.7811187813078995, 0.6395875652687841, 0.0},
-           {-2.348589308996089, -0.22379574235722094, 0.0}},
-          {{6.59807397241474, 0.4845594808940161, 0.0},
-           {-2.8558921292801758, -0.5883936553713056, 0.0}},
-          {{6.993374871337405, 0.3285365908899374, 0.0},
-           {-3.4554318259795513, -0.40158940418875627, 0.0}},
-          {{7.606091264667536, 0.4281187224465118, 0.0},
-           {-4.0417948260481715, -0.09538000922506747, 0.0}},
-          {{8.192454264736156, 0.3533056178348991, 0.0},
-           {-3.969322994579016, 0.19984101691295109, 0.0}},
-          {{8.56140177039731, -0.05929513483840054, 0.0},
-           {-3.2973114664104854, 0.4480076854456865, 0.0}},
-          {{8.179277568105402, -0.38422849311423746, 0.0},
-           {-2.6845950730803545, 0.21310541641133418, 0.0}},
-          {{7.349145680367804, -0.5270678652302188, 0.0},
-           {-2.7900086461263984, -0.46777273039182043, 0.0}},
-          {{6.914314691552873, -0.1844737528305771, 0.0},
-           {-3.3697832978796405, -0.3491824607150211, 0.0}},
-          {{6.677134152199273, -0.27261122661419646, 0.0},
-           {-3.6201405338639954, -0.2522596727266124, 0.0}},
-          {{6.038064365607632, -0.6494020328045245, 0.0},
-           {-4.054971522678928, -0.2917205308263707, 0.0}},
-          {{4.628157826116792, -1.0059734155124578, 0.0},
-           {-4.173561792355726, 0.0028691170151164958, 0.0}},
-          {{3.02060083716462, -0.8118788802466899, 0.0},
-           {-4.008853084471283, 0.41360141642669657, 0.0}},
-          {{2.0982320730117343, -0.42165429218417616, 0.0},
-           {-3.152367803472175, 0.4216542921841766, 0.0}},
-          {{0.8662109380360942, -0.6851882247992864, 0.0},
-           {-1.030919645920538, 0.48094942702257615, 0.0}}};
+          {{3.0733076236876413, 0.6905119844767379, 0.0},
+           {-2.394707747203733, 0.33672982243883576, 0.0}},
+          {{4.325093803609414, 0.918827777267091, 0.0},
+           {-2.1377621629040005, 0.07550246313831972, 0.0}},
+          {{5.83382556783092, 0.7457073233529692, 0.0},
+           {-2.2299990393192894, -0.28102917100637403, 0.0}},
+          {{6.637604062307006, 0.4845594808940161, 0.0},
+           {-2.710948466341866, -0.5883936553713056, 0.0}},
+          {{7.0790233994373155, 0.5534212584917313, 0.0},
+           {-3.574022095656351, -0.6983649214300418, 0.0}},
+          {{8.021157208536335, 1.087077472037329, 0.0},
+           {-4.048383174363549, 0.0, 0.0}},
+          {{8.778817264804777, 0.046118438207644274, 0.0},
+           {-3.303899814725863, 0.7115416180607976, 0.0}},
+          {{8.330809579359089, -0.4591601937325714, 0.0},
+           {-2.4935329719343993, 0.23346557414699634, 0.0}},
+          {{7.375499073629315, -0.6851882247992878, 0.0},
+           {-2.658241679818843, -0.7444833596376861, 0.0}},
+          {{6.584897275783985, -1.304492966444795, 0.0},
+           {-3.6794356687023955, -0.9421338090990186, 0.0}},
+          {{4.582039387909147, -1.1741143844288655, 0.0},
+           {-4.028618129417416, 0.009252789704710477, 0.0}},
+          {{3.0667192753722645, -1.5284968091676392, 0.0},
+           {-3.8112026350099506, 0.5336562135455982, 0.0}},
+          {{0.8135041515130722, -0.6851882247992864, 0.0},
+           {-1.08362643244356, 0.48094942702257615, 0.0}}};
       m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
           points,
           config);
+          */
     }
     else if (path == "Bounce")
     {
@@ -399,47 +487,71 @@ public:
       // auto t4 = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
       // auto s4 = t4.States();
 
-      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.1_psi};
+      auto maxLinearVel = 17.5_fps;
+      auto maxCentripetalAcc = 0.7_SG;
+      auto maxLinearAcc = 13.5_fps_sq;
 
-      frc::TrajectoryConfig config(17.5_fps, 17_fps_sq);
-      config.AddConstraint(m_drivetrain_constraint);
+      frc::EllipticAccelerationConstraint m_elliptic_constraint{maxCentripetalAcc, maxLinearAcc};
 
-      std::vector<frc::Spline<5>::ControlVector> p1{
-          {{1, 1.0, 0.0},
-           {-2.295882522473067, 0.0, 0.0}},
-          {{1.8083447471351133, 0.4545600077720267, 0.0},
-           {-2.0982320730117343, 0.30278002198168963, 0.0}},
-          {{2.289294174157689, 0.01730569574621521, 0.0},
-           {-1.0704497358128044, 0.6749221341023793, 0.0}}};
+      frc::DifferentialDriveKinematicsConstraint m_kinematic_constraint{m_drive.GetKinematics(), maxLinearVel};
 
-      std::vector<frc::Spline<5>::ControlVector> p2{
-          {{2.2761174775269333, -0.008652847873107383, 0.0},
-           {-1.08362643244356, 1.038341744772891, 0.0}},
-          {{3.4620201742949295, -0.9950775054073548, 0.0},
-           {-3.475196870925685, 0.5883936553713047, 0.0}},
-          {{4.285563713717148, -0.36894750566115375, 0.0},
-           {-3.350018252933507, -0.1515320112536882, 0.0}},
-          {{4.588627736224526, 0.0, 0.0},
-           {-1.1692749605434711, -0.4018892472380433, 0.0}}};
+      frc::DifferentialDriveVoltageConstraint m_voltage_constraint{m_drive.GetFeedForward(), m_drive.GetKinematics(), 12.5_V};
 
-      std::vector<frc::Spline<5>::ControlVector> p3{
-          {{4.562274342963014, -0.01317669663075538, 0.0},
-           {-1.116568174020449, -1.5812035956906605, 0.0}},
-          {{5.201344129554656, 1.005378014938921, 0.0},
-           {-3.376371646195018, -0.2845555739099437, 0.0}},
-          {{6.268656556645851, 1.1008693924050117, 0.0},
-           {-3.3697832978796405, 0.2928864964328327, 0.0}},
-          {{7.032904961229671, 0.017305695746214766, 0.0},
-           {-0.925506072874494, 0.7787563085796683, 0.0}}};
+      rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper, 0.065_psi}; //.125
 
-      std::vector<frc::Spline<5>::ControlVector> p4{
-          {{6.8681962533452285, -0.06056993511175168, 0.0},
-           {-1.1363332189665822, 1.0037303532804613, 0.0}},
-          {{7.4809126466753595, -0.6081320680290916, 0.0},
-           {-1.9071699718657795, 0.4546214722028288, 0.0}},
-          {{8.838112399643176, -0.7015575628225967, 0.0},
-           {-2.262940780896178, 0.19098313121751653, 0.0}}};
+      frc::TrajectoryConfig config(maxLinearVel, maxLinearAcc); //17.5 15
+      config.AddConstraint(m_elliptic_constraint);
+      config.AddConstraint(m_voltage_constraint);
+      config.AddConstraint(m_kinematic_constraint);
+      config.SetEndVelocity(maxLinearVel);
 
+      std::vector<frc::Spline<5>::ControlVector> p1;
+      {
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Bounce-1");
+        csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+        double x, y, dx, dy, ddx = 0, ddy = 0;
+        while (csv.read_row(x, y, dx, dy, ddx, ddy))
+        {
+          //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+          p1.push_back({{x, dx, ddx}, {y, dy, ddy}});
+        }
+      }
+
+      std::vector<frc::Spline<5>::ControlVector> p2;
+      {
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Bounce-2");
+        csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+        double x, y, dx, dy, ddx = 0, ddy = 0;
+        while (csv.read_row(x, y, dx, dy, ddx, ddy))
+        {
+          //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+          p2.push_back({{x, dx, ddx}, {y, dy, ddy}});
+        }
+      }
+
+      std::vector<frc::Spline<5>::ControlVector> p3;
+      {
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Bounce-3");
+        csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+        double x, y, dx, dy, ddx = 0, ddy = 0;
+        while (csv.read_row(x, y, dx, dy, ddx, ddy))
+        {
+          //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+          p3.push_back({{x, dx, ddx}, {y, dy, ddy}});
+        }
+      }
+
+      std::vector<frc::Spline<5>::ControlVector> p4;
+      {
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Bounce-4");
+        csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+        double x, y, dx, dy, ddx = 0, ddy = 0;
+        while (csv.read_row(x, y, dx, dy, ddx, ddy))
+        {
+          //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+          p4.push_back({{x, dx, ddx}, {y, dy, ddy}});
+        }
+      }
       auto t1 = frc::TrajectoryGenerator::GenerateTrajectory(
           p1,
           config);
@@ -501,6 +613,8 @@ public:
 
       // Save this Trajectory
       m_trajectory = frc::Trajectory(s1);
+
+      intakeRetention.SetAngle(100.0);
     }
     else if (path == "Accuracy")
     {
@@ -711,8 +825,10 @@ public:
       //
       // Just Follow a Path...
       //
-
-      m_drive.SetImpel(-1.0);
+      if (m_autoTimer.Get().value() > 7.4 && path == "Barrel")
+        m_drive.SetImpel(0.0);
+      else
+        m_drive.SetImpel(-1.0);
 
       auto reference = m_trajectory.Sample(m_autoTimer.Get());
       auto speeds = m_ramsete.Calculate(m_drive.GetPose(), reference);
@@ -724,7 +840,7 @@ public:
 
       frc::SmartDashboard::PutString("Reference", reference_json);
 
-      std::cout << reference.pose.X().value() << "," << reference.pose.Y().value() << "," << reference.pose.Rotation().Degrees().value() << "," << m_drive.GetPose().X().value() << "," << m_drive.GetPose().Y().value() << "," << m_drive.GetPose().Rotation().Degrees().value() << "," << speeds.vx.value() << "," << speeds.omega.value() << std::endl;
+      std::cout << reference.pose.X().value() << "," << reference.pose.Y().value() << "," << reference.pose.Rotation().Degrees().value() /* << "," << m_drive.GetPose().X().value() << "," << m_drive.GetPose().Y().value() << "," << m_drive.GetPose().Rotation().Degrees().value()*/ << "," << speeds.vx.value() << "," << speeds.omega.value() << std::endl;
     }
   }
 
@@ -749,28 +865,28 @@ public:
     // m_drive.Drive(xSpeed, -rot);
 
     double forward = deadband(pow(m_controller.GetRawAxis(1), 1));
-    if ((fabs(forward) > 0.5) && !slewOS)
-    {
-      Slew.Reset();
-      Slew.Start();
-      slewOS = true;
-      std::cout << "AHHHHHHHHHHH" << std::endl;
-    }
-    if (Slew.Get() < 0.5)
-    {
-      forward = m_speedLimiter.Calculate(forward);
-    }
-    else if (!impelOS && (Slew.Get() > 0.5) && slewOS)
-    {
-      SupplyCurrentLimitConfiguration config{true, 25.0, 25.0, 0.0};
-      m_drive.impel.ConfigSupplyCurrentLimit(config);
-      m_drive.impel2.ConfigSupplyCurrentLimit(config);
-      impelOS = true;
-    }
-    else
-    {
-      double yeet = m_speedLimiter.Calculate(forward);
-    }
+    // if ((fabs(forward) > 0.5) && !slewOS)
+    // {
+    //   Slew.Reset();
+    //   Slew.Start();
+    //   slewOS = true;
+    //   std::cout << "AHHHHHHHHHHH" << std::endl;
+    // }
+    // if (Slew.Get() < 0.5)
+    // {
+    //   forward = m_speedLimiter.Calculate(forward);
+    // }
+    // else if (!impelOS && (Slew.Get() > 0.5) && slewOS)
+    // {
+    //   SupplyCurrentLimitConfiguration config{true, 25.0, 25.0, 0.0};
+    //   m_drive.impel.ConfigSupplyCurrentLimit(config);
+    //   m_drive.impel2.ConfigSupplyCurrentLimit(config);
+    //   impelOS = true;
+    // }
+    // else
+    // {
+    //   double yeet = m_speedLimiter.Calculate(forward);
+    // }
 
     m_drive.Arcade(forward, deadband(0.5 * pow(m_controller.GetRawAxis(2), 1)));
     double intakeSpd = ((m_controller.GetRawAxis(3) / 2.0) + 0.5) - ((m_controller.GetRawAxis(4) / 2.0) + 0.5);

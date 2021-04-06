@@ -119,7 +119,7 @@ public:
         logger.LogExternalDevice(m_driveR0);
         logger.LogExternalDevice(m_driveR1);
         logger.LogExternalDevice(m_driveR2);
-        logger.LogExternalDevice(impel);
+        //logger.LogExternalDevice(impel);
         logger.LogExternalDevice(impel2);
 
 #ifdef __FRC_ROBORIO__
@@ -157,8 +157,8 @@ private:
 public:
     // Teleop Values
     /// TODO(Dereck): Measure these too
-    static constexpr units::feet_per_second_t kMaxSpeed{17.5};
-    static constexpr units::degrees_per_second_t kMaxAngularSpeed{360.0};
+    static constexpr units::feet_per_second_t kMaxSpeed{20.0};
+    static constexpr units::degrees_per_second_t kMaxAngularSpeed{720.0};
 
     WPI_TalonFX impel{6};
     WPI_TalonFX impel2{7};
@@ -168,7 +168,7 @@ public:
         return m_kinematics;
     }
 
-    frc::SimpleMotorFeedforward GetFeedForward()
+    frc::SimpleMotorFeedforward<units::meter> GetFeedForward()
     {
         return m_feedforward;
     }
