@@ -516,6 +516,11 @@ public:
 
       m_shooter.SetGate(gateVoltage);
 
+      auto gravityInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
+      auto gravityVoltage = m_gravityLimiter.Calculate(gravityInput) * Shooter::kMaxGravityVoltage;
+
+      m_shooter.SetGravityBoost(gravityVoltage);
+
       if (m_operator.GetTouchPadButton())
       {
         m_shooter.GotoSetpoint(0);
@@ -563,7 +568,7 @@ public:
         }
       }
 
-      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.1, 1.0) * -1.0;
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.15, 1.0) * -1.0;
 
       // Increase Low-end stick control ("Smoothing")
       if (rInput < 0)
@@ -618,6 +623,7 @@ private:
   frc::SlewRateLimiter<units::scalar> m_shooterLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_gateLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_hoodLimiter{10 / 1_s};
+  frc::SlewRateLimiter<units::scalar> m_gravityLimiter{10 / 1_s};
 
   // Drive Mode
   bool m_fieldRelative = true;

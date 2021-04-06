@@ -74,6 +74,11 @@ public:
         m_gateMotor.SetVoltage(gate);
     }
 
+    void SetGravityBoost(units::volt_t gboost)
+    {
+        m_gravityBoost.SetVoltage(gboost);
+    }
+
     void ReZeroHood()
     {
         m_hoodZeroed = false;
@@ -87,6 +92,7 @@ public:
     static constexpr auto kMaxShooterVoltage = 12_V;
     static constexpr auto kMaxGateVoltage = 12_V;
     static constexpr auto kMaxHoodVoltage = 12_V;
+    static constexpr auto kMaxGravityVoltage = 12_V;
 
     static constexpr auto kMaxShooterVelocity = 2900_rpm;
     static constexpr auto kMaxHoodAngle = 60_deg;
@@ -97,6 +103,7 @@ private:
     WPI_TalonFX m_shooterMotor2{22};
     WPI_VictorSPX m_hoodMotor{23};
     WPI_VictorSPX m_gateMotor{24};
+    WPI_VictorSPX m_gravityBoost{25};
 
     frc::Encoder m_hoodEncoder{1, 2, true, frc::CounterBase::EncodingType::k4X};
     frc::DigitalInput m_hoodLowerLimit{4};
@@ -121,7 +128,7 @@ private:
         0_rpm,
         2450_rpm,
         2450_rpm,
-        3050_rpm,
+        3650_rpm,
         3250_rpm
     };
 
@@ -129,7 +136,7 @@ private:
         0_deg,
         32.5_deg,
         38_deg,
-        45_deg,
+        46_deg,
         47.5_deg
     };
 };

@@ -30,6 +30,8 @@ Shooter::Shooter()
   m_gateMotor.SetInverted(true);
   m_hoodMotor.ConfigFactoryDefault();
   m_hoodMotor.SetInverted(true);
+  m_gravityBoost.ConfigFactoryDefault();
+  m_gravityBoost.SetInverted(true);
 }
 
 void Shooter::Set(units::volt_t shooter, units::volt_t gate, units::volt_t hood)
