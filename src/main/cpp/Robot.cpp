@@ -116,7 +116,7 @@ public:
     // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
-    // frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
+    frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -568,17 +568,18 @@ public:
         }
       }
 
-      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.15, 1.0) * -1.0;
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.2, 1.0) * -1.0;
+      rInput = rInput * rInput * rInput;
 
       // Increase Low-end stick control ("Smoothing")
-      if (rInput < 0)
+      /*if (rInput < 0)
       {
         rInput = -rInput * rInput;
       }
       else
       {
         rInput = rInput * rInput;
-      }
+      }*/
 
       auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
       auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
@@ -587,7 +588,7 @@ public:
       m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
 
       auto succ = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand) * Vacuum::kMaxImpellerVoltage;
-      // m_vacuum.Set(succ);
+      m_vacuum.Set(succ);
     }
   }
 
@@ -601,7 +602,7 @@ private:
   frc::UniversalController m_operator{1};
 
   Drivetrain m_swerve;
-  // Vacuum m_vacuum;
+  Vacuum m_vacuum;
   GlobalDevices m_globals;
   Shooter m_shooter;
 
@@ -612,7 +613,7 @@ private:
       std::shared_ptr<rj::Loggable>(&m_globals),
       std::shared_ptr<rj::Loggable>(&m_swerve),
       std::shared_ptr<rj::Loggable>(&m_shooter),
-      // std::shared_ptr<rj::Loggable>(&m_vacuum),
+      std::shared_ptr<rj::Loggable>(&m_vacuum),
   };
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.

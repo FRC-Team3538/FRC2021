@@ -136,7 +136,7 @@ private:
         0_deg,
         32.5_deg,
         38_deg,
-        46_deg,
+        49.5_deg, // FRESH BALLS, 47.5* ACTUAL
         47.5_deg
     };
 };
