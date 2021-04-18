@@ -8,7 +8,7 @@ std::string AutoEightBall::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoEightBall::AutoEightBall(robotmap &IO) : IO(IO)
+AutoEightBall::AutoEightBall(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();

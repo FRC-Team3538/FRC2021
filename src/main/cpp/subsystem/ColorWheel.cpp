@@ -4,7 +4,8 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 // Configure Hardware Settings
-ColorWheel::ColorWheel()
+void
+ColorWheel::Configure()
 {
    motorColorWheel.ConfigFactoryDefault();
 

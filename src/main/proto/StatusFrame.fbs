@@ -1,0 +1,272 @@
+// Generated from StatusFrame.proto
+
+namespace rj;
+
+table InitializeStatusFrame {
+  title:string;
+}
+
+struct REVCANEncoder {
+  position:double;
+  velocity:double;
+  positionConversionFactor:double;
+  velocityConversionFactor:double;
+  averageDepth:uint;
+  measurementPeriod:uint;
+  countsPerRevolution:uint;
+  inverted:bool;
+  lastError:uint8;
+}
+
+struct REVCANAnalog {
+  voltage:double;
+  position:double;
+  velocity:double;
+  positionConversionFactor:double;
+  velocityConversaionFactor:double;
+  averageDepth:uint;
+  measurementPeriod:uint;
+  inverted:bool;
+}
+
+struct REVPIDController {
+  p:double;
+  i:double;
+  d:double;
+  dFilter:double;
+  ff:double;
+  iZone:double;
+  outputMin:double;
+  outputMax:double;
+  smartMotionMaxVelocity:double;
+  smartMotionMaxAccel:double;
+  smartMotionMinOutputVelocity:double;
+  smartMotionAllowedClosedLoopError:double;
+  iMaxAccum:double;
+  iAccum:double;
+}
+
+struct REVCANDigitalInput {
+  value:bool;
+  enabled:bool;
+}
+
+table REVMotorStatusFrame {
+  firmwareVersion:uint32;
+  firmwareString:string;
+  serialNumber: [uint8];
+  deviceID:int;
+  encoder: REVCANEncoder;
+  altEncoder: REVCANEncoder;
+  analog: REVCANAnalog;
+  pid0: REVPIDController;
+  pid1: REVPIDController;
+  pid2: REVPIDController;
+  pid3: REVPIDController;
+  fwdLimitSwitch: REVCANDigitalInput;
+  revLimitSwitch: REVCANDigitalInput;
+  idleMode: bool;
+  voltageCompensationNominalVoltage:double;
+  openLoopRampRate:double;
+  closedLoopRampRate:double;
+  busVoltage:double;
+  appliedOutput:double;
+  outputCurrent:double;
+  temperature:double;
+  softLimitForwardEnabled:bool;
+  softLimitReverseEnabled:bool;
+  softLimitForwardValue:double;
+  softLimitReverseValue:double;
+  lastError: uint8;
+}
+
+struct RawColor {
+  red:uint;
+  green:uint;
+  blue:uint;
+  ir:uint;
+}
+
+table REVColorSensorStatusFrame {
+  color: RawColor;
+  proximity:uint;
+  reset:bool;
+}
+
+
+struct BoardYawAxis {
+  boardAxis:uint8;
+  up:bool;
+}
+
+table NavXStatusFrame {
+  pitch:float;
+  roll:float;
+  yaw:float;
+  compassHeading:float;
+  isCalibrating:bool;
+  isConnected:bool;
+  byteCount:double;
+  updateCount:double;
+  lastSensorTimestamp:uint64;
+  worldLinearAccelX:float;
+  worldLinearAccelY:float;
+  worldLinearAccelZ:float;
+  isMoving:bool;
+  isRotating:bool;
+  barometricPressure:float;
+  altitude:float;
+  isAltitudeValid:bool;
+  fusedHeading:float;
+  isMagneticDisturbance:bool;
+  isManetometerCalibrated:bool;
+  quaternionW:float;
+  quaternionX:float;
+  quaternionY:float;
+  quaternionZ:float;
+  velocityX:float;
+  velocityY:float;
+  velocityZ:float;
+  displacementX:float;
+  displacementY:float;
+  displacementZ:float;
+  angle:double;
+  rate:double;
+  angleAdjustment:double;
+  rawGyroX:float;
+  rawGyroY:float;
+  rawGyroZ:float;
+  rawAccelX:float;
+  rawAccelY:float;
+  rawAccelZ:float;
+  rawMagX:float;
+  rawMaxY:float;
+  rawMagZ:float;
+  pressure:float;
+  tempC:float;
+  boardYawAxis:BoardYawAxis;
+  firmwareVersion:string;
+  actualUpdateRate:int;
+  requestedUpdateRate:int;
+  isBoardLevelYawResetEnabled:bool;
+  gyroFullScaleRangeDPS:int16;
+  accelFullScaleRangeG:int16;
+}
+
+table ADIS16470StatusFrame {
+  angle:double;
+  rate:double;
+  gyroInstantX:double;
+  gyroInstantY:double;
+  gyroInstantZ:double;
+  accelInstantX:double;
+  accelInstantY:double;
+  accelInstantZ:double;
+  xComplimentaryAngle:double;
+  yComplimentaryAngle:double;
+  xFilteredAccelAngle:double;
+  yFilteredAccelAngle:double;
+  yawAxis:uint8;
+}
+
+table CTREMotorStatusFrame {
+  firmwareVersion:int;
+  baseID:int;
+  deviceID:int;
+  outputCurrent:double;
+  busVoltage:double;
+  outputPercent:double;
+  outputVoltage:double;
+  temperature:double;
+  selectedSensorPosition:int;
+  selectedSensorVelocity:int;
+  closedLoopError:int;
+  integralAccumulator:double;
+  errorDerivative:double;
+  closedLoopTarget:double;
+  activeTrajectoryPosition:int;
+  activeTrajectoryVelocity:int;
+  activeTrajectoryArbFeedFwd:double;
+  faults:int;
+  resetOccured:bool;
+  lastError:int;
+  controlMode:int;
+  statorCurrent:double;
+  supplyCurrent:double;
+  fwdLimitSwitchClosed:int;
+  revLimitSwitchClosed:int;
+}
+
+table PDPStatusFrame {
+  module:int;
+  voltage:double;
+  temperature:double;
+  channelCurrent: [double];
+  totalCurrent:double;
+  totalPower:double;
+  totalEnergy:double;
+}
+
+table PCMStatusFrame {
+  module:int;
+  enabled:bool;
+  pressureSwitchValve:bool;
+  compressorCurrent:double;
+  closedLoopControl:bool;
+  compressorCurrentTooHighFault:bool;
+  compressorShortedFault:bool;
+  compressorNotConnectedFault:bool;
+}
+
+table WPIDigitalInput {
+  channel:int;
+  value:bool;
+  isAnalogTrigger:bool;
+}
+
+table WPIEncoder {
+  value:int;
+  period:double;
+  stopped:bool;
+  direction:bool;
+  raw:int;
+  encodingScale:int;
+  distance:double;
+  rate:double;
+  distancePerPulse:double;
+  samplesToAverage:int;
+  pidGet:double;
+  module:int;
+}
+
+table WPIDutyCycleEncoder {
+  frequency:int;
+  connected:bool;
+  value:double;
+  distancePerRotation:double;
+  distance:double;
+  index:int;
+  sourceChannel:int;
+}
+
+union StatusFrame { 
+  CTREMotorStatusFrame, 
+  PDPStatusFrame, 
+  PCMStatusFrame, 
+  InitializeStatusFrame, 
+  REVMotorStatusFrame, 
+  REVColorSensorStatusFrame, 
+  NavXStatusFrame, 
+  ADIS16470StatusFrame, 
+  WPIDigitalInput,
+  WPIEncoder,
+  WPIDutyCycleEncoder
+ }
+
+table StatusFrameHolder {
+  unixTime:double;
+  monotonicTime:double;
+  statusFrame:StatusFrame;
+}
+
+root_type StatusFrameHolder;

@@ -11,10 +11,13 @@
 #include <frc/DigitalInput.h>
 #include "rev/CANSparkMax.h"
 
+#include "lib/Loggable.hpp"
+#include <UDPLogger.hpp>
+
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
 
-class Shooter
+class Shooter : public rj::Loggable
 {
 private:
   //CTRE CAN
@@ -72,7 +75,26 @@ public:
     Percent
   };
 
-  Shooter();
+  Shooter()
+  {
+    Configure();
+  }
+
+  void Configure();
+
+  void Log(UDPLogger &logger)
+  {
+    logger.LogExternalDevice(flywheel);
+    logger.LogExternalDevice(flywheelB);
+    logger.LogExternalDevice(motorIndexer);
+    logger.LogExternalDevice(motorIndexerB);
+    logger.LogExternalDevice(motorIndexerC);
+    logger.LogExternalDevice(motorFeeder);
+    logger.LogExternalDevice(motorHood);
+    logger.LogExternalDevice(hoodEncAbs);
+    logger.LogExternalDevice(hoodZeroSw);
+    logger.LogExternalDevice(hoodEncQuad);
+  }
 
   void Stop();
   void SetShooterDistanceTwo(double distance);

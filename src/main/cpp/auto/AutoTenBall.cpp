@@ -8,7 +8,7 @@ std::string AutoTenBall::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoTenBall::AutoTenBall(robotmap &IO) : IO(IO)
+AutoTenBall::AutoTenBall(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();

@@ -11,12 +11,23 @@
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 // #include "rev/CANSparkMax.h"
 
+#include <adi/ADIS16470_IMU.h>
+
+#include "lib/Loggable.hpp"
+#include <UDPLogger.hpp>
+
+
 using namespace ctre::phoenix::motorcontrol::can;
 using namespace ctre::phoenix::motorcontrol;
 using namespace frc;
 // using namespace rev;
 
-class Drivebase
+constexpr uint32_t kLeft1 = 0;
+constexpr uint32_t kLeft2 = 1;
+constexpr uint32_t kRight1 = 3;
+constexpr uint32_t kRight2 = 4;
+
+class Drivebase: public rj::Loggable
 {
 private:
   // Hardware setup
@@ -31,12 +42,13 @@ private:
   };
 
   // Talon
-  WPI_TalonFX motorLeft1{motors::L1};
-  WPI_TalonFX motorLeft2{motors::L2};
+  WPI_TalonFX motorLeft1{ kLeft1 };
+  WPI_TalonFX motorLeft2{ kLeft2 };
 
-  WPI_TalonFX motorRight1{motors::R1};
-  WPI_TalonFX motorRight2{motors::R2};
-
+  WPI_TalonFX motorRight1{ kRight1 };
+  WPI_TalonFX motorRight2{ kRight2 };
+  
+  ADIS16470_IMU imu{};
   Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
@@ -66,7 +78,7 @@ private:
 
 #define KP_ROTATION (SmartDashboard::GetNumber("KP_ROTATION", 0.022))
 #define KI_ROTATION (SmartDashboard::GetNumber("KI_ROTATION", 0.0002)) //275
-#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015))    //15
+#define KD_ROTATION (SmartDashboard::GetNumber("KD_ROTATION", 0.0015)) //15
 
 #define KP_FORWARD (SmartDashboard::GetNumber("KP_FORWARD", 0.021))
 #define KI_FORWARD (SmartDashboard::GetNumber("KI_FORWARD", 0.00050))
@@ -82,7 +94,20 @@ private:
 
 public:
   // Default Constructor
-  Drivebase();
+  Drivebase()
+  {
+    Configure();
+  }
+
+  void Configure();
+
+  void Log(UDPLogger &logger)
+  {
+    logger.LogExternalDevice(motorLeft1);
+    logger.LogExternalDevice(motorLeft2);
+    logger.LogExternalDevice(motorRight1);
+    logger.LogExternalDevice(motorRight2);
+  }
 
   bool sensorOverride = false;
   double forwardHeading = 0;
@@ -115,7 +140,6 @@ public:
   bool TurnRel(double degrees, double tolerance);
   void SetMaxSpeed();
 
-  AHRS navx{SPI::Port::kMXP, 200};
 
   //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
 };

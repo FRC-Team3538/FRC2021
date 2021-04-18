@@ -8,7 +8,7 @@ std::string AutoTrenchRun::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoTrenchRun::AutoTrenchRun(robotmap &IO) : IO(IO)
+AutoTrenchRun::AutoTrenchRun(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();

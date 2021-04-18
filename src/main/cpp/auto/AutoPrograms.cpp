@@ -11,7 +11,7 @@
 #include "auto/AutoEightBall.hpp"
 
 // Constructor requires a reference to the robot map
-AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
+AutoPrograms::AutoPrograms(RobotMap &IO) : IO(IO)
 {
     // SmartDash Chooser [List 2 of 3]
     m_chooser.SetDefaultOption("0 - None", "0 - None");

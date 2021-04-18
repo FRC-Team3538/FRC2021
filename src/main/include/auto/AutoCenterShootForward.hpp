@@ -5,7 +5,7 @@
 #include <frc/Timer.h>
 
 #include "AutoInterface.hpp"
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 
 class AutoCenterShootForward : public AutoInterface
 {
@@ -14,8 +14,8 @@ public:
    static std::string GetName();
 
 private:
-   // Get a referance to the robotmap
-   robotmap &IO;
+   // Get a referance to the RobotMap
+   RobotMap &IO;
 
    // State Variables
    int m_state;
@@ -29,7 +29,7 @@ private:
 public:
    // Constructor requires a reference to the RobotMap
    AutoCenterShootForward() = delete;
-   AutoCenterShootForward(robotmap &);
+   AutoCenterShootForward(RobotMap &);
    ~AutoCenterShootForward();
 
    // Auto Program Logic

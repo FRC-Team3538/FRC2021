@@ -4,7 +4,8 @@
 #include "frc/Preferences.h"
 
 // Configure Hardware Settings
-Shooter::Shooter()
+void
+Shooter::Configure()
 {
    flywheel.ConfigFactoryDefault();
    flywheelB.ConfigFactoryDefault();

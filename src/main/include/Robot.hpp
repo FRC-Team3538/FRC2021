@@ -11,12 +11,14 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "auto/AutoPrograms.hpp"
 #include <string>
-#include "robotmap.hpp"
+#include "RobotMap.hpp"
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <opencv2/videoio.hpp>
 #include <frc/PowerDistributionPanel.h>
 #include <frc/Timer.h>
+#include <thread>
+
 
 using namespace cv;
 
@@ -38,7 +40,8 @@ private:
   double Deadband(double input, double deadband);
   void UpdateSD();
 
-  robotmap IO;
+  std::thread logger;
+  RobotMap IO;
   AutoPrograms autoPrograms{IO};
   LiveWindow &m_lw = *frc::LiveWindow::GetInstance();
 

@@ -1,0 +1,32 @@
+plugins {
+    id 'edu.wpi.first.GradleRIO'
+}
+
+// Define my targets (RoboRIO) and artifacts (deployable files)
+// This is added by GradleRIO's backing project EmbeddedTools.
+deploy {
+    targets {
+        roboRIO('roborio') {
+            // Team number is loaded either from the .wpilib/wpilib_preferences.json
+            // or from command line. If not found an exception will be thrown.
+            // You can use getTeamOrDefault(team) instead of getTeamNumber if you
+            // want to store a team number in this file.
+            team = frc.getTeamNumber()
+        }
+    }
+    artifacts {
+        // Built in artifact to deploy arbitrary files to the roboRIO.
+        fileTreeArtifact('frcStaticFileDeploy') {
+            // The directory below is the local directory to deploy
+            files = fileTree(dir: '../src/main/config')
+            // Deploy to RoboRIO target, into /home/lvuser/config
+            targets << 'roborio'
+            directory = '/home/lvuser/config'
+        }
+        
+        commandArtifact('restartRobot') {
+            command = '. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null'
+            targets << 'roborio'
+        }
+    }
+}

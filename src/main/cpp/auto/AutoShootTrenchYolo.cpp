@@ -8,7 +8,7 @@ std::string AutoShootTrenchYolo::GetName()
 
 // Initialization
 // Constructor requires a reference to the robot map
-AutoShootTrenchYolo::AutoShootTrenchYolo(robotmap &IO) : IO(IO)
+AutoShootTrenchYolo::AutoShootTrenchYolo(RobotMap &IO) : IO(IO)
 {
     m_state = 0;
     m_autoTimer.Reset();
