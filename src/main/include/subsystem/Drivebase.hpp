@@ -52,7 +52,7 @@ private:
   Solenoid solenoidShifter{8};
 
   // Encoder Scale Factor (Inches)/(Pulse)
-  const double kScaleFactor = 240.0 / 258824.5; //53.1875 / 52896;
+  const double kScaleFactor = 235.0 / 253119; //53.1875 / 52896;
 
   enum slots
   {
@@ -96,11 +96,11 @@ private:
   static constexpr units::meter_t kWheelRadius = 3_in;
   static constexpr double kGearRatio = 10.24;
 
-  decltype(1_V) kStatic{0.668};
-  decltype(1_V / 1_fps) kVlinear{0.686};
-  decltype(1_V / 1_fps_sq) kAlinear{0.124};
-  decltype(1_V / 1_rad_per_s) kVangular{0.717};
-  decltype(1_V / 1_rad_per_s_sq) kAangular{0.092};
+  decltype(1_V) kStatic{0.712};
+  decltype(1_V / 1_mps) kVlinear{2.3};
+  decltype(1_V / 1_mps_sq) kAlinear{0.302};
+  decltype(1_V / 1_rad_per_s) kVangular{2.3};
+  decltype(1_V / 1_rad_per_s_sq) kAangular{0.255};
 
   frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0};
   frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
@@ -118,7 +118,7 @@ public:
   // Default Constructor
   Drivebase();
 
-  static constexpr units::feet_per_second_t kMaxSpeed{10.0};
+  static constexpr units::feet_per_second_t kMaxSpeed{15.0};
   static constexpr units::degrees_per_second_t kMaxAngularSpeed{180.0};
 
   bool sensorOverride = false;

@@ -363,15 +363,15 @@ void Robot::TeleopPeriodic()
   }
   // TODO Cubic Smoothing
 
-  if ((IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()) && !feedbackModeOS)
-  {
-    feedbackMode = feedbackMode ? false : true;
-    feedbackModeOS = true;
-  }
-  else if (!(IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()))
-  {
-    feedbackModeOS = false;
-  }
+  // if ((IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()) && !feedbackModeOS)
+  // {
+  //   feedbackMode = feedbackMode ? false : true;
+  //   feedbackModeOS = true;
+  // }
+  // else if (!(IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton()))
+  // {
+  //   feedbackModeOS = false;
+  // }
 
   //
   // Shooting Presets
@@ -380,7 +380,7 @@ void Robot::TeleopPeriodic()
   {
     IO.shooter.SetVelocity(2750.0);
     PresetShooterRPM = 2750.0;
-    PresetHoodAngle = 51;
+    PresetHoodAngle = 37;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
     liteOn = true;
 
@@ -400,7 +400,7 @@ void Robot::TeleopPeriodic()
   {
     IO.shooter.SetVelocity(3000.0);
     PresetShooterRPM = 3000.0;
-    PresetHoodAngle = 59;
+    PresetHoodAngle = 58.25;
     PresetVisionPipeline = 0; //IO.RJV.Pipe::ThreeFar;
     liteOn = true;
 
@@ -409,8 +409,8 @@ void Robot::TeleopPeriodic()
   else if (IO.ds.Operator.GetRightButton() || IO.ds.Driver.GetRightButton())
   {
     IO.shooter.SetVelocity(3500.0);
-    PresetShooterRPM = 3500.0;
-    PresetHoodAngle = 64;
+    PresetShooterRPM = 4000.0;
+    PresetHoodAngle = 66.5;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
     liteOn = true;
 
@@ -425,14 +425,6 @@ void Robot::TeleopPeriodic()
     liteOn = true;
 
     IO.RJV.SetPipeline(PresetVisionPipeline);
-  }
-  else if (feedbackMode)
-  {
-    PresetShooterRPM = 2750.0;
-    IO.shooter.SetVelocity(PresetShooterRPM);
-    PresetHoodAngle = 53.0;
-    PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
-    liteOn = false;
   }
 
   //
@@ -539,11 +531,11 @@ void Robot::TeleopPeriodic()
     indexer = indexerSpeed;
     IO.shooter.SetFeeder(1.0);
   }
-  else if (feedbackMode)
-  {
-    indexer = indexerSpeed;
-    IO.shooter.SetFeeder(1.0);
-  }
+  // else if (feedbackMode)
+  // {
+  //   indexer = indexerSpeed;
+  //   IO.shooter.SetFeeder(1.0);
+  // }
   else
   {
     IO.shooter.SetFeeder(0.0);
@@ -609,14 +601,14 @@ void Robot::TeleopPeriodic()
   double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
   IO.climber.SetClimber(climbAnalog);
 
-  // if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
-  // {
-  //   IO.climber.ClimberDeploy();
-  // }
-  // else
-  // {
-  //   IO.climber.ClimberRetract();
-  // }
+  if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
+  {
+    IO.climber.ClimberDeploy();
+  }
+  else
+  {
+    IO.climber.ClimberRetract();
+  }
 
   //
   // ColorWheel

@@ -269,26 +269,26 @@ void Shooter::SetHood(double input)
    // Manual Mode
 
    // Soft Limits
-   if ((!hoodZeroSw.Get() || GetHoodAngle() < 20.0) && input < 0.0)
-   {
-      motorHood.Set(0.0);
-   }
-   else if ((GetHoodAngle() < 25.0) && (input < 0.0))
-   {
-      motorHood.Set(0.4 * input);
-   }
-   else if ((GetHoodAngle() > 90.0) && (input > 0.0))
-   {
-      motorHood.Set(0.0);
-   }
-   else if ((GetHoodAngle() > 81.0) && (input > 0.0))
-   {
-      motorHood.Set(0.4 * input);
-   }
-   else
-   {
+   // if ((!hoodZeroSw.Get() || GetHoodAngle() < 20.0) && input < 0.0)
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   // else if ((GetHoodAngle() < 25.0) && (input < 0.0))
+   // {
+   //    motorHood.Set(0.4 * input);
+   // }
+   // else if ((GetHoodAngle() > 90.0) && (input > 0.0))
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   // else if ((GetHoodAngle() > 81.0) && (input > 0.0))
+   // {
+   //    motorHood.Set(0.4 * input);
+   // }
+   // else
+   // {
       motorHood.Set(input);
-   }
+   //}
 }
 
 void Shooter::SetHoodAngle(double angle)

@@ -161,12 +161,12 @@ void Drivebase::ResetEncoders()
 
 double Drivebase::GetEncoderPositionLeft()
 {
-    return motorLeft1.GetSelectedSensorPosition(0) * kScaleFactor;
+    return motorLeft1.GetSelectedSensorPosition(0);// * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPositionRight()
 {
-    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor;
+    return motorRight1.GetSelectedSensorPosition(0);// * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPosition()
