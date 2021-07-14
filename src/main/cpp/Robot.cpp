@@ -28,8 +28,6 @@ void Robot::RobotInit()
   chooseTestDevice.AddOption(sVision, sVision);
 
   frc::SmartDashboard::PutString("Reference", "");
-
-  SmartDashboard::PutNumber("PowerPort Delay", 0);
 }
 
 void Robot::RobotPeriodic()
@@ -83,7 +81,6 @@ void Robot::TeleopInit()
 {
   IO.drivebase.SetBrake();
   IO.shooter.Init();
-  SmartDashboard::PutNumber("PowerPort Delay", 5.0);
 }
 
 void Robot::DisabledInit()
@@ -587,7 +584,7 @@ void Robot::TeleopPeriodic()
   {
     liteOn = false;
     IO.shooter.IntakeDeploy();
-    PresetHoodAngle = 0.0;
+    PresetHoodAngle = 17.0;
   }
 
   //

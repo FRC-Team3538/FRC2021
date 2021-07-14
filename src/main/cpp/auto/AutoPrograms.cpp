@@ -4,6 +4,7 @@
 #include "auto/AutoEightBall.hpp"
 #include "auto/AutoIntAcc.hpp"
 #include "auto/AutoPowerPort.hpp"
+#include "auto/BigBalleros.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -13,6 +14,7 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(AutoEightBall::GetName(), AutoEightBall::GetName());
     m_chooser.AddOption(AutoIntAcc::GetName(), AutoIntAcc::GetName());
     m_chooser.AddOption(AutoPowerPort::GetName(), AutoPowerPort::GetName());
+    m_chooser.AddOption(BigBalleros::GetName(), BigBalleros::GetName());
 }
 
 // Initialize the selected auto program
@@ -37,6 +39,10 @@ void AutoPrograms::Init()
     if (name == AutoPowerPort::GetName())
     {
         m_autoProgram = new AutoPowerPort(IO);
+    }
+    if (name == BigBalleros::GetName())
+    {
+        m_autoProgram = new BigBalleros(IO);
     }
     m_autoProgram->Init();
 }

@@ -161,12 +161,12 @@ void Drivebase::ResetEncoders()
 
 double Drivebase::GetEncoderPositionLeft()
 {
-    return motorLeft1.GetSelectedSensorPosition(0);// * kScaleFactor;
+    return motorLeft1.GetSelectedSensorPosition(0) * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPositionRight()
 {
-    return motorRight1.GetSelectedSensorPosition(0);// * kScaleFactor;
+    return motorRight1.GetSelectedSensorPosition(0) * kScaleFactor;
 }
 
 double Drivebase::GetEncoderPosition()
@@ -184,6 +184,7 @@ void Drivebase::ResetGyro()
 double Drivebase::GetGyroHeading()
 {
     double yaw = m_imu.GetAngle();
+    double yeet = m_imu.GetRotation2d().Degrees().value();
     return yaw;
 }
 

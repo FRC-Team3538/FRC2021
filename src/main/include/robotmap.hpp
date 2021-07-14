@@ -20,6 +20,8 @@
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
 #include <wpi/json.h>
+#include <lib/csv.h>
+#include "subsystem/AutoConstants.hpp"
 
 class robotmap
 {
@@ -31,4 +33,5 @@ public:
   ColorWheel colorWheel;
   vision::RJVisionPipeline RJV;
   Logging log;
+  frc::RamseteController m_ramsete{kRamseteB, kRamseteZeta};
 };

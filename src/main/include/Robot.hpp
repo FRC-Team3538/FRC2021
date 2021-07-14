@@ -48,8 +48,6 @@ private:
   // Dont update smart dash every loop
   int smartDashSkip = 0;
 
-  PowerDistributionPanel *pdp = new PowerDistributionPanel();
-
   // Vision Stuff
   vision::RJVisionPipeline::visionData data;
   int tpCt = 0;

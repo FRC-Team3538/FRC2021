@@ -96,11 +96,11 @@ private:
   static constexpr units::meter_t kWheelRadius = 3_in;
   static constexpr double kGearRatio = 10.24;
 
-  decltype(1_V) kStatic{0.712};
-  decltype(1_V / 1_mps) kVlinear{2.3};
-  decltype(1_V / 1_mps_sq) kAlinear{0.302};
-  decltype(1_V / 1_rad_per_s) kVangular{2.3};
-  decltype(1_V / 1_rad_per_s_sq) kAangular{0.255};
+  decltype(1_V) kStatic{0.689}; //.712
+  decltype(1_V / 1_mps) kVlinear{2.35};  //2.3
+  decltype(1_V / 1_mps_sq) kAlinear{0.216}; //.302
+  decltype(1_V / 1_rad_per_s) kVangular{.185}; //2.3 1.85
+  decltype(1_V / 1_rad_per_s_sq) kAangular{0.0152}; //.255 0.0152
 
   frc2::PIDController m_leftPIDController{0.8382, 0.0, 0.0};
   frc2::PIDController m_rightPIDController{0.8382, 0.0, 0.0};
@@ -159,5 +159,13 @@ public:
   void SetSpeeds(const frc::DifferentialDriveWheelSpeeds &speeds);
   frc::Pose2d GetPose() const { return m_odometry.GetPose(); }
 
-  //MotionMagisk * magiskR1 = new MotionMagisk( motorRight1, MotionMagisk::WaypointFile::backRockR );
+  frc::DifferentialDriveKinematics GetKinematics()
+  {
+    return m_kinematics;
+  }
+
+  frc::SimpleMotorFeedforward<units::meter> GetFeedForward()
+  {
+    return m_feedforward;
+  }
 };

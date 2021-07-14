@@ -9,7 +9,7 @@
 #include "AutoInterface.hpp"
 #include "robotmap.hpp"
 #include <lib/DiffyDriveTrajectoryConstraint.hpp>
-#include <auto/AutoDrivetrainModel.hpp>
+#include "DrivetrainModel.hpp"
 
 class AutoPowerPort : public AutoInterface
 {
@@ -36,7 +36,7 @@ private:
    frc::Trajectory m_trajectory;
    frc::Trajectory m_trajectory_rev;
    frc::RamseteController m_ramsete;
-   rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{grasshopper};
+   rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{theChonkster};
 
 public:
    // Constructor requires a reference to the RobotMap
