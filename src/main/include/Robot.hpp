@@ -71,6 +71,7 @@ private:
   bool feedbackMode = false;
   bool feedbackModeOS = false;
   bool runAuto = false;
+  bool visionDone = false;
 
 #define PRESET_RPM (SmartDashboard::GetNumber("PRESET_RPM", 2000))
 #define PRESET_HOOD (SmartDashboard::GetNumber("PRESET_HOOD", 40))

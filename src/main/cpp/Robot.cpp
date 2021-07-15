@@ -313,6 +313,7 @@ void Robot::TestPeriodic()
 
 void Robot::TeleopPeriodic()
 {
+  visionDone = false;
   // Shared Stuff
   double indexer = 0.0;
   double leftTrigOp = IO.ds.Operator.GetTriggerAxis(GenericHID::kLeftHand);
@@ -471,6 +472,7 @@ void Robot::TeleopPeriodic()
       SmartDashboard::PutNumber("Vision Time", visionTime);
       if (IO.drivebase.VisionAim(forward, data.angle, 0.3))
       {
+        visionDone = true;
         SmartDashboard::PutNumber("Vision Time", visionTime);
         visionTest.Stop();
       }
@@ -686,6 +688,7 @@ void Robot::UpdateSD()
     SmartDashboard::PutNumber("PRESET_RPM", PRESET_RPM);
     SmartDashboard::PutBoolean("AtAngle", atAngle);
     SmartDashboard::PutBoolean("Feedback Mode", feedbackMode);
+    SmartDashboard::PutBoolean("Vision Done", visionDone);
   }
   default:
   {

@@ -268,42 +268,62 @@ void Shooter::SetHood(double input)
 
    // Manual Mode
 
+   // Soft Limits 2
+   // if(!hoodZeroSw.Get())
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   // else if(input > 0.0)
+   // {
+      
+   //    motorHood.Set(std::min(input,(70.0 - GetHoodAngle()) / 53.0));
+   // }
+   // else if(input < 0.0)
+   // {
+   //    motorHood.Set(std::max(input, (17.0 - GetHoodAngle()) / 53.0));
+   // }
+   // else
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   
+
    // Soft Limits
-   if ((!hoodZeroSw.Get() || GetHoodAngle() < 17.0) && input < 0.0)
-   {
-      motorHood.Set(0.0);
-   }
-   else if ((GetHoodAngle() < 25.0) && (input < 0.0))
-   {
-      motorHood.Set(0.4 * input);
-   }
-   else if ((GetHoodAngle() > 80.0) && (input > 0.0))
-   {
-      motorHood.Set(0.0);
-   }
-   else if ((GetHoodAngle() > 75.0) && (input > 0.0))
-   {
-      motorHood.Set(0.4 * input);
-   }
-   else
-   {
+   // if ((!hoodZeroSw.Get() || GetHoodAngle() < 17.0) && input < 0.0)
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   // else if ((GetHoodAngle() < 25.0) && (input < 0.0))
+   // {
+   //    motorHood.Set(0.4 * input);
+   // }
+   // else if ((GetHoodAngle() > 70.0) && (input > 0.0))
+   // {
+   //    motorHood.Set(0.0);
+   // }
+   // else if ((GetHoodAngle() > 62.0) && (input > 0.0))
+   // {
+   //    motorHood.Set(0.4 * input);
+   // }
+   // else
+   // {
       motorHood.Set(input);
-   }
+   // }
 }
 
 void Shooter::SetHoodAngle(double angle)
 {
-   shootAngle = angle;
-
    // Soft Limits
-   if (angle < 10.0)
+   if (angle < 17.0)
    {
-      angle = 10.0;
+      angle = 17.0;
    }
-   else if (angle > 90.0)
+   else if (angle > 70.0)
    {
-      angle = 90.0;
+      angle = 70.0;
    }
+
+   shootAngle = angle;
 
    double error = GetHoodAngle() - angle;
 
@@ -338,7 +358,6 @@ double Shooter::GetHoodAngle()
    // Zero Switch
    if (hoodZeroSw.Get())
    {
-
    }
    //return (hoodEncQuad.GetDistance() + offset);
    double ang = -hoodEncAbs.GetDistance() + offset;

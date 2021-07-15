@@ -10,6 +10,7 @@
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
 #include "rev/CANSparkMax.h"
+#include <cmath>
 
 using namespace frc;
 using namespace ctre::phoenix::motorcontrol::can;
