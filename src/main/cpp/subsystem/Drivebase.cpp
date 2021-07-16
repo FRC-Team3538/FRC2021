@@ -36,7 +36,6 @@ Drivebase::Drivebase()
     motorRight2.SetSensorPhase(false);
 
     // set default shifter state
-    solenoidShifter.Set(false);
 
     // Set Default Overrride State
     SensorOverride(false);
@@ -123,13 +122,11 @@ void Drivebase::Stop()
 // Shift to High Gear
 void Drivebase::SetHighGear()
 {
-    solenoidShifter.Set(true);
 }
 
 // Shift to Low Gear
 void Drivebase::SetLowGear()
 {
-    solenoidShifter.Set(false);
 }
 
 //Coast Mode
@@ -467,8 +464,6 @@ void Drivebase::UpdateSmartdash()
     SmartDashboard::PutNumber("Drive R1", motorRight1.Get());
     //SmartDashboard::PutNumber("Drive R2", motorRight2.Get());
     //SmartDashboard::PutNumber("Drive R3", motorRight3.Get());
-
-    SmartDashboard::PutBoolean("DriveShifter", solenoidShifter.Get());
 
     SmartDashboard::PutNumber("DriveEncL", GetEncoderPositionLeft());
     SmartDashboard::PutNumber("DriveEncR", GetEncoderPositionRight());

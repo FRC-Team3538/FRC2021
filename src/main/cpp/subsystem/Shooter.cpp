@@ -15,12 +15,6 @@ Shooter::Shooter()
    motorFeeder.ConfigFactoryDefault();
    motorHood.ConfigFactoryDefault();
 
-   sparkIndexerB.RestoreFactoryDefaults();
-   sparkIndexerC.RestoreFactoryDefaults();
-
-   sparkIndexerB.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-   sparkIndexerC.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-
    flywheelB.Follow(flywheel);
 
    flywheel.ConfigVoltageCompSaturation(10.0);
@@ -85,8 +79,6 @@ void Shooter::Stop()
    motorIndexerB.StopMotor();
    motorIndexerC.StopMotor();
    motorFeeder.StopMotor();
-   sparkIndexerB.Set(0.0);
-   sparkIndexerC.Set(0.0);
    shootSpeed = 0.0;
 }
 
@@ -230,8 +222,6 @@ void Shooter::SetIndexer(double speed)
    motorIndexerB.Set(ControlMode::PercentOutput, speed * FIRSTBRUSH);
    motorIndexer.Set(ControlMode::PercentOutput, speed * OMNISPEED);
    motorIndexerC.Set(ControlMode::PercentOutput, speed * SECONDBRUSH);
-   sparkIndexerB.Set(speed * FIRSTBRUSH);
-   sparkIndexerC.Set(speed * SECONDBRUSH);
 }
 
 void Shooter::SetFeeder(double speed)
@@ -269,24 +259,22 @@ void Shooter::SetHood(double input)
    // Manual Mode
 
    // Soft Limits 2
-   // if(!hoodZeroSw.Get())
-   // {
-   //    motorHood.Set(0.0);
-   // }
-   // else if(input > 0.0)
-   // {
-      
-   //    motorHood.Set(std::min(input,(70.0 - GetHoodAngle()) / 53.0));
-   // }
-   // else if(input < 0.0)
-   // {
-   //    motorHood.Set(std::max(input, (17.0 - GetHoodAngle()) / 53.0));
-   // }
-   // else
-   // {
-   //    motorHood.Set(0.0);
-   // }
-   
+   if (!hoodZeroSw.Get() && input < 0.0)
+   {
+      motorHood.Set(0.0);
+   }
+   else if (input > 0.0)
+   {
+      motorHood.Set(std::min(input, (70.0 - GetHoodAngle()) / 54.0));
+   }
+   else if (input < 0.0)
+   {
+      motorHood.Set(std::max(input, (16.0 - GetHoodAngle()) / 54.0));
+   }
+   else
+   {
+      motorHood.Set(0.0);
+   }
 
    // Soft Limits
    // if ((!hoodZeroSw.Get() || GetHoodAngle() < 17.0) && input < 0.0)
@@ -307,7 +295,7 @@ void Shooter::SetHood(double input)
    // }
    // else
    // {
-      motorHood.Set(input);
+   // motorHood.Set(input);
    // }
 }
 

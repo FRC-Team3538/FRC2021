@@ -406,7 +406,7 @@ void Robot::TeleopPeriodic()
   }
   else if (IO.ds.Operator.GetRightButton() || IO.ds.Driver.GetRightButton())
   {
-    IO.shooter.SetVelocity(3500.0);
+    IO.shooter.SetVelocity(4000.0);
     PresetShooterRPM = 4000.0;
     PresetHoodAngle = 66.5;
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
