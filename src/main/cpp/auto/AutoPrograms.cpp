@@ -7,6 +7,7 @@
 #include "auto/BigBalleros.hpp"
 #include "auto/TrenchRun.hpp"
 #include "auto/YoinkyMcSteal.hpp"
+#include "auto/AutoShootInit.hpp"
 
 // Constructor requires a reference to the robot map
 AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
@@ -19,6 +20,7 @@ AutoPrograms::AutoPrograms(robotmap &IO) : IO(IO)
     m_chooser.AddOption(BigBalleros::GetName(), BigBalleros::GetName());
     m_chooser.AddOption(TrenchRun::GetName(), TrenchRun::GetName());
     m_chooser.AddOption(YoinkyMcSteal::GetName(), YoinkyMcSteal::GetName());
+    m_chooser.AddOption(AutoShootInit::GetName(), AutoShootInit::GetName());
 }
 
 // Initialize the selected auto program
@@ -56,13 +58,18 @@ void AutoPrograms::Init()
     {
         m_autoProgram = new YoinkyMcSteal(IO);
     }
-    m_autoProgram->Init();
+    if (name == AutoShootInit::GetName())
+    {
+        m_autoProgram = new AutoShootInit(IO);
+    }
+    if (m_autoProgram != NULL)
+        m_autoProgram->Init();
 }
 
 // Run the selected Auto Program
 void AutoPrograms::Run()
 {
-    if (m_autoProgram)
+    if (m_autoProgram != NULL)
     {
         m_autoProgram->Run();
     }

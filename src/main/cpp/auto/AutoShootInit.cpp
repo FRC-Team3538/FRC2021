@@ -41,7 +41,7 @@ void AutoShootInit::Run()
         IO.drivebase.Stop();
         IO.shooter.IntakeDeploy();
         IO.shooter.SetVelocity(3000.0);
-        IO.shooter.SetHoodAngle(60.5);
+        IO.shooter.SetHoodAngle(58.25);
         if ((abs(3000.0 - IO.shooter.GetVelocity()) < 200.0))
         {
             IO.shooter.SetIntake(100.0);

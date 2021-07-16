@@ -46,13 +46,14 @@ void YoinkyMcSteal::Init()
     //rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{theChonkster};
 
     frc::TrajectoryConfig config(maxLinearVel, maxLinearAcc);
-
+cout << "A" << endl;
     config.AddConstraint(m_elliptic_constraint);
     config.AddConstraint(m_voltage_constraint);
     config.AddConstraint(m_kinematic_constraint);
 
     config.SetReversed(true);
 
+cout << "B" << endl;
     std::vector<frc::Spline<5>::ControlVector> p1;
 
     {
@@ -68,9 +69,9 @@ void YoinkyMcSteal::Init()
 
     auto t1 = frc::TrajectoryGenerator::GenerateTrajectory(p1, config);
     auto s1 = t1.States();
-
+cout << "C" << endl;
     config.SetReversed(false);
-
+cout << "D" << endl;
     std::vector<frc::Spline<5>::ControlVector> p2;
 
     {
@@ -80,15 +81,15 @@ void YoinkyMcSteal::Init()
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
         {
             //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
-            p1.push_back({{x, dx, ddx}, {y, dy, ddy}});
+            p2.push_back({{x, dx, ddx}, {y, dy, ddy}});
         }
     }
 
     auto t2 = frc::TrajectoryGenerator::GenerateTrajectory(p2, config);
     auto s2 = t2.States();
-
+cout << "E" << endl;
     config.SetReversed(true);
-
+cout << "F" << endl;
     std::vector<frc::Spline<5>::ControlVector> p3;
 
     {
@@ -98,7 +99,7 @@ void YoinkyMcSteal::Init()
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
         {
             //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
-            p1.push_back({{x, dx, ddx}, {y, dy, ddy}});
+            p3.push_back({{x, dx, ddx}, {y, dy, ddy}});
         }
     }
 
@@ -116,23 +117,23 @@ void YoinkyMcSteal::Init()
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
         {
             //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
-            p1.push_back({{x, dx, ddx}, {y, dy, ddy}});
+            p4.push_back({{x, dx, ddx}, {y, dy, ddy}});
         }
     }
 
     auto t4 = frc::TrajectoryGenerator::GenerateTrajectory(p4, config);
     auto s4 = t4.States();
-
+cout << "G" << endl;
     m_trajectory = frc::Trajectory(s1);
     m_trajectorydos = frc::Trajectory(s2);
     m_trajectorytres = frc::Trajectory(s3);
     m_trajectorycuatro = frc::Trajectory(s4);
-
+cout << "H" << endl;
     m_autoTimer.Reset();
     m_autoTimer.Start();
 
     IO.drivebase.ResetOdometry(m_trajectory.InitialPose());
-
+cout << "I" << endl;
     // for(auto x : m_trajectory.States())
     // {
     //     cout << x.pose.X().value() << "," << x.pose.Y().value() << endl;

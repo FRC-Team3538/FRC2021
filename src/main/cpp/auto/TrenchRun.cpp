@@ -30,9 +30,9 @@ void TrenchRun::NextState()
 
 void TrenchRun::Init()
 {
-    units::feet_per_second_t maxLinearVel = 13_fps;
+    units::feet_per_second_t maxLinearVel = 7_fps;
     units::standard_gravity_t maxCentripetalAcc = 0.375_SG;
-    units::feet_per_second_squared_t maxLinearAcc = 10_fps_sq;
+    units::feet_per_second_squared_t maxLinearAcc = 7_fps_sq;
     // units::meters_per_second_t maxLinearVel = 15_fps;
     // units::standard_gravity_t maxCentripetalAcc = 1_SG;
     // units::meters_per_second_squared_t maxLinearAcc = 14_fps_sq;
@@ -80,7 +80,7 @@ void TrenchRun::Init()
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
         {
             //std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
-            p1.push_back({{x, dx, ddx}, {y, dy, ddy}});
+            p2.push_back({{x, dx, ddx}, {y, dy, ddy}});
         }
     }
 

@@ -50,7 +50,7 @@ void BigBalleros::Init()
     config.AddConstraint(m_voltage_constraint);
     config.AddConstraint(m_kinematic_constraint);
 
-    io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/TheJuke");
+    io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealA");
     csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
     double x, y, dx, dy, ddx = 0, ddy = 0;
     while (csv.read_row(x, y, dx, dy, ddx, ddy))
