@@ -3,7 +3,7 @@
 // Name for Smart Dash Chooser
 std::string YoinkyMcSteal::GetName()
 {
-    return "9 - YoinkyMcSteal";
+    return "9 - Steal";
 }
 
 // Initialization
@@ -30,9 +30,9 @@ void YoinkyMcSteal::NextState()
 
 void YoinkyMcSteal::Init()
 {
-    units::feet_per_second_t maxLinearVel = 13_fps;
+    units::feet_per_second_t maxLinearVel = 9_fps;
     units::standard_gravity_t maxCentripetalAcc = 0.5_SG;
-    units::feet_per_second_squared_t maxLinearAcc = 10_fps_sq;
+    units::feet_per_second_squared_t maxLinearAcc = 12_fps_sq;
     // units::meters_per_second_t maxLinearVel = 15_fps;
     // units::standard_gravity_t maxCentripetalAcc = 1_SG;
     // units::meters_per_second_squared_t maxLinearAcc = 14_fps_sq;
@@ -46,18 +46,18 @@ void YoinkyMcSteal::Init()
     //rj::DiffyDriveTrajectoryConstraint m_drivetrain_constraint{theChonkster};
 
     frc::TrajectoryConfig config(maxLinearVel, maxLinearAcc);
-cout << "A" << endl;
+    cout << "A" << endl;
     config.AddConstraint(m_elliptic_constraint);
     config.AddConstraint(m_voltage_constraint);
     config.AddConstraint(m_kinematic_constraint);
 
     config.SetReversed(true);
 
-cout << "B" << endl;
+    cout << "B" << endl;
     std::vector<frc::Spline<5>::ControlVector> p1;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealA");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McSteal2A");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -69,13 +69,13 @@ cout << "B" << endl;
 
     auto t1 = frc::TrajectoryGenerator::GenerateTrajectory(p1, config);
     auto s1 = t1.States();
-cout << "C" << endl;
+    cout << "C" << endl;
     config.SetReversed(false);
-cout << "D" << endl;
+    cout << "D" << endl;
     std::vector<frc::Spline<5>::ControlVector> p2;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealB");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McSteal2B");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -87,13 +87,13 @@ cout << "D" << endl;
 
     auto t2 = frc::TrajectoryGenerator::GenerateTrajectory(p2, config);
     auto s2 = t2.States();
-cout << "E" << endl;
+    cout << "E" << endl;
     config.SetReversed(true);
-cout << "F" << endl;
+    cout << "F" << endl;
     std::vector<frc::Spline<5>::ControlVector> p3;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealC");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McSteal2C");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -111,7 +111,7 @@ cout << "F" << endl;
     std::vector<frc::Spline<5>::ControlVector> p4;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealD");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McSteal2D");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -123,17 +123,17 @@ cout << "F" << endl;
 
     auto t4 = frc::TrajectoryGenerator::GenerateTrajectory(p4, config);
     auto s4 = t4.States();
-cout << "G" << endl;
+    cout << "G" << endl;
     m_trajectory = frc::Trajectory(s1);
     m_trajectorydos = frc::Trajectory(s2);
     m_trajectorytres = frc::Trajectory(s3);
     m_trajectorycuatro = frc::Trajectory(s4);
-cout << "H" << endl;
+    cout << "H" << endl;
     m_autoTimer.Reset();
     m_autoTimer.Start();
 
     IO.drivebase.ResetOdometry(m_trajectory.InitialPose());
-cout << "I" << endl;
+    cout << "I" << endl;
     // for(auto x : m_trajectory.States())
     // {
     //     cout << x.pose.X().value() << "," << x.pose.Y().value() << endl;
@@ -199,7 +199,7 @@ void YoinkyMcSteal::Run()
     case 2:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(62.5);
+        IO.shooter.SetHoodAngle(60.5);
         data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
         if (data.filled)
         {
@@ -214,20 +214,20 @@ void YoinkyMcSteal::Run()
     case 3:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(62.5);
+        IO.shooter.SetHoodAngle(60.5);
         if ((abs(4000.0 - IO.shooter.GetVelocity()) < 150.0))
         {
             IO.shooter.SetIntake(100.0);
             IO.shooter.SetIndexer(100.0);
             IO.shooter.SetFeeder(100.0);
         }
-        if (m_autoTimer.Get().value() > 3.0)
+        if (m_autoTimer.Get().value() > 4.0)
         {
             NextState();
         }
         break;
     }
-    case 4:
+    case 40:
     {
         IO.shooter.SetHoodAngle(17);
 
@@ -281,7 +281,7 @@ void YoinkyMcSteal::Run()
     case 6:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(62.5);
+        IO.shooter.SetHoodAngle(66);
         data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
         if (data.filled)
         {
@@ -296,14 +296,14 @@ void YoinkyMcSteal::Run()
     case 7:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(62.5);
+        IO.shooter.SetHoodAngle(66);
         if ((abs(4000.0 - IO.shooter.GetVelocity()) < 150.0))
         {
             IO.shooter.SetIntake(100.0);
             IO.shooter.SetIndexer(100.0);
             IO.shooter.SetFeeder(100.0);
         }
-        if (m_autoTimer.Get().value() > 3.0)
+        if (m_autoTimer.Get().value() > 4.0)
         {
             NextState();
         }

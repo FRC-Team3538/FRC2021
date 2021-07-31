@@ -282,7 +282,7 @@ void Drivebase::DriveForward(double distance, double maxOutput)
         driveCommandForward = -maxOutput;
     }
 
-    Arcade(driveCommandForward, driveCommandRotation);
+    Arcade(driveCommandForward, 0);
 }
 
 void Drivebase::TurnAbs(double heading, double maxoutput)
@@ -325,7 +325,7 @@ void Drivebase::TurnAbs(double heading, double maxoutput)
     {
         driveCommandRotation = -0.09;
     }
-    Arcade(0, driveCommandRotation);
+    Arcade(0, -driveCommandRotation);
 }
 
 bool Drivebase::TurnRel(double degrees, double tolerance)

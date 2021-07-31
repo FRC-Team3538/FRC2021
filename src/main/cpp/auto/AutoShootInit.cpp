@@ -41,7 +41,7 @@ void AutoShootInit::Run()
         IO.drivebase.Stop();
         IO.shooter.IntakeDeploy();
         IO.shooter.SetVelocity(3000.0);
-        IO.shooter.SetHoodAngle(58.25);
+        IO.shooter.SetHoodAngle(54.5); //58.25 53.5
         if ((abs(3000.0 - IO.shooter.GetVelocity()) < 200.0))
         {
             IO.shooter.SetIntake(100.0);
@@ -49,7 +49,7 @@ void AutoShootInit::Run()
             IO.shooter.SetFeeder(100.0);
         }
 
-        if (m_autoTimer.Get() > 3.0)
+        if (m_autoTimer.Get() > 5.0)
         {
             NextState();
         }
@@ -62,8 +62,8 @@ void AutoShootInit::Run()
         IO.shooter.Stop();
         IO.shooter.SetFeeder(0.0);
         IO.drivebase.DriveForward(-40.0, 0.6);
-        IO.shooter.SetIntake(0.5);
-        IO.shooter.SetIndexer(0.5);
+        IO.shooter.SetIntake(0.0);
+        IO.shooter.SetIndexer(0.0);
         if (IO.drivebase.GetEncoderPositionLeft() < -40.0)
         {
             NextState();

@@ -50,7 +50,9 @@ void BigBalleros::Init()
     config.AddConstraint(m_voltage_constraint);
     config.AddConstraint(m_kinematic_constraint);
 
-    io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/McStealA");
+    config.SetReversed(true);
+
+    io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/BackTest");
     csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
     double x, y, dx, dy, ddx = 0, ddy = 0;
     while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -79,7 +81,11 @@ void BigBalleros::Run()
     {
     case 0:
     {
-        IO.shooter.IntakeDeploy();
+        IO.drivebase.VisionAim(0, 40.0, 0.1);
+    }
+    case 10:
+    {
+        //IO.shooter.IntakeDeploy();
 
         auto reference = m_trajectory.Sample(m_autoTimer.Get());
         //cout << reference.pose.X().value() << "," << reference.pose.Y().value() << endl;
@@ -96,8 +102,9 @@ void BigBalleros::Run()
         }
         break;
     }
-    case 1:
+    case 4:
     {
+        NextState();
         data = IO.RJV.Run(0.0);
 
         IO.shooter.SetVelocity(3000.0);

@@ -32,7 +32,7 @@ void TrenchRun::Init()
 {
     units::feet_per_second_t maxLinearVel = 7_fps;
     units::standard_gravity_t maxCentripetalAcc = 0.375_SG;
-    units::feet_per_second_squared_t maxLinearAcc = 7_fps_sq;
+    units::feet_per_second_squared_t maxLinearAcc = 11_fps_sq;
     // units::meters_per_second_t maxLinearVel = 15_fps;
     // units::standard_gravity_t maxCentripetalAcc = 1_SG;
     // units::meters_per_second_squared_t maxLinearAcc = 14_fps_sq;
@@ -56,7 +56,7 @@ void TrenchRun::Init()
     std::vector<frc::Spline<5>::ControlVector> p1;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/TrenchA");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Trench2A");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -74,7 +74,7 @@ void TrenchRun::Init()
     std::vector<frc::Spline<5>::ControlVector> p2;
 
     {
-        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/TrenchB");
+        io::CSVReader<6> csv("/home/lvuser/deploy/PathWeaver/Paths/Trench2B");
         csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
         double x, y, dx, dy, ddx = 0, ddy = 0;
         while (csv.read_row(x, y, dx, dy, ddx, ddy))
@@ -110,16 +110,16 @@ void TrenchRun::Run()
     {
         IO.shooter.IntakeDeploy();
         IO.shooter.SetVelocity(3000.0);
-        IO.shooter.SetHoodAngle(58.25);
+        IO.shooter.SetHoodAngle(54.5);
 
-        if ((abs(3000.0 - IO.shooter.GetVelocity()) < 150.0) && (abs(IO.shooter.GetHoodAngle() - 58.25) < 1))
+        if ((abs(3000.0 - IO.shooter.GetVelocity()) < 150.0) && (abs(IO.shooter.GetHoodAngle() - 53.5) < 1))
         {
             IO.shooter.SetIntake(100.0);
             IO.shooter.SetIndexer(100.0);
             IO.shooter.SetFeeder(100.0);
         }
 
-        if (m_autoTimer.Get().value() > 3.0)
+        if (m_autoTimer.Get().value() > 4.0)
         {
             NextState();
         }
@@ -155,7 +155,7 @@ void TrenchRun::Run()
 
         //cout << IO.drivebase.GetPose().X().value() << "," << IO.drivebase.GetPose().Y().value() << endl;
 
-        if (m_autoTimer.Get().value() > 1.0)
+        if (m_autoTimer.Get().value() > 0.25)
         {
             IO.shooter.SetIntake(100.0);
         }
@@ -196,7 +196,7 @@ void TrenchRun::Run()
     case 3:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(66.5);
+        IO.shooter.SetHoodAngle(62);
         data = IO.RJV.Run(IO.RJV.Pipe::TwoClose);
         if (data.filled)
         {
@@ -206,12 +206,16 @@ void TrenchRun::Run()
                 NextState();
             }
         }
+        // if(m_autoTimer.Get().value() > 3.0)
+        // {
+        //     NextState();
+        // }
         break;
     }
     case 4:
     {
         IO.shooter.SetVelocity(4000.0);
-        IO.shooter.SetHoodAngle(66.5);
+        IO.shooter.SetHoodAngle(62);
         if ((abs(4000.0 - IO.shooter.GetVelocity()) < 150.0))
         {
             IO.shooter.SetIntake(100.0);

@@ -376,9 +376,9 @@ void Robot::TeleopPeriodic()
   //
   if (IO.ds.Operator.GetDownButton() || IO.ds.Driver.GetDownButton())
   {
-    IO.shooter.SetVelocity(2750.0);
-    PresetShooterRPM = 2750.0;
-    PresetHoodAngle = 37;
+    IO.shooter.SetVelocity(4000.0);
+    PresetShooterRPM = 4000.0;
+    PresetHoodAngle = 57;
     PresetVisionPipeline = IO.RJV.Pipe::ThreeClose;
     liteOn = true;
 
@@ -388,7 +388,7 @@ void Robot::TeleopPeriodic()
   {
     IO.shooter.SetVelocity(4000.0);
     PresetShooterRPM = 4000.0;
-    PresetHoodAngle = 66.6; //DUN DUN DUNNNN The long shot comes with a price...
+    PresetHoodAngle = 63; //DUN DUN DUNNNN The long shot comes with a price...
     PresetVisionPipeline = IO.RJV.Pipe::LongShot;
     liteOn = true;
 
@@ -398,7 +398,7 @@ void Robot::TeleopPeriodic()
   {
     IO.shooter.SetVelocity(3000.0);
     PresetShooterRPM = 3000.0;
-    PresetHoodAngle = 58.25;
+    PresetHoodAngle = 54.5; //58.25 53.5
     PresetVisionPipeline = 0; //IO.RJV.Pipe::ThreeFar;
     liteOn = true;
 
@@ -408,7 +408,7 @@ void Robot::TeleopPeriodic()
   {
     IO.shooter.SetVelocity(4000.0);
     PresetShooterRPM = 4000.0;
-    PresetHoodAngle = 66.5;
+    PresetHoodAngle = 62; //66 60.5
     PresetVisionPipeline = IO.RJV.Pipe::TwoClose;
     liteOn = true;
 
@@ -597,7 +597,7 @@ void Robot::TeleopPeriodic()
   //
   // Climber
   //
-  double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, deadband);
+  double climbAnalog = Deadband(IO.ds.Operator.GetY(GenericHID::kLeftHand) * -1, 0.1);
   IO.climber.SetClimber(climbAnalog);
 
   if (IO.ds.Operator.GetPSButton() || IO.ds.Driver.GetPSButton())
