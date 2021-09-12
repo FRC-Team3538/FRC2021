@@ -146,13 +146,6 @@ void SwerveModule::SimPeriodic()
   m_turnSim.Update(20_ms);
 }
 
-void SwerveModule::Log(UDPLogger &logger)
-{
-  logger.LogExternalDevice(m_driveMotor);
-  logger.LogExternalDevice(m_turningMotor);
-  logger.LogExternalDevice(m_turningEncoder);
-}
-
 void SwerveModule::InitSendable(frc::SendableBuilder &builder)
 {
   InitSendable(builder, "");
@@ -205,17 +198,17 @@ void SwerveModule::InitSendable(frc::SendableBuilder &builder, std::string name)
   builder.AddDoubleProperty(
       name + "m_turnVolts", [this] { return m_turnVolts.value(); }, nullptr);
 
-  // builder.AddDoubleProperty(
-  //     "Angle Offset",
-  //     [this] { return prefs->GetDouble(m_angleOffsetPref); },
-  //     [this](double value) {
-  //         prefs->PutDouble(m_angleOffsetPref, value);
-  //         m_turningEncoder.ConfigMagnetOffset(value);
-  //     });
+  builder.AddDoubleProperty(
+      name + "Angle Offset",
+      [this, name] { return prefs->GetDouble(name + "Angle Offset Pref"); },
+      [this, name](double value) {
+          prefs->PutDouble(name + "Angle Offset Pref", value);
+          m_turningEncoder.ConfigMagnetOffset(value);
+      });
 
   // Turning Encoders
-  // builder.AddDoubleProperty(
-  //     "Encoder CTRE", [this] { return m_turningEncoder.GetAbsolutePosition(); }, nullptr);
+  builder.AddDoubleProperty(
+      "Encoder CTRE", [this] { return m_turningEncoder.GetAbsolutePosition(); }, nullptr);
 
   // Thermal
   builder.AddDoubleProperty(

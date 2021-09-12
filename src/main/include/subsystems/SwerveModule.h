@@ -24,12 +24,11 @@
 #include <frc/smartdashboard/Sendable.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <frc/smartdashboard/SendableHelper.h>
-#include <lib/Loggable.hpp>
 
 // Simulation
 #include <frc/system/plant/LinearSystemId.h>
-#include "subsystems/VelocitySystemSim.h"
-#include "subsystems/PositionSystemSim.h"
+#include "lib/VelocitySystemSim.h"
+#include "lib/PositionSystemSim.h"
 
 // Vendor Libraries
 #include "ctre/Phoenix.h"
@@ -76,8 +75,7 @@ struct SwerveModuleConfig
 };
 
 class SwerveModule : public frc::Sendable,
-                     public frc::SendableHelper<SwerveModule>,
-                     public rj::Loggable
+                     public frc::SendableHelper<SwerveModule>
 {
 public:
     SwerveModule(int driveMotorChannel,
@@ -96,8 +94,6 @@ public:
 
     void Set(double drive, double azimuth);
 
-    void Log(UDPLogger &logger);
-
     void SimPeriodic();
 
 private:
@@ -113,7 +109,7 @@ private:
     static constexpr auto kTurningMotorVoltageNominal = 12.8_V;
 
     /********************************************************************************/
-    /* Post in slack #controls-software if you change these!                        */
+    /* Post in slack #tech-programming if you change these!                        */
     /********************************************************************************/
     static constexpr auto kDriveMotorCurrentLimit = 55_A;
     static constexpr auto kTurningMotorCurrentLimit = 30_A;
@@ -121,6 +117,7 @@ private:
 
     // Preferences
     frc::Preferences *prefs = frc::Preferences::GetInstance();
+    std::string m_angleOffsetPref = "angle offset";
 
     // Hardware
     WPI_TalonFX m_driveMotor;

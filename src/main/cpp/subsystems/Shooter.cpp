@@ -89,14 +89,6 @@ void Shooter::Periodic()
   m_shooterMotor2.SetVoltage(m_shooterVolts);
 }
 
-void Shooter::Log(UDPLogger &logger)
-{
-  logger.LogExternalDevice(m_shooterMotor1);
-  logger.LogExternalDevice(m_shooterMotor2);
-  logger.LogExternalDevice(m_gateMotor);
-  logger.LogExternalDevice(m_hoodMotor);
-}
-
 void Shooter::InitSendable(frc::SendableBuilder &builder)
 {
   builder.SetSmartDashboardType("Shooter");

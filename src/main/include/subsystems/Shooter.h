@@ -24,17 +24,16 @@
 #include <frc/smartdashboard/Sendable.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <frc/smartdashboard/SendableHelper.h>
-#include <lib/Loggable.hpp>
+#include <frc/DigitalInput.h>
+#include <frc/Encoder.h>
 
 #include <utility>
 
 // Vendor Libraries
 #include "ctre/Phoenix.h"
-#include "rev/CANSparkMax.h"
 
 class Shooter : public frc::Sendable,
-                public frc::SendableHelper<Shooter>,
-                public rj::Loggable
+                public frc::SendableHelper<Shooter>
 {
 public:
     Shooter();
@@ -84,8 +83,6 @@ public:
         m_hoodZeroed = false;
     }
 
-    void Log(UDPLogger &logger);
-
     void SimPeriodic();
     void Periodic();
 
@@ -109,7 +106,7 @@ private:
     frc::DigitalInput m_hoodLowerLimit{4};
 
     // MAX HOOD ANGLE: 60 deg
-    frc::ProfiledPIDController<units::revolutions_per_minute> m_shooterPIDController{0, /*1.21 / 60.,*/ 0, 0, {2000_rad_per_s_sq, 6000_rad_per_s_sq / 1_s}};
+    frc::ProfiledPIDController<units::revolutions_per_minute> m_shooterPIDController{0.0, 0.0, 0.0, {2000_rad_per_s_sq, 6000_rad_per_s_sq / 1_s}};
     frc::ProfiledPIDController<units::radians> m_hoodPIDController{5.12, 0, 0.0134, {2_rad_per_s, 3_rad_per_s_sq}};
 
     frc::SimpleMotorFeedforward<units::radians> m_shooterFeedforward{0.73_V, 0.115_V / 60_rpm, 0.026_V / 60_rpm * 1_s};

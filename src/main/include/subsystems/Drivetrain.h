@@ -25,8 +25,7 @@
  * Represents a swerve drive style drivetrain.
  */
 class Drivetrain : public frc::Sendable,
-                   public frc::SendableHelper<SwerveModule>,
-                   public rj::Loggable
+                   public frc::SendableHelper<SwerveModule>
 {
 public:
     Drivetrain();
@@ -40,7 +39,6 @@ public:
     frc::Rotation2d GetYaw();
     units::radians_per_second_t GetYawRate();
     void ResetYaw();
-    void Log(UDPLogger &logger);
     void SimPeriodic();
     void InitSendable(frc::SendableBuilder &builder) override;
     void ResetOdometry(const frc::Pose2d &pose);

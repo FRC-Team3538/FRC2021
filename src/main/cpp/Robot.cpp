@@ -21,55 +21,15 @@
 #include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 
 #include "subsystems/Drivetrain.h"
-#include "subsystems/GlobalDevices.h"
 #include "subsystems/SwerveModule.h"
-#include "subsystems/Vacuum.h"
 #include "subsystems/Shooter.h"
 #include "lib/UniversalController.hpp"
-#include <UDPLogger.hpp>
 #include <cmath>
 
 #include <memory>
 #include <thread>
+#include <iostream>
 #include "lib/csv.h"
-
-void logToUDPLogger(UDPLogger &logger, std::vector<std::shared_ptr<rj::Loggable>> &loggables)
-{
-  auto target =
-      std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
-  logger.InitLogger();
-  while (true)
-  {
-    logger.CheckForNewClient();
-
-    for (auto &loggable : loggables)
-    {
-      loggable->Log(logger);
-    }
-    logger.FlushLogBuffer();
-
-    std::this_thread::sleep_until(target);
-    target = std::chrono::steady_clock::now() + std::chrono::milliseconds(20);
-  }
-}
-
-frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
-{
-  std::vector<frc::Spline<5>::ControlVector> points;
-
-  io::CSVReader<6> csv(path);
-  csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
-  double x, y, dx, dy, ddx = 0, ddy = 0;
-  while (csv.read_row(x, y, dx, dy, ddx, ddy))
-  {
-    // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
-    points.push_back({{x, dx, ddx}, {y, dy, ddy}});
-  }
-
-  return frc::TrajectoryGenerator::GenerateTrajectory(
-      points,
-      config);
-}
 
 class Robot : public frc::TimedRobot
 {
@@ -95,15 +55,7 @@ public:
 
     // Auto Program Selection
     m_chooser.SetDefaultOption(kAutoNone, kAutoNone);
-    m_chooser.AddOption(kAutoARed, kAutoARed);
-    m_chooser.AddOption(kAutoABlue, kAutoABlue);
-    m_chooser.AddOption(kAutoBRed, kAutoBRed);
-    m_chooser.AddOption(kAutoBBlue, kAutoBBlue);
-    m_chooser.AddOption(kAutoBarrel, kAutoBarrel);
-    m_chooser.AddOption(kAutoSlalom, kAutoSlalom);
     m_chooser.AddOption(kAutoBounce, kAutoBounce);
-    m_chooser.AddOption(kAutoAccuracy, kAutoAccuracy);
-    m_chooser.AddOption(kAutoPowerPort, kAutoPowerPort);
 
     m_chooser.AddOption(kAutoConstant, kAutoConstant);
     m_chooser.AddOption(kAutoToggle, kAutoToggle);
@@ -112,11 +64,10 @@ public:
     frc::SmartDashboard::PutData(&m_chooser);
 
     // Smartdash
-    // frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
-    // frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
+    frc::SmartDashboard::PutData("GamepadDriver", &m_controller);
+    frc::SmartDashboard::PutData("GamepadOperator", &m_operator);
     frc::SmartDashboard::PutData("DriveBase", &m_swerve);
     frc::SmartDashboard::PutData("Shooter", &m_shooter);
-    frc::SmartDashboard::PutData("Vacuum", &m_vacuum);
 
     frc::SmartDashboard::SetDefaultNumber("auto/A_X", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/A_Y", 0.0);
@@ -125,26 +76,17 @@ public:
     frc::SmartDashboard::SetDefaultNumber("auto/B_Y", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/B_R", 0.0);
     frc::SmartDashboard::SetDefaultNumber("auto/T", 4.0);
-
-    // UDP Logger
-    auto time_point = std::chrono::system_clock::now();
-    auto time = std::chrono::system_clock::to_time_t(time_point);
-    m_udp_logger.SetTitle(std::ctime(&time));
-    m_logging_thread =
-        std::thread(logToUDPLogger, std::ref(m_udp_logger), std::ref(loggables));
-    m_logging_thread.detach();
   }
 
   void DisabledInit() override
   {
-    std::cout << "Auto Time Elapsed: " << m_autoTimer.Get() << std::endl;
     // Mostly for sim
     m_swerve.Drive(0_mps, 0_mps, 0_deg_per_s, false);
   }
 
   void RobotPeriodic() override
   {
-    // PS4 | xbox controller mapping
+    // PS4 | xbox | stadia controller mapping
     m_controller.SetControllerType(m_chooserControllerType.GetSelected());
     m_operator.SetControllerType(m_chooserOperatorType.GetSelected());
 
@@ -173,19 +115,6 @@ public:
         m_swerve.ResetYaw();
         std::cout << "Reset Gyro" << std::endl;
       }
-
-      if (m_controller.GetPSButtonPressed())
-      {
-        m_driverControls = !m_driverControls;
-        if (m_driverControls)
-        {
-          std::cout << "Switching to Driver Controls" << std::endl;
-        }
-        else
-        {
-          std::cout << "Switching to Programmer Controls" << std::endl;
-        }
-      }
     }
 
     m_shooter.Periodic();
@@ -196,9 +125,14 @@ public:
     m_autoTimer.Reset();
     m_autoTimer.Start();
 
+    // Get the location of the deploy directory where paths are stored
+    wpi::SmallString<256> deploy_dir_ss;
+    frc::filesystem::GetDeployDirectory(deploy_dir_ss);
+    auto deploy_dir = std::string(deploy_dir_ss.c_str());
+
     //
     // Program Selection
-    //
+    //auto deploy_dir = 
     auto program = m_chooser.GetSelected();
     if (program == kAutoDash)
     {
@@ -218,151 +152,25 @@ public:
       m_swerve.ResetYaw();
       m_swerve.ResetOdometry(m_trajectory.InitialPose());
     }
-    else if (program == kAutoARed)
-    {
-      // m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-      //     frc::Pose2d(40_in, 120_in, -35_deg),
-      //     {frc::Translation2d(150_in, 60_in),
-      //      frc::Translation2d(180_in, 150_in)},
-      //     frc::Pose2d(360_in, 170_in, 0_deg),
-      //     frc::TrajectoryConfig(10_fps, 10_fps_sq));
-
-      frc::TrajectoryConfig config(16_fps, 13_fps_sq);
-
-      std::vector<frc::Spline<5>::ControlVector> points{
-          {{1.0, 0.7688146572428465, 0.0},
-           {-2.25, -0.019765044946133292, 0.0}},
-          {{2.262940780896178, 0.5231067062606225, 0.0},
-           {-2.421061140465244, -0.34679907826822465, 0.0}},
-          {{2.737301859603376, 0.36168073335682094, 0.0},
-           {-2.9151872641185754, -0.2754088851797216, 0.0}},
-          {{3.350018252933507, 0.5336562135455978, 0.0},
-           {-3.244604679887463, 0.1910621011459548, 0.0}},
-          {{3.7255541069100393, 0.21741549440746555, 0.0},
-           {-2.7702436011802654, 0.7510717079530638, 0.0}},
-          {{4.107678309201949, 0.530223803118944, 0.0},
-           {-1.189040005489604, 0.4734340164689319, 0.0}},
-          {{4.5490976463322585, 0.612716393330131, 0.0},
-           {-0.9057410279283608, 0.1910621011459549, 0.0}},
-          {{6.295009949907364, 0.7708367528991973, 0.0},
-           {-0.8200924998284499, 0.013176696630755491, 0.0}},
-          {{8.548225073766556, 0.6654231798531534, 0.0},
-           {-0.8003274548823166, 0.026353393261511426, 0.0}}};
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          points,
-          config);
-
-      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
-
-      // Display
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
-    else if (program == kAutoABlue)
-    {
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 35_in, 0_deg), {frc::Translation2d(170_in, 35_in), frc::Translation2d(210_in, 110_in)},
-          frc::Pose2d(360_in, 70_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
-
-      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
-    else if (program == kAutoBRed)
-    {
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 150_in, -45_deg), {frc::Translation2d(150_in, 70_in), frc::Translation2d(210_in, 110_in)},
-          frc::Pose2d(360_in, 160_in, 0_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
-
-      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
-    else if (program == kAutoBBlue)
-    {
-      m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-          frc::Pose2d(45_in, 60_in, 0_deg), {frc::Translation2d(170_in, 60_in), frc::Translation2d(240_in, 110_in)},
-          frc::Pose2d(360_in, 20_in, -35_deg),
-          frc::TrajectoryConfig(10_fps, 10_fps_sq));
-
-      m_trajectory = m_trajectory.TransformBy({{0_m, 0.2_m}, 0_deg});
-
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
-    else if (program == kAutoBarrel)
-    {
-      frc::TrajectoryConfig config(16_fps, 25_fps_sq);
-      config.AddConstraint(frc::CentripetalAccelerationConstraint{12_mps_sq});
-      config.SetEndVelocity(16_fps);
-
-      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Barrel-Quintic-25.csv", config);
-      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
-
-      // Display
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
-    else if (program == kAutoSlalom)
-    {
-      frc::TrajectoryConfig config(15_fps, 20_fps_sq);
-      config.AddConstraint(frc::CentripetalAccelerationConstraint{10_mps_sq});
-      config.SetEndVelocity(15_fps);
-
-      m_trajectory = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Slalom-Quintic-25.csv", config);
-      m_trajectory = m_trajectory.TransformBy({{0_m, 4.5_m}, 0_deg});
-
-      // Display
-      m_swerve.ShowTrajectory(m_trajectory);
-
-      // Set initial pose of robot
-      m_swerve.ResetYaw();
-      auto p = frc::Pose2d{m_trajectory.InitialPose().Translation(), 0_deg};
-      m_swerve.ResetOdometry(p);
-    }
     else if (program == kAutoBounce)
     {
       frc::TrajectoryConfig config(15_fps, 20_fps_sq);
       config.AddConstraint(frc::CentripetalAccelerationConstraint{8_mps_sq});
 
-      auto t1 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-1.csv", config);
+      auto t1 = LoadWaypointCSV(deploy_dir + "/PathWeaver/Paths/Bounce-1.csv", config);
       auto s1 = t1.States();
 
       config.SetReversed(true);
-      auto t2 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-2.csv", config);
+      auto t2 = LoadWaypointCSV(deploy_dir + "/PathWeaver/Paths/Bounce-2.csv", config);
       auto s2 = t2.States();
 
       config.SetReversed(false);
-      auto t3 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-3.csv", config);
+      auto t3 = LoadWaypointCSV(deploy_dir + "/PathWeaver/Paths/Bounce-3.csv", config);
       auto s3 = t3.States();
 
       config.SetReversed(true);
       config.SetEndVelocity(10_fps);
-      auto t4 = LoadWaypointCSV("/home/lvuser/deploy/PathWeaver/Paths/Bounce-4.csv", config);
+      auto t4 = LoadWaypointCSV(deploy_dir + "/PathWeaver/Paths/Bounce-4.csv", config);
       auto s4 = t4.States();
 
       {
@@ -435,13 +243,7 @@ public:
       return;
     }
     else if (program == kAutoDash ||
-             program == kAutoARed ||
-             program == kAutoABlue ||
-             program == kAutoBRed ||
-             program == kAutoBBlue ||
-             program == kAutoBarrel ||
-             program == kAutoSlalom ||
-             program == kAutoBounce)
+            program == kAutoBounce)
     {
       auto time = units::second_t(m_autoTimer.Get());
       auto state = m_trajectory.Sample(time);
@@ -496,21 +298,41 @@ public:
 
   void TeleopPeriodic() override
   {
+    // Drivebase
+    if (m_controller.IsConnected())
+    {
+      auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+      auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
+
+      auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
+
+      auto angle = frc::Rotation2d(xInput, yInput);
+      if (xInput * xInput + yInput * yInput > 0)
+      {
+        xInput = angle.Cos() * throttle;
+        yInput = angle.Sin() * throttle;
+      }
+
+      if (m_controller.GetPOV() != -1)
+      {
+        auto angle = frc::Rotation2d(units::degree_t{(double)-m_controller.GetPOV()});
+        xInput = angle.Cos() * throttle;
+        yInput = angle.Sin() * throttle;
+      }
+
+      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.2, 1.0) * -1.0;
+      rInput = rInput * rInput * rInput;
+
+      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
+      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
+      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
+
+      m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
+    }
+
     // Shooter
     if (m_operator.IsConnected())
     {
-      /*
-      auto shooterInput = m_operator.GetTriggerAxis(frc::GenericHID::kLeftHand);
-      auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
-      auto hoodInput = deadband(m_operator.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0);
-
-      auto shooterVoltage = m_shooterLimiter.Calculate(shooterInput) * Shooter::kMaxShooterVoltage;
-      auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
-      auto hoodVoltage = m_hoodLimiter.Calculate(hoodInput) * Shooter::kMaxHoodVoltage;
-
-      m_shooter.Set(shooterVoltage, gateVoltage, hoodVoltage);
-      */
-
       auto gateInput = m_operator.GetTriggerAxis(frc::GenericHID::kRightHand);
       auto gateVoltage = m_gateLimiter.Calculate(gateInput) * Shooter::kMaxGateVoltage;
 
@@ -542,54 +364,6 @@ public:
         m_shooter.GotoSetpoint(4);
       }
     }
-
-    // Drivebase
-    if (m_controller.IsConnected())
-    {
-      auto xInput = deadband(m_controller.GetY(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-      auto yInput = deadband(m_controller.GetX(frc::GenericHID::kLeftHand), 0.1, 1.0) * -1.0;
-
-      if (m_driverControls)
-      {
-        auto throttle = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand);
-
-        auto angle = frc::Rotation2d(xInput, yInput);
-        if (xInput * xInput + yInput * yInput > 0)
-        {
-          xInput = angle.Cos() * throttle;
-          yInput = angle.Sin() * throttle;
-        }
-
-        if (m_controller.GetPOV() != -1)
-        {
-          auto angle = frc::Rotation2d(units::degree_t{-m_controller.GetPOV()});
-          xInput = angle.Cos() * throttle;
-          yInput = angle.Sin() * throttle;
-        }
-      }
-
-      auto rInput = deadband(m_controller.GetX(frc::GenericHID::kRightHand), 0.2, 1.0) * -1.0;
-      rInput = rInput * rInput * rInput;
-
-      // Increase Low-end stick control ("Smoothing")
-      /*if (rInput < 0)
-      {
-        rInput = -rInput * rInput;
-      }
-      else
-      {
-        rInput = rInput * rInput;
-      }*/
-
-      auto xSpeed = m_xspeedLimiter.Calculate(xInput) * Drivetrain::kMaxSpeed;
-      auto ySpeed = m_yspeedLimiter.Calculate(yInput) * Drivetrain::kMaxSpeed;
-      auto rot = m_rotLimiter.Calculate(rInput) * Drivetrain::kMaxAngularSpeed;
-
-      m_swerve.Drive(xSpeed, ySpeed, rot, m_fieldRelative);
-
-      auto succ = m_controller.GetTriggerAxis(frc::GenericHID::kRightHand) * Vacuum::kMaxImpellerVoltage;
-      m_vacuum.Set(succ);
-    }
   }
 
   void SimulationPeriodic() override
@@ -601,22 +375,11 @@ private:
   frc::UniversalController m_controller{0};
   frc::UniversalController m_operator{1};
 
+  // Subsystems
   Drivetrain m_swerve;
-  Vacuum m_vacuum;
-  GlobalDevices m_globals;
   Shooter m_shooter;
 
-  UDPLogger m_udp_logger;
-  std::thread m_logging_thread;
-
-  std::vector<std::shared_ptr<rj::Loggable>> loggables{
-      std::shared_ptr<rj::Loggable>(&m_globals),
-      std::shared_ptr<rj::Loggable>(&m_swerve),
-      std::shared_ptr<rj::Loggable>(&m_shooter),
-      std::shared_ptr<rj::Loggable>(&m_vacuum),
-  };
-
-  // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
+  // Slew rate limiters to make joystick inputs more gentle
   frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{10 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{10 / 1_s};
@@ -628,20 +391,11 @@ private:
 
   // Drive Mode
   bool m_fieldRelative = true;
-  bool m_driverControls = true;
 
   // Smart Dash
   frc::SendableChooser<std::string> m_chooser;
   static constexpr auto kAutoNone = "0 - None";
-  static constexpr auto kAutoARed = "1 - A Red";
-  static constexpr auto kAutoABlue = "2 - A Blue";
-  static constexpr auto kAutoBRed = "3 - B Red";
-  static constexpr auto kAutoBBlue = "4 - B Blue";
-  static constexpr auto kAutoBarrel = "5 - Barrel";
-  static constexpr auto kAutoSlalom = "6 - Slalom";
-  static constexpr auto kAutoBounce = "7 - Bounce";
-  static constexpr auto kAutoAccuracy = "8 - Accuracy";
-  static constexpr auto kAutoPowerPort = "9 - PowerPort";
+  static constexpr auto kAutoBounce = "1 - Bounce";
 
   static constexpr auto kAutoConstant = "90 - Constant";
   static constexpr auto kAutoToggle = "91 - Toggle";
@@ -676,6 +430,24 @@ private:
     {
       return ((input + band) / (1.0 - band)) * max;
     }
+  }
+
+  frc::Trajectory LoadWaypointCSV(std::string path, frc::TrajectoryConfig &config)
+  {
+    std::vector<frc::Spline<5>::ControlVector> points;
+
+    io::CSVReader<6> csv(path);
+    csv.read_header(io::ignore_extra_column | io::ignore_missing_column, "X", "Y", "Tangent X", "Tangent Y", "ddx", "ddy");
+    double x, y, dx, dy, ddx = 0, ddy = 0;
+    while (csv.read_row(x, y, dx, dy, ddx, ddy))
+    {
+      // std::cout << x << ", " << dx << ", " << ddx << ", " << y << ", " << dy << ", " << ddy << ", " << std::endl;
+      points.push_back({{x, dx, ddx}, {y, dy, ddy}});
+    }
+
+    return frc::TrajectoryGenerator::GenerateTrajectory(
+        points,
+        config);
   }
 };
 

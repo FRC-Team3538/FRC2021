@@ -139,24 +139,13 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose)
 
 void Drivetrain::ShowTrajectory(const frc::Trajectory &trajectory)
 {
-  vector<frc::Pose2d> poselist;
+  std::vector<frc::Pose2d> poselist;
   for (units::second_t t = 0_s; t <= trajectory.TotalTime(); t += trajectory.TotalTime() / 100)
   {
     poselist.push_back(trajectory.Sample(t).pose);
   }
   auto fo = m_fieldDisplay.GetObject("trajectory");
   fo->SetPoses(poselist);
-}
-
-void Drivetrain::Log(UDPLogger &logger)
-{
-  m_frontLeft.Log(logger);
-  m_frontRight.Log(logger);
-  m_backLeft.Log(logger);
-  m_backRight.Log(logger);
-#ifdef __FRC_ROBORIO__
-  logger.LogExternalDevice(m_imu);
-#endif // __FRC_ROBORIO__
 }
 
 void Drivetrain::SimPeriodic()
