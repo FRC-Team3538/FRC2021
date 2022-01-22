@@ -9,7 +9,14 @@ pub fn parse_wpilog(input: &[u8]) -> IResult<&[u8], WpiLog> {
 
     if dbg!(major_version == 1 && minor_version == 0) {
         let (input, records) = nom::multi::many0(parse_wpilog_record)(rest)?;
-        Ok((input, WpiLog { major_version, minor_version, records }))
+        Ok((
+            input,
+            WpiLog {
+                major_version,
+                minor_version,
+                records,
+            },
+        ))
     } else {
         Err(nom::Err::Failure(nom::error::make_error(
             input,
@@ -69,9 +76,9 @@ fn parse_control_record(input: &[u8]) -> IResult<&[u8], ControlRecord> {
 
 fn parse_start_record(input: &[u8]) -> IResult<&[u8], ControlRecord> {
     let (input, entry_id) = nom::number::complete::le_u32(input)?;
-    let (input, name) = parse_string(input)?;
-    let (input, typ) = parse_string(input)?;
-    let (input, metadata) = parse_string(input)?;
+    let (input, name) = parse_string_with_len(input)?;
+    let (input, typ) = parse_string_with_len(input)?;
+    let (input, metadata) = parse_string_with_len(input)?;
 
     Ok((
         input,
@@ -92,7 +99,7 @@ fn parse_finish_record(input: &[u8]) -> IResult<&[u8], ControlRecord> {
 
 fn parse_set_metadata_record(input: &[u8]) -> IResult<&[u8], ControlRecord> {
     let (input, entry_id) = nom::number::complete::le_u32(input)?;
-    let (input, metadata) = parse_string(input)?;
+    let (input, metadata) = parse_string_with_len(input)?;
 
     Ok((
         input,
@@ -100,11 +107,15 @@ fn parse_set_metadata_record(input: &[u8]) -> IResult<&[u8], ControlRecord> {
     ))
 }
 
-pub fn parse_string(input: &[u8]) -> IResult<&[u8], &str> {
+pub fn parse_string_with_len(input: &[u8]) -> IResult<&[u8], &str> {
     let (input, str_len) = nom::number::complete::le_u32(input)?;
     let (input, str_data) = nom::bytes::complete::take(str_len)(input)?;
 
     Ok((input, unsafe { std::str::from_utf8_unchecked(str_data) }))
+}
+
+pub fn parse_string_full(input: &[u8]) -> IResult<&[u8], &str> {
+    Ok((&[], unsafe { std::str::from_utf8_unchecked(input) }))
 }
 
 pub fn parse_raw(input: &[u8]) -> IResult<&[u8], &[u8]> {
@@ -142,12 +153,14 @@ pub fn parse_array<T>(
     nom::combinator::all_consuming(nom::multi::many0(func))(input)
 }
 
-pub fn parse_array_ref<T>(
+pub fn parse_array_ref_with_len<T>(
     func: impl Fn(&[u8]) -> IResult<&[u8], &T>,
     input: &[u8],
 ) -> IResult<&[u8], Vec<&T>>
 where
     T: ?Sized,
 {
-    nom::combinator::all_consuming(nom::multi::many0(func))(input)
+    let (input, count) = nom::number::complete::le_u32(input)?;
+
+    nom::combinator::all_consuming(nom::multi::many_m_n(count as usize, count as usize, func))(input)
 }

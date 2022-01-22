@@ -1,6 +1,6 @@
 use parser::{
-    parse_array, parse_array_ref, parse_boolean, parse_double, parse_float, parse_int64, parse_raw,
-    parse_string,
+    parse_array, parse_array_ref_with_len, parse_boolean, parse_double, parse_float, parse_int64, parse_raw,
+    parse_string_full, parse_string_with_len,
 };
 use types::{ControlRecord, DataEntry, DataPoint, DataType, OrganizedLog, Record, WpiLog};
 
@@ -26,7 +26,7 @@ pub fn reorganize(input: WpiLog) -> OrganizedLog {
                             "int64" => DataType::Int64(parse_int64(data.data).unwrap().1),
                             "float" => DataType::Float(parse_float(data.data).unwrap().1),
                             "double" => DataType::Double(parse_double(data.data).unwrap().1),
-                            "string" => DataType::String(parse_string(data.data).unwrap().1),
+                            "string" => DataType::String(parse_string_full(data.data).unwrap().1),
                             "boolean[]" => DataType::BooleanArray(
                                 parse_array(parse_boolean, data.data).unwrap().1,
                             ),
@@ -40,7 +40,7 @@ pub fn reorganize(input: WpiLog) -> OrganizedLog {
                                 parse_array(parse_double, data.data).unwrap().1,
                             ),
                             "string[]" => DataType::StringArray(
-                                parse_array_ref(parse_string, data.data).unwrap().1,
+                                parse_array_ref_with_len(parse_string_with_len, data.data).unwrap().1,
                             ),
                             _ => DataType::Raw(parse_raw(data.data).unwrap().1),
                         };

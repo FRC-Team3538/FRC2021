@@ -1,8 +1,4 @@
-use std::{
-    env,
-    fs::File,
-    io::Read,
-};
+use std::{env, fs::File, io::Read};
 
 use wpilog_reader::{parse_wpilog, reorganize};
 
