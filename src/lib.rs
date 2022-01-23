@@ -1,11 +1,11 @@
 use parser::{
-    parse_array, parse_array_ref_with_len, parse_boolean, parse_double, parse_float, parse_int64, parse_raw,
-    parse_string_full, parse_string_with_len,
+    parse_array, parse_array_ref_with_len, parse_boolean, parse_double, parse_float, parse_int64,
+    parse_raw, parse_string_full, parse_string_with_len,
 };
 use types::{ControlRecord, DataEntry, DataPoint, DataType, OrganizedLog, Record, WpiLog};
 
 mod parser;
-mod types;
+pub mod types;
 
 pub use parser::parse_wpilog;
 
@@ -40,7 +40,9 @@ pub fn reorganize(input: WpiLog) -> OrganizedLog {
                                 parse_array(parse_double, data.data).unwrap().1,
                             ),
                             "string[]" => DataType::StringArray(
-                                parse_array_ref_with_len(parse_string_with_len, data.data).unwrap().1,
+                                parse_array_ref_with_len(parse_string_with_len, data.data)
+                                    .unwrap()
+                                    .1,
                             ),
                             _ => DataType::Raw(parse_raw(data.data).unwrap().1),
                         };
@@ -88,4 +90,53 @@ pub fn reorganize(input: WpiLog) -> OrganizedLog {
     OrganizedLog {
         sessioned_data: data,
     }
+}
+
+pub fn sort(log: &mut OrganizedLog) {
+    for record in &mut log.sessioned_data {
+        record.data.sort_by_cached_key(|point| point.timestamp);
+    }
+}
+
+// the log _should_ be sorted, but it can function without
+pub fn to_array<'a>(log: &'a OrganizedLog) -> Vec<Vec<Option<DataType<'a>>>> {
+    let entry_count = log.sessioned_data.len();
+
+    let mut next_index = vec![0; entry_count];
+
+    let mut records = Vec::new();
+
+    loop {
+        let mut record = vec![None; entry_count + 1];
+
+        if let Some((index, entry)) =
+            log.sessioned_data
+                .iter()
+                .enumerate()
+                .min_by_key(|(ind, entry)| {
+                    if entry.data.is_empty() || next_index[*ind] == entry.data.len() {
+                        u64::MAX
+                    } else {
+                        entry.data[next_index[*ind]].timestamp
+                    }
+                })
+        {
+            if entry.data.is_empty() || next_index[index] == entry.data.len() {
+                break;
+            }
+
+            record[0] = Some(DataType::Double(
+                entry.data[next_index[index]].timestamp as f64 / 1000000.0,
+            ));
+
+            record[index + 1] = Some(entry.data[next_index[index]].data.clone());
+            next_index[index] += 1;
+        } else {
+            break;
+        }
+
+        records.push(record);
+    }
+
+    records
 }

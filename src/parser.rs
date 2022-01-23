@@ -7,7 +7,7 @@ pub fn parse_wpilog(input: &[u8]) -> IResult<&[u8], WpiLog> {
     let (rest, minor_version) = nom::number::complete::le_u8(input)?;
     let (rest, major_version) = nom::number::complete::le_u8(rest)?;
 
-    if dbg!(major_version == 1 && minor_version == 0) {
+    if major_version == 1 && minor_version == 0 {
         let (input, records) = nom::multi::many0(parse_wpilog_record)(rest)?;
         Ok((
             input,
@@ -162,5 +162,7 @@ where
 {
     let (input, count) = nom::number::complete::le_u32(input)?;
 
-    nom::combinator::all_consuming(nom::multi::many_m_n(count as usize, count as usize, func))(input)
+    nom::combinator::all_consuming(nom::multi::many_m_n(count as usize, count as usize, func))(
+        input,
+    )
 }
